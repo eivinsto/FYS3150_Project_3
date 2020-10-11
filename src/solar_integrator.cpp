@@ -35,15 +35,15 @@ void solar_integrator::VelocityVerlet(SolarSystem& system) {
   int i = 0;
 
   for (CelestialBody &body: system.bodies()) {
-    prev_acceleration.row(i) &= body.force / body.mass;
+    prev_acceleration.row(i) = body.force / body.mass;
     body.position += m_dt * body.velocity + m_dt_sqr_2 * prev_acceleration;
     ++i;
   }
 
-  system.calculateForcesAndEnergy()
+  system.calculateForcesAndEnergy();
   i = 0;
   for (CelestialBody &body: system.bodies()) {
-    body.velocity += m_dt_2*( prev_acceleration.row(i) + body.force / body.mass)
+    body.velocity += m_dt_2*( prev_acceleration.row(i) + body.force / body.mass);
     ++i;
   }
 }
