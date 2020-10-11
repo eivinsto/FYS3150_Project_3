@@ -13,6 +13,12 @@ rootdir = os.getcwd()
 src = rootdir + "/src"
 
 
+def main():
+    build_cpp()
+    test_cpp()
+    clean()
+
+
 def build_cpp():
     """Function for building c++ program."""
     run(["make", "all"], cwd=src)
@@ -24,6 +30,13 @@ def test_cpp():
     run("./test_main.exe", cwd=src)
 
 
-def clean():
+def clean(files="dat"):
     """Function for cleaning datafiles in src directory."""
-    run(["make", "cleandat"], cwd=src)
+    if files == "dat":
+        run(["make", "cleandat"], cwd=src)
+    if files == "all":
+        run(["make", "clean"], cwd=src)
+
+
+if __name__ == '__main__':
+    main()
