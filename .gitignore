@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/data,latex,c++,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=data,latex,c++,python
+# Created by https://www.toptal.com/developers/gitignore/api/data,latex,c++,python,linux
+# Edit at https://www.toptal.com/developers/gitignore?templates=data,latex,c++,python,linux
 
 ### C++ ###
 # Prerequisites
@@ -207,6 +207,7 @@ acs-*.bib
 *.maf
 *.mlf
 *.mlt
+*.mtc
 *.mtc[0-9]*
 *.slf[0-9]*
 *.slt[0-9]*
@@ -340,6 +341,21 @@ TSWLatexianTemp*
 # glossaries
 *.glstex
 
+### Linux ###
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -452,6 +468,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+pythonenv*
 
 # Spyder project settings
 .spyderproject
@@ -474,4 +491,7 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-# End of https://www.toptal.com/developers/gitignore/api/data,latex,c++,python
+# profiling data
+.prof
+
+# End of https://www.toptal.com/developers/gitignore/api/data,latex,c++,python,linux
