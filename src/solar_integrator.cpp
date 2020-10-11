@@ -12,11 +12,11 @@ solar_integrator::solar_integrator(double dt, std::string integrator) {
 
 void solar_integrator::integrateOneStep(SolarSystem& system) {
   if (m_integrator=="Euler") {
-    Euler(vec& x, vec& v, vec& a);
+    Euler(system);
   }
 
   if (m_integrator=="VelocityVerlet") {
-    VelocityVerlet(vec& x, vec& v, vec& a);
+    VelocityVerlet(system);
   }
 }
 
