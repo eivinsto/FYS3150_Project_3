@@ -9,21 +9,21 @@ import os
 import shutil
 
 # retriveing working directories:
-pwd = os.getcwd()
-wd = pwd + "/src"
+rootdir = os.getcwd()
+src = rootdir + "/src"
 
 
 def build_cpp():
     """Function for building c++ program."""
-    run(["make", "all"], cwd=wd)
+    run(["make", "all"], cwd=src)
 
 
 def test_cpp():
     """Function for running unit-tests."""
-    run(["make", "test"], cwd=wd)
-    run("./test_main.exe", cwd=wd)
+    run(["make", "test"], cwd=src)
+    run("./test_main.exe", cwd=src)
 
 
 def clean():
     """Function for cleaning datafiles in src directory."""
-    run(["make", "cleandat"], cwd=wd)
+    run(["make", "cleandat"], cwd=src)
