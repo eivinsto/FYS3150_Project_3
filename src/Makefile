@@ -1,5 +1,5 @@
 CC := g++
-FLAGS := -Wall -O2 -march=native
+FLAGS := -Wall -O2 -march=native -g
 LIBS := -larmadillo
 OFILES := solar_integrator.o solar_system.o celestial_body.o
 
