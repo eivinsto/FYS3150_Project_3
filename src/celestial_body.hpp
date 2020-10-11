@@ -5,12 +5,12 @@
 
 class CelestialBody {
 public:
-  vec position(3);
-  vec velocity(3);
+  arma::vec position;
+  arma::vec velocity;
   double mass;
-  vec force(3);
+  arma::vec force;
 
-  CelestialBody(vec& pos, vec& vel, double m);
+  CelestialBody(arma::vec& pos, arma::vec& vel, double m);
 };
 
 #endif
