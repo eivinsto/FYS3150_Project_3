@@ -78,6 +78,9 @@ with open(rootdir + "/data/" + filename) as infile:
 
         old = xyz.copy()
 
+ax.set_xlabel("x [AU]")
+ax.set_ylabel("y [AU]")
+ax.set_zlabel("z [AU]")
 plt.show()
 
 
