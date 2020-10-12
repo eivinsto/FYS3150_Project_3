@@ -17,6 +17,7 @@ private:
   std::vector<CelestialBody> m_bodies;
   double m_potential_energy;
   double m_kinetic_energy;
+  arma::vec m_angular_momentum;
 };
 
 #endif

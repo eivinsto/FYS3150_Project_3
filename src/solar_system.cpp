@@ -23,6 +23,7 @@ void SolarSystem::calculateForcesAndEnergy() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   double G = 4*M_PI*M_PI;
+  m_angular_mometum = arma::zeros(3);
 
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
@@ -45,6 +46,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 
     double v = arma::norm(body1.velocity);
     m_kinetic_energy += 0.5*body1.mass*v*v;
+    m_angular_momentum += arma::cross(body1.position,m*body1.velocity);
   }
 }
 
