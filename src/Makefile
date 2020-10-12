@@ -1,5 +1,6 @@
 CC := g++
-FLAGS := -Wall -Wextra -g -O2 -march=native
+FLAGS := -Wall -Wextra -O2 -march=native
+DEBUG := -g
 LIBS := -larmadillo
 OFILES := solar_integrator.o solar_system.o celestial_body.o
 
@@ -13,16 +14,29 @@ main.exe: main.o $(OFILES)
 	$(CC) $(FLAGS) main.o $(OFILES) -o main.exe $(LIBS)
 
 main.o: main.cpp
-	$(CC) $(FLAGS) main.cpp -c
+	$(CC) $(FLAGS) $(DEBUG) main.cpp -c
 
 solar_integrator.o: solar_integrator.cpp
-	$(CC) $(FLAGS) solar_integrator.cpp -c
+	$(CC) $(FLAGS) $(DEBUG) solar_integrator.cpp -c
 
 solar_system.o: solar_system.cpp
-	$(CC) $(FLAGS) solar_system.cpp -c
+	$(CC) $(FLAGS) $(DEBUG) solar_system.cpp -c
 
 celestial_body.o: celestial_body.cpp
-	$(CC) $(FLAGS) celestial_body.cpp -c
+	$(CC) $(FLAGS) $(DEBUG) celestial_body.cpp -c
+
+
+# unittest program:
+test: test_main.exe
+
+test_main.exe: test_main.o
+	$(CC) $(FLAGS) test_main.o test_functions.o -o test_main.exe
+
+test_main.o: test_main.cpp
+	$(CC) $(FLAGS) test_main.cpp -c
+
+test_functions.o: test_functions.cpp
+	$(CC) $(FLAGS) test_functions.cpp -c
 
 # project cleaning:
 clean:
