@@ -30,19 +30,19 @@ void solar_integrator::Euler(SolarSystem& system) {
 
 void solar_integrator::VelocityVerlet(SolarSystem& system) {
   system.calculateForcesAndEnergy();
-  arma::mat prev_acceleration(system.numberOfBodies(),3);
+  arma::mat prev_acceleration(3,system.numberOfBodies());
   int i = 0;
 
   for (CelestialBody &body: system.bodies()) {
-    prev_acceleration.row(i) = body.force / body.mass;
-    body.position += m_dt * body.velocity + m_dt_sqr_2 * prev_acceleration;
+    prev_acceleration.col(i) = body.force / body.mass;
+    body.position += m_dt * body.velocity + m_dt_sqr_2 * prev_acceleration.col(i);
     ++i;
   }
 
   system.calculateForcesAndEnergy();
   i = 0;
   for (CelestialBody &body: system.bodies()) {
-    body.velocity += m_dt_2*( prev_acceleration.row(i) + body.force / body.mass);
+    body.velocity += m_dt_2*( prev_acceleration.col(i) + body.force / body.mass);
     ++i;
   }
 }

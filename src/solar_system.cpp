@@ -6,7 +6,7 @@
 #include <armadillo>
 #include <vector>
 
-SolarSystem::SolarSystem(){
+SolarSystem::SolarSystem() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
