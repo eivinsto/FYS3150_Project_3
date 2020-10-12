@@ -81,7 +81,7 @@ void SolarSystem::writeToFile(std::string filename) {
     }
 
     for(CelestialBody &body : m_bodies) {
-        m_file << "1 " << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
+        m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
     }
     m_file << std::endl;
 }
