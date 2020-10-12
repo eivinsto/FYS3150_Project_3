@@ -148,6 +148,21 @@ If we consider a body in a \(n\)-body system where the only interaction is gravi
 	\vec{F}_{i} = -Gm_{i}\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}-\vec{r}_{j}}{|\vec{r}_{i}-\vec{r}_{j}|^{3}}. \numberthis \label{eq:gengrav}
 \end{align*}
 
+We then find the acceleration of body \(i\) at time \(t\) by dividing the net force by \(m_{a}\) resulting in
+\begin{align*}
+	\vec{a}_{i}(t) = \frac{\vec{F}_{i}(t)}{m_{i}} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}},
+\end{align*}
+which can be written as the differential equation
+\begin{align*}
+ 	\frac{d\vec{v}_{i}(t)}{dt} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}}. \numberthis \label{eq:gendv}
+\end{align*}
+In addition we have the differential equation
+\begin{align*}
+	\frac{d\vec{r}_{i}(t)}{dt} = \vec{v}(t) \numberthis \label{eq:gendr}.
+\end{align*}
+
+Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allowes us to find the internal motion of a given n-body system with only gravitational interaction.
+
 \section{Method} \label{sec:III}
 
 \section{Results} \label{sec:IV}
