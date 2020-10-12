@@ -136,6 +136,36 @@
 
 \section{Formalism} \label{sec:II}
 
+\subsection{Two methods for numerical integration}
+To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the genereic function \(f\) that depends on a variable \(t\) such that
+\begin{align*}
+	f(t) = g(t, f(t)), \numberthis \label{eq:fofg}
+\end{align*}
+Given an arbitrary point \(f(t_{0})\), we wish to approximate the point \(f(t_{1})\). Thus we can integrate each side of \eqref{eq:fofg}, such that
+\begin{align*}
+	\int_{t_{0}}^{t_{1}} f(t) dt = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt.
+\end{align*}
+Applying the fundemental theorem of calculus, we get that
+\begin{align*}
+	f(t_{1}) - f(t_{1}) = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt, \\
+	f(t_{1}) = f(t_{0}) + \int_{t_{0}}^{t_{1}} g(t, f(t)) dt. \numberthis \label{eq:foft1}
+\end{align*}
+To complete the approximation, we define a step-lengt \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0})\) and \(g(t_{1}, f(t_{1})\) as the area of a rectangle whith height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields
+\begin{align*}
+	f(t_{0} + \Delta t) \approx f(t_{0}) + \Delta t g(t_{0}, f(t_{0})).
+\end{align*}
+Thus, if we wan't to approximate a value \(f(t_{k+1})\), we can simply start with a known value at a \(t_{k} < t_{k+1}\) and take a step with our approximation such that
+\begin{align*}
+	f(t_{k+1}) \approx f(t_{k}) + \Delta t g(t_{k}, f(t_{k})).
+\end{align*}
+Finally we can simplify the notation by setting \(f_{k+1} = f(t_{k})\) resulting in
+\begin{align*}
+	f_{k+1} = f_{k} + \Delta t g(t_{k}, f_{k}). \numberthis \label{eq:forwardEuler}
+\end{align*}
+This method of numerical integration is known as Euler's method, henceforth refered to as the forward Euler method.
+
+Since we are approximating the integral between each pair of \(g(t, f_{k})\) and \(g(t, f_{k+1})\)  as a single rectangle with width \(\Delta t\), our approximation will be more accurate for smaller values of \(\Delta t\). Thus to approximate the curve of the function \(f\), we create a set of \(f_{k}\) values for a given \(f_{0}\) and \(\Delta t\) by repeatedly taking steps using the forward Euler method.
+
 \subsection{A generalized gravitational force}
 For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
 \begin{align*}
@@ -161,7 +191,7 @@ In addition we have the differential equation
 	\frac{d\vec{r}_{i}(t)}{dt} = \vec{v}(t) \numberthis \label{eq:gendr}.
 \end{align*}
 
-Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allowes us to find the internal motion of a given n-body system with only gravitational interaction.
+Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allows us to find the internal motion of a given n-body system with only gravitational interaction.
 
 \section{Method} \label{sec:III}
 
