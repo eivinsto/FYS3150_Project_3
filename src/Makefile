@@ -29,7 +29,7 @@ celestial_body.o: celestial_body.cpp
 # unittest program:
 test: test_main.exe
 
-test_main.exe: test_main.o
+test_main.exe: test_main.o test_functions.o
 	$(CC) $(FLAGS) test_main.o test_functions.o -o test_main.exe
 
 test_main.o: test_main.cpp
