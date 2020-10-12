@@ -35,13 +35,16 @@ void SolarSystem::calculateForcesAndEnergy() {
     CelestialBody &body1 = m_bodies[i];
     for (int j = i+1; j<numberOfBodies();++j) {
       CelestialBody &body2 = m_bodies[j];
+
       arma::vec dr_vec = body2.position - body1.position;
+
       double dr = arma::norm(dr_vec);
       double potential_energy = G*body1.mass*body2.mass/dr;
+
       arma::vec gravforce = dr_vec*potential_energy/(dr*dr);
 
-      body1.force -= gravforce;
-      body2.force += gravforce;
+      body1.force += gravforce;
+      body2.force -= gravforce;
 
       m_potential_energy += potential_energy;
     }
