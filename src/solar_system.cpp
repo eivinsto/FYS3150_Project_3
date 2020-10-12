@@ -22,8 +22,8 @@ int SolarSystem::numberOfBodies() const {
 void SolarSystem::calculateForcesAndEnergy() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
-  double G = 4*M_PI*M_PI;
-  m_angular_mometum = arma::zeros(3);
+  const double G = 4*M_PI*M_PI;
+  m_angular_momentum = arma::zeros(3);
 
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
@@ -46,10 +46,22 @@ void SolarSystem::calculateForcesAndEnergy() {
 
     double v = arma::norm(body1.velocity);
     m_kinetic_energy += 0.5*body1.mass*v*v;
-    m_angular_momentum += arma::cross(body1.position,m*body1.velocity);
+    m_angular_momentum += arma::cross(body1.position,body1.mass*body1.velocity);
   }
 }
 
 std::vector<CelestialBody> SolarSystem::bodies(){
   return m_bodies;
+}
+
+double SolarSystem::potentialEnergy(){
+  return m_potential_energy;
+}
+
+double SolarSystem::kineticEnergy(){
+  return m_kinetic_energy;
+}
+
+arma::vec SolarSystem::angularMomentum(){
+  return m_angular_momentum;
 }

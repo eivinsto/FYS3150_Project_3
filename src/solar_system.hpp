@@ -12,6 +12,9 @@ public:
   int numberOfBodies() const;
   void calculateForcesAndEnergy();
   std::vector<CelestialBody> bodies();
+  double potentialEnergy();
+  double kineticEnergy();
+  arma::vec angularMomentum();
 
 private:
   std::vector<CelestialBody> m_bodies;
