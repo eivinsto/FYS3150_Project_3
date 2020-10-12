@@ -78,7 +78,6 @@ with open(rootdir + "/data/" + filename) as infile:
 
         old = xyz.copy()
 
-plt.plot()
 plt.show()
 
 
