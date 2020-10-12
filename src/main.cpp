@@ -1,7 +1,9 @@
+#define _USE_MATH_DEFINES
 #include "solar_integrator.hpp"
 #include "solar_system.hpp"
 #include "celestial_body.hpp"
 #include <armadillo>
+#include <cmath>
 
 using namespace std;
 
@@ -32,9 +34,10 @@ int main(int numArguments, char **arguments) {
 
     double dt = 0.001;
     solar_integrator integrator(dt, "VelocityVerlet");
+    solarSystem.inititateDataFile("../data/positions.xyz");
     for(int timestep=0; timestep<numTimesteps; timestep++) {
         integrator.integrateOneStep(solarSystem);
-        solarSystem.writeToFile("../data/positions.xyz");
+        solarSystem.writeToFile();
     }
 
     cout << "I just created my first solar system that has " << solarSystem.bodies().size() << " objects." << endl;

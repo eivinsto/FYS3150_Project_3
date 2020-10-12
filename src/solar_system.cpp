@@ -71,17 +71,31 @@ arma::vec SolarSystem::angularMomentum(){
   return m_angular_momentum;
 }
 
-void SolarSystem::writeToFile(std::string filename) {
-    if(!m_file.good()) {
-        m_file.open(filename.c_str(), std::ofstream::out);
-        if(!m_file.good()) {
-            std::cout << "Error opening file " << filename << ". Aborting!" << std::endl;
-            std::terminate();
-        }
-    }
+void SolarSystem::inititateDataFile(std::string filename) {
+  m_filename = filename;
 
-    for(CelestialBody &body : m_bodies) {
-        m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
+  if(!m_file.good()) {
+    m_file.open(m_filename.c_str(), std::ofstream::out);
+    if(!m_file.good()) {
+      std::cout << "Error opening file " << m_filename << ". Aborting!" << std::endl;
+      std::terminate();
     }
-    m_file << std::endl;
+  }
+  m_file << numberOfBodies() << std::endl;
+}
+
+
+void SolarSystem::writeToFile() {
+  if(!m_file.good()) {
+    m_file.open(m_filename.c_str(), std::ofstream::out);
+    if(!m_file.good()) {
+      std::cout << "Error opening file " << m_filename << ". Aborting!" << std::endl;
+      std::terminate();
+    }
+  }
+
+  for(CelestialBody &body : m_bodies) {
+    m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
+  }
+  m_file << std::endl;
 }
