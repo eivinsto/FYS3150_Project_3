@@ -74,14 +74,24 @@ arma::vec SolarSystem::angularMomentum(){
 void SolarSystem::initiateDataFile(std::string filename) {
   m_filename = filename;
 
-  if(!m_file.good()) {
+  if(m_file.good()) {
     m_file.open(m_filename.c_str(), std::ofstream::out);
     if(!m_file.good()) {
       std::cout << "Error opening file " << m_filename << ". Aborting!" << std::endl;
       std::terminate();
     }
   }
-  m_file << numberOfBodies() << std::endl;
+  int numBods = numberOfBodies();
+  m_file << "Number of bodies: " << numBods << ". Number of columns: "
+         << 3*numBods << "." << std::endl;
+
+  m_file << "There are three columns per body. The columns are x0 y0 z0 ... x"
+         << numBods-1 << " y"
+         << numBods-1 << " z"
+         << numBods-1 << std::endl;
+
+  m_file << "Rows correspond to time-values t0, t1, ... in descending order."
+         << std::endl;
 }
 
 

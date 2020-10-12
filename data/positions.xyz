@@ -1,3 +1,6 @@
+Number of bodies: 2. Number of columns: 6.
+There are three columns per body. The columns are x0 y0 z0 ... x1 y1 z1
+Rows correspond to time-values t0, t1, ... in descending order.
 5.92176e-11 0 0 0.99998 0.00628319 0 
 2.36868e-10 7.44151e-13 0 0.999921 0.0125661 0 
 5.32945e-10 2.97657e-12 0 0.999822 0.0188486 0 
