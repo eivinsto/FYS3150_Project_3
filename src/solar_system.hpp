@@ -11,7 +11,7 @@ public:
   CelestialBody& createCelestialBody(arma::vec& pos, arma::vec& vel, double m);
   int numberOfBodies() const;
   void calculateForcesAndEnergy();
-  std::vector<CelestialBody> bodies();
+  std::vector<CelestialBody> &bodies();
   double potentialEnergy();
   double kineticEnergy();
   arma::vec angularMomentum();

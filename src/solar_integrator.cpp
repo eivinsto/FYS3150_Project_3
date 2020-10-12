@@ -22,7 +22,6 @@ void solar_integrator::integrateOneStep(SolarSystem& system) {
 
 void solar_integrator::Euler(SolarSystem& system) {
   system.calculateForcesAndEnergy();
-
   for (CelestialBody &body: system.bodies()) {
     body.position += body.velocity*m_dt;
     body.velocity += m_dt * body.force / body.mass;

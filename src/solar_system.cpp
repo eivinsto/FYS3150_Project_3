@@ -52,7 +52,7 @@ void SolarSystem::calculateForcesAndEnergy() {
   }
 }
 
-std::vector<CelestialBody> SolarSystem::bodies(){
+std::vector<CelestialBody> &SolarSystem::bodies(){
   return m_bodies;
 }
 
