@@ -7,7 +7,9 @@
 #include <vector>
 
 SolarSystem::SolarSystem(){
-
+  m_kinetic_energy = 0;
+  m_potential_energy = 0;
+  m_angular_momentum = arma::zeros(3);
 }
 
 CelestialBody& SolarSystem::createCelestialBody(arma::vec& pos, arma::vec& vel, double m){
