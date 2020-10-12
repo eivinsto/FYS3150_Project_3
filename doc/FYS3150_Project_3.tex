@@ -89,6 +89,7 @@
 
  % "meq": must be equal
 \newcommand{\meq}{\overset{!}{=}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 
 \newcommand{\R}{\mathbb{R}}
 \newcommand*\Heq{\ensuremath{\overset{\kern2pt L'H}{=}}}
@@ -134,6 +135,18 @@
 \section{Introduction} \label{sec:I}
 
 \section{Formalism} \label{sec:II}
+
+\subsection{A generalized gravitational force}
+For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
+\begin{align*}
+	\vec{F}_{a} = -G\frac{m_{a}m_{b}}{|\vec{r}_{a}-\vec{r}_{b}|^{3}}\left(\vec{r}_{a}-\vec{r}_{b}\right), \numberthis \label{eq:grav} \\
+\end{align*}
+where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant.
+
+If we consider a body in a \(n\)-body system where the only interaction is gravitational, the net force on any body \(i\) becomes the sum of all the forces on body \(i\) from every other body in the system. Using \eqref{eq:grav} and summing over all bodies \(j\), where \(j\neq i\), we get
+\begin{align*}
+	\vec{F}_{i} = -Gm_{i}\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}-\vec{r}_{j}}{|\vec{r}_{i}-\vec{r}_{j}|^{3}}. \numberthis \label{eq:gengrav}
+\end{align*}
 
 \section{Method} \label{sec:III}
 
