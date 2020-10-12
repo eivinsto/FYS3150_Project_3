@@ -27,7 +27,7 @@ int main(int numArguments, char **arguments) {
 
   double dt = 0.001;
   solar_integrator integrator(dt, "VelocityVerlet");
-  solarSystem.inititateDataFile("../data/positions.xyz");
+  solarSystem.initiateDataFile("../data/positions.xyz");
   for(int timestep=0; timestep<numTimesteps; timestep++) {
     integrator.integrateOneStep(solarSystem);
     solarSystem.writeToFile();

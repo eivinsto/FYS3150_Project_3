@@ -15,7 +15,7 @@ public:
   double potentialEnergy();
   double kineticEnergy();
   arma::vec angularMomentum();
-  void inititateDataFile(std::string filename);
+  void initiateDataFile(std::string filename);
   void writeToFile();
 
 private:
