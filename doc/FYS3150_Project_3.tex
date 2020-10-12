@@ -144,6 +144,73 @@
 \section{Conclusion} \label{sec:VI}
 \onecolumngrid
 \bibliography{kilder.bib}{}
+\newpage
+\twocolumngrid
 
+\appendix
+\section{Source code} \label{A}
+All code for this report was written in C++ and Python 3.8, and the complete set of files can be found at
+\url{https://github.com/eivinsto/FYS3150_Project2.git}.
+
+\cprotect\subsection{\verb+project.py+} \label{A.1}
+Main script for running project, plotting and data analysis.
+
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/project.py}
+
+\cprotect\subsection{\verb+main.cpp+} \label{A.2}
+Main cpp file for running algorithms.
+
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/main.cpp}
+
+\cprotect\subsection{\verb+solar_integrator+} \label{A.3}
+Source and header file containing class for integrating a velocity and position for a system of bodies.
+
+Source file \verb+solar_integrator.cpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/solar_integrator.cpp}
+
+Header file \verb+solar_integrator.hpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/solar_integrator.hpp}
+
+\cprotect\subsection{\verb+solar_system+} \label{A.4}
+Source and header file containing class for creating system of bodies, and calculating gravitational force between them, as well as kinetic and gravitational-potential energy of system.
+
+Source file \verb+solar_system.cpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/solar_system.cpp}
+
+Header file \verb+solar_system.hpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/solar_system.hpp}
+
+\cprotect\subsection{\verb+celestila_body+} \label{A.5}
+Source and header file containing class defining gravitational bodies.
+
+Source file \verb+celestial_body.cpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/celestial_body.cpp}
+
+Header file \verb+celestial_body.hpp+:
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/celestial_body.hpp}
+
+\cprotect\subsection{\verb+test_main.cpp+} \label{A.6}
+File running unit-tests using CATCH2 framework.
+
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/test_main.cpp}
+
+\cprotect\subsection{\verb+test_functions.cpp+} \label{A.7}
+File containing the unit-tests for the system.
+
+\url{https://github.com/eivinsto/FYS3150_Project_3/blob/master/src/test_functions.cpp}
+
+\newpage
+\section{Selected results} \label{B}
+Here is a folder of selected results from running our code.
+
+\url{https://github.com/eivinsto/FYS3150_Project_3/tree/master/data}
+
+\newpage
+\section{System specifications} \label{C}
+All results included in this report were achieved by running the implementation on the following system:
+\begin{itemize}
+	\item CPU: AMD Ryzen \(9\) \(3900\)X
+	\item RAM: \(2\times\SI{8}{\giga\byte}\) Corsair Vengeance LPX DDR\(4\) \(\SI{3200}{\mega\hertz}\)
+\end{itemize}
 
 \end{document}
