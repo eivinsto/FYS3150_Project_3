@@ -67,3 +67,18 @@ double SolarSystem::kineticEnergy(){
 arma::vec SolarSystem::angularMomentum(){
   return m_angular_momentum;
 }
+
+void SolarSystem::writeToFile(std::string filename) {
+    if(!m_file.good()) {
+        m_file.open(filename.c_str(), std::ofstream::out);
+        if(!m_file.good()) {
+            std::cout << "Error opening file " << filename << ". Aborting!" << std::endl;
+            std::terminate();
+        }
+    }
+
+    for(CelestialBody &body : m_bodies) {
+        m_file << "1 " << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
+    }
+    m_file << std::endl;
+}
