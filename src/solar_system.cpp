@@ -89,8 +89,8 @@ void SolarSystem::initiateDataFile(std::string posfilename) {
          << std::endl;
 }
 
-void SolarSystem::initiateDataFile(std::string posfilename, std::string energy_filename) {
-  initiateDataFile(posfilename);
+void SolarSystem::initiateDataFile(std::string positions_filename, std::string energy_filename) {
+  initiateDataFile(positions_filename);
   m_energy_filename = energy_filename;
 
   m_energy_file.open(m_energy_filename.c_str(),std::ofstream::out);
