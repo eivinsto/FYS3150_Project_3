@@ -122,6 +122,6 @@ void SolarSystem::writeEnergyToFile() {
       std::terminate();
     }
   }
-
-  m_energy_file << kineticEnergy() << " " << potentialEnergy() << " " << angularMomentum() << std::endl;
+  m_energy_file << kineticEnergy() << " " << potentialEnergy() << " " << m_angular_momentum(0) << " " <<
+                   m_angular_momentum(1) << " " << m_angular_momentum(2) << std::endl;
 }
