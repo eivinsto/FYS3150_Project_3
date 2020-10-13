@@ -71,8 +71,8 @@ arma::vec SolarSystem::angularMomentum(){
   return m_angular_momentum;
 }
 
-void SolarSystem::initiateDataFile(std::string posfilename) {
-  m_positions_filename = posfilename;
+void SolarSystem::initiateDataFile(std::string positions_filename) {
+  m_positions_filename = positions_filename;
 
   m_file.open(m_positions_filename.c_str(), std::ofstream::out);
 
