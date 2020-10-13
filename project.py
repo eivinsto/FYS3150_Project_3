@@ -36,20 +36,25 @@ class SolarSystemFiles:
     """SolarSystemFiles is a class for reading data from SolarSystem C++
     program, and plotting orbits and energy/momentum."""
 
-    def __init__(self, filename, bodynames, numTimesteps, dt):
+    def __init__(self, posfile, momenfile, bodynames, numTimesteps, dt):
         """Class constructor.
         Args:
-            filename: string - Name of datafile containing plannet positions.
+            posfile: string - Name of datafile containing plannet positions.
+            momenfile: string - Name of datafile containing energy and angular
+                                momentum.
             bodynames: list of strings - List of names of each celestial body.
+            numTimesteps: integer - number of time steps to take.
+            dt: float (64bit) - size of time step.
         """
-        self.filename = rootdir + "/data/" + filename
+        self.posfile = rootdir + "/data/" + posfile
+        self.momenfile = rootdir + "/data/" + momenfile
         self.bodynames = bodynames
         self.numTimesteps = numTimesteps
         self.dt = dt
 
     def readHeader(self):
         """Read header from datafile and set number of bodies."""
-        with open(self.filename) as infile:
+        with open(self.posfile) as infile:
             self.colsPrBod = 3
             header1 = infile.readline().split()
             self.numBods = int(header1[3][0])
@@ -61,7 +66,7 @@ class SolarSystemFiles:
             currentbod: Integer - index of current celestial body.
         """
         self.bodyPos = np.genfromtxt(
-            self.filename,
+            self.posfile,
             skip_header=3,
             usecols=np.arange(
                 self.colsPrBod*currentbod,
@@ -128,6 +133,55 @@ class SolarSystemFiles:
         ax.set_zlabel("z [AU]")
         ax.legend()
 
+    def plotEnergy(self):
+        self.readHeader()
+        if self.numTimesteps > 1000:
+            plotStep = self.numTimesteps//1000
+        else:
+            plotStep = 1
+
+        energy = np.genfromtxt(self.momenfile, skip_header=1, usecols=[0, 1])
+        totenergy = energy[:, 0] + energy[:, 0]
+        times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
+
+        plt.figure()
+
+        plt.plot(times[::plotStep],
+                 energy[::plotStep, 0],
+                 label="Kinetic energy")
+        plt.plot(times[::plotStep],
+                 energy[::plotStep, 1],
+                 label="Potential energy")
+        plt.plot(times[::plotStep],
+                 totenergy[::plotStep], '--',
+                 label="Total energy")
+
+        plt.xlabel("Time [year]")
+        plt.ylabel("Energy")
+        plt.legend()
+        plt.grid()
+
+    def plotAngMomMagnitude(self):
+        self.readHeader()
+        if self.numTimesteps > 1000:
+            plotStep = self.numTimesteps//1000
+        else:
+            plotStep = 1
+
+        angmom = np.genfromtxt(self.momenfile, skip_header=1, usecols=[2, 3, 4])
+        angmommag = np.sqrt(angmom[:, 0]**2 + angmom[:, 1]**2 + angmom[:, 2]**2)
+        times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
+
+        plt.figure()
+        plt.plot(times[::plotStep],
+                 angmommag[::plotStep],
+                 label="Angular momentum magnitude")
+
+        plt.xlabel("Time [year]")
+        plt.ylabel("Angular momentum")
+        plt.legend()
+        plt.grid()
+
 
 print("Set up run:")
 numTimesteps = 1000
@@ -136,9 +190,10 @@ if len(sys.argv) >= 2:
 if len(sys.argv) >= 3:
     dt = float(eval(sys.argv[2]))
 # dt = eval(input("Time step = "))
-filename = "positions.xyz"
+posfile = "positions.xyz"
+momenfile = "energies.dat"
 bodynames = ["Sun", "Earth"]
-sun_earth = SolarSystemFiles(filename, bodynames, numTimesteps, dt)
+sun_earth = SolarSystemFiles(posfile, momenfile, bodynames, numTimesteps, dt)
 # Tstop = dt*numTimesteps
 
 build_cpp()
@@ -146,6 +201,8 @@ run(["./main.exe", f"{numTimesteps}", f"{dt}"], cwd=src)
 print("Integration done!")
 sun_earth.orbit3D()
 sun_earth.orbit2D()
+sun_earth.plotEnergy()
+sun_earth.plotAngMomMagnitude()
 
 plt.show()
 # test_cpp()
