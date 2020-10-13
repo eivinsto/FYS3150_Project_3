@@ -26,6 +26,8 @@ int main(int numArguments, char **arguments) {
 
 
   double dt = 0.001;
+  if(numArguments >= 3) dt = atof(arguments[2]);
+
   solar_integrator integrator(dt, "VelocityVerlet");
   solarSystem.initiateDataFile("../data/positions.xyz", "../data/energies.dat");
   for(int timestep=0; timestep<numTimesteps; timestep++) {

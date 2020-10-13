@@ -3,11 +3,10 @@ Python script to interface with project code.
 """
 from subprocess import run
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+# from mpl_toolkits.mplot3d import Axes3D
 import os
-import shutil
+import sys
 
 # retriveing working directories:
 rootdir = os.getcwd()
@@ -25,15 +24,6 @@ def test_cpp():
     run("./test_main.exe", cwd=src)
 
 
-def read_cords(infile, numBods, colsPrBod):
-    xyz = np.zeros((numBods, 3))
-    line = infile.readline().split()
-    for i in range(numBods):
-        for j in range(colsPrBod):
-            xyz[i, j] = float(line[colsPrBod*i + j])
-    return xyz
-
-
 def clean(files="dat"):
     """Function for cleaning datafiles in src directory."""
     if files == "dat":
@@ -46,7 +36,7 @@ class SolarSystemFiles:
     """SolarSystemFiles is a class for reading data from SolarSystem C++
     program, and plotting orbits and energy/momentum."""
 
-    def __init__(self, filename, bodynames):
+    def __init__(self, filename, bodynames, numTimesteps, dt):
         """Class constructor.
         Args:
             filename: string - Name of datafile containing plannet positions.
@@ -54,6 +44,8 @@ class SolarSystemFiles:
         """
         self.filename = rootdir + "/data/" + filename
         self.bodynames = bodynames
+        self.numTimesteps = numTimesteps
+        self.dt = dt
 
     def readHeader(self):
         """Read header from datafile and set number of bodies."""
@@ -77,11 +69,44 @@ class SolarSystemFiles:
             )
         )
 
+    def orbit2D(self):
+        """Create 2D plot of orbits."""
+        self.readHeader()  # reading data from header
+        plt.figure()  # creates figure
+        # limiting number of datapoints plotted
+        if self.numTimesteps > 1000:
+            plotStep = self.numTimesteps//1000
+        else:
+            plotStep = 1
+
+        # running through celestial bodies:
+        for i in range(self.numBods):
+            if i == 0:
+                plottype = "."
+            else:
+                plottype = "-"
+            self.readBodyData(i)
+            plt.plot(self.bodyPos[::plotStep, 0],
+                     self.bodyPos[::plotStep, 1],
+                     plottype,
+                     label=self.bodynames[i])
+
+        plt.xlabel("x [AU]")
+        plt.ylabel("y [AU]")
+        plt.legend()
+        plt.grid()
+        plt.axis('equal')
+
     def orbit3D(self):
         """Create 3D plot of orbits."""
         fig = plt.figure()  # creates figure
         ax = fig.add_subplot(111, projection='3d')  # create 3D subplot
         self.readHeader()  # reading data from header
+        # limiting number of datapoints plotted:
+        if self.numTimesteps > 1000:
+            plotStep = self.numTimesteps//1000
+        else:
+            plotStep = 1
 
         # running through celestial bodies:
         for i in range(self.numBods):
@@ -92,9 +117,9 @@ class SolarSystemFiles:
 
             self.readBodyData(i)  # reading position data of current body
             # plotting orbit of current body:
-            ax.plot(self.bodyPos[:, 0],
-                    self.bodyPos[:, 1],
-                    self.bodyPos[:, 2],
+            ax.plot(self.bodyPos[::plotStep, 0],
+                    self.bodyPos[::plotStep, 1],
+                    self.bodyPos[::plotStep, 2],
                     plottype,
                     label=self.bodynames[i])
 
@@ -102,21 +127,26 @@ class SolarSystemFiles:
         ax.set_ylabel("y [AU]")
         ax.set_zlabel("z [AU]")
         ax.legend()
-        plt.show()
 
 
 print("Set up run:")
 numTimesteps = 1000
+if len(sys.argv) >= 2:
+    numTimesteps = int(eval(sys.argv[1]))
+if len(sys.argv) >= 3:
+    dt = float(eval(sys.argv[2]))
 # dt = eval(input("Time step = "))
 filename = "positions.xyz"
 bodynames = ["Sun", "Earth"]
-sun_earth = SolarSystemFiles(filename, bodynames)
+sun_earth = SolarSystemFiles(filename, bodynames, numTimesteps, dt)
 # Tstop = dt*numTimesteps
 
 build_cpp()
-run(["./main.exe", f"{numTimesteps}", filename], cwd=src)
+run(["./main.exe", f"{numTimesteps}", f"{dt}"], cwd=src)
+print("Integration done!")
 sun_earth.orbit3D()
+sun_earth.orbit2D()
 
-
+plt.show()
 # test_cpp()
 clean()

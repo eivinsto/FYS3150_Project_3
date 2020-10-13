@@ -11,7 +11,7 @@ all: main.exe
 
 # compile program:
 main.exe: main.o $(OFILES)
-	$(CC) $(FLAGS) main.o $(OFILES) -o main.exe $(LIBS)
+	$(CC) $(FLAGS) $(DEBUG) main.o $(OFILES) -o main.exe $(LIBS)
 
 main.o: main.cpp
 	$(CC) $(FLAGS) $(DEBUG) main.cpp -c
