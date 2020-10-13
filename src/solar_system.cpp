@@ -71,16 +71,11 @@ arma::vec SolarSystem::angularMomentum(){
   return m_angular_momentum;
 }
 
-void SolarSystem::initiateDataFile(std::string filename) {
-  m_filename = filename;
+void SolarSystem::initiateDataFile(std::string posfilename) {
+  m_positions_filename = posfilename;
 
-  if(m_file.good()) {
-    m_file.open(m_filename.c_str(), std::ofstream::out);
-    if(!m_file.good()) {
-      std::cout << "Error opening file " << m_filename << ". Aborting!" << std::endl;
-      std::terminate();
-    }
-  }
+  m_file.open(m_positions_filename.c_str(), std::ofstream::out);
+
   int numBods = numberOfBodies();
   m_file << "Number of bodies: " << numBods << ". Number of columns: "
          << 3*numBods << "." << std::endl;
@@ -94,12 +89,21 @@ void SolarSystem::initiateDataFile(std::string filename) {
          << std::endl;
 }
 
+void SolarSystem::initiateDataFile(std::string posfilename, std::string energy_filename) {
+  initiateDataFile(posfilename);
+  m_energy_filename = energy_filename;
+
+  m_energy_file.open(m_energy_filename.c_str(),std::ofstream::out);
+
+  m_energy_file << "The five columns in this file are (in order): kinetic energy, potential energy, angular momentum (x,y,z)";
+  m_energy_file << std::endl;
+}
 
 void SolarSystem::writeToFile() {
   if(!m_file.good()) {
-    m_file.open(m_filename.c_str(), std::ofstream::out);
+    m_file.open(m_positions_filename.c_str(), std::ofstream::out);
     if(!m_file.good()) {
-      std::cout << "Error opening file " << m_filename << ". Aborting!" << std::endl;
+      std::cout << "Error opening file " << m_positions_filename << ". Aborting!" << std::endl;
       std::terminate();
     }
   }
@@ -108,4 +112,16 @@ void SolarSystem::writeToFile() {
     m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
   }
   m_file << std::endl;
+}
+
+void SolarSystem::writeEnergyToFile() {
+  if(!m_energy_file.good()) {
+    m_energy_file.open(m_energy_filename.c_str(), std::ofstream::out);
+    if(!m_file.good()) {
+      std::cout << "Error opening file " << m_positions_filename << ". Aborting!" << std::endl;
+      std::terminate();
+    }
+  }
+
+  m_energy_file << kineticEnergy() << " " << potentialEnergy() << " " << angularMomentum() << std::endl;
 }

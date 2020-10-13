@@ -15,16 +15,20 @@ public:
   double potentialEnergy();
   double kineticEnergy();
   arma::vec angularMomentum();
-  void initiateDataFile(std::string filename);
+  void initiateDataFile(std::string posfilename);
+  void initiateDataFile(std::string posfilename, std::string energy_filename);
   void writeToFile();
+  void writeEnergyToFile();
 
 private:
   std::vector<CelestialBody> m_bodies;
   double m_potential_energy;
   double m_kinetic_energy;
   arma::vec m_angular_momentum;
-  std::string m_filename;
+  std::string m_positions_filename;
   std::ofstream m_file;
+  std::string m_energy_filename;
+  std::ofstream m_energy_file;
 };
 
 #endif
