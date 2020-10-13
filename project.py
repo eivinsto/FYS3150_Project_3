@@ -42,46 +42,80 @@ def clean(files="dat"):
         run(["make", "clean"], cwd=src)
 
 
+class SolarSystemFiles:
+    """SolarSystemFiles is a class for reading data from SolarSystem C++
+    program, and plotting orbits and energy/momentum."""
+
+    def __init__(self, filename, bodynames):
+        """Class constructor.
+        Args:
+            filename: string - Name of datafile containing plannet positions.
+            bodynames: list of strings - List of names of each celestial body.
+        """
+        self.filename = rootdir + "/data/" + filename
+        self.bodynames = bodynames
+
+    def readHeader(self):
+        """Read header from datafile and set number of bodies."""
+        with open(self.filename) as infile:
+            self.colsPrBod = 3
+            header1 = infile.readline().split()
+            self.numBods = int(header1[3][0])
+
+    def readBodyData(self, currentbod):
+        """Reads position-data for current body from datafile.
+        Result is stored as x y z coulmns in 3xN array self.bodyPos.
+        Arg:
+            currentbod: Integer - index of current celestial body.
+        """
+        self.bodyPos = np.genfromtxt(
+            self.filename,
+            skip_header=3,
+            usecols=np.arange(
+                self.colsPrBod*currentbod,
+                self.colsPrBod*currentbod + self.colsPrBod
+            )
+        )
+
+    def orbit3D(self):
+        """Create 3D plot of orbits."""
+        fig = plt.figure()  # creates figure
+        ax = fig.add_subplot(111, projection='3d')  # create 3D subplot
+        self.readHeader()  # reading data from header
+
+        # running through celestial bodies:
+        for i in range(self.numBods):
+            if i == 0:
+                plottype = "."
+            else:
+                plottype = "-"
+
+            self.readBodyData(i)  # reading position data of current body
+            # plotting orbit of current body:
+            ax.plot(self.bodyPos[:, 0],
+                    self.bodyPos[:, 1],
+                    self.bodyPos[:, 2],
+                    plottype,
+                    label=self.bodynames[i])
+
+        ax.set_xlabel("x [AU]")
+        ax.set_ylabel("y [AU]")
+        ax.set_zlabel("z [AU]")
+        ax.legend()
+        plt.show()
+
+
 print("Set up run:")
 numTimesteps = 1000
 # dt = eval(input("Time step = "))
 filename = "positions.xyz"
-
+bodynames = ["Sun", "Earth"]
+sun_earth = SolarSystemFiles(filename, bodynames)
 # Tstop = dt*numTimesteps
 
 build_cpp()
 run(["./main.exe", f"{numTimesteps}", filename], cwd=src)
-
-with open(rootdir + "/data/" + filename) as infile:
-    colsPrBod = 3
-    header1 = infile.readline().split()
-    numBods = int(header1[3][0])
-
-    for i in range(2):
-        infile.readline()
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    for i in range(numTimesteps):
-        xyz = read_cords(infile, numBods, colsPrBod)
-        if i > 0:
-            for j in range(numBods):
-                if j == 0:
-                    plottype = "b."
-                else:
-                    plottype = "-"
-
-                ax.plot([xyz[j, 0], old[j, 0]],
-                        [xyz[j, 1], old[j, 1]],
-                        [xyz[j, 2], old[j, 2]], plottype)
-
-        old = xyz.copy()
-
-ax.set_xlabel("x [AU]")
-ax.set_ylabel("y [AU]")
-ax.set_zlabel("z [AU]")
-plt.show()
+sun_earth.orbit3D()
 
 
 # test_cpp()
