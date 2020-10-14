@@ -29,8 +29,8 @@ celestial_body.o: celestial_body.cpp
 # unittest program:
 test: test_main.exe
 
-test_main.exe: test_main.o test_functions.o
-	$(CC) $(FLAGS) test_main.o test_functions.o -o test_main.exe
+test_main.exe: test_main.o test_functions.o $(OFILES)
+	$(CC) $(FLAGS) test_main.o test_functions.o $(OFILES) -o test_main.exe $(LIBS)
 
 test_main.o: test_main.cpp
 	$(CC) $(FLAGS) test_main.cpp -c

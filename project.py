@@ -168,8 +168,12 @@ class SolarSystemFiles:
         else:
             plotStep = 1
 
-        angmom = np.genfromtxt(self.momenfile, skip_header=1, usecols=[2, 3, 4])
-        angmommag = np.sqrt(angmom[:, 0]**2 + angmom[:, 1]**2 + angmom[:, 2]**2)
+        angmom = np.genfromtxt(self.momenfile,
+                               skip_header=1,
+                               usecols=[2, 3, 4])
+        angmommag = np.sqrt(angmom[:, 0]**2 +
+                            angmom[:, 1]**2 +
+                            angmom[:, 2]**2)
         times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
 
         plt.figure()
