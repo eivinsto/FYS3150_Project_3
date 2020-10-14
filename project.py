@@ -5,6 +5,7 @@ from subprocess import run
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import itertools
 
 # retriveing working directories:
 rootdir = os.getcwd()
@@ -30,11 +31,12 @@ def clean(files="dat"):
         run(["make", "clean"], cwd=src)
 
 
-class SolarSystemFiles:
+class SolarSystem:
     """SolarSystemFiles is a class for reading data from SolarSystem C++
     program, and plotting orbits and energy/momentum."""
 
-    def __init__(self, posfile, momenfile, bodynames, numTimesteps, dt):
+    def __init__(self, numTimesteps, dt, write_limit, integration_method,
+                 init_file, posfile, momenfile, bodynames):
         """Class constructor.
         Args:
             posfile: string - Name of datafile containing plannet positions.
@@ -44,43 +46,64 @@ class SolarSystemFiles:
             numTimesteps: integer - number of time steps to take.
             dt: float (64bit) - size of time step.
         """
+        self.numTimesteps = numTimesteps
+        self.dt = dt
+        self.integration_method = integration_method
+        self.init_file = rootdir + "/data/" + init_file
         self.posfile = rootdir + "/data/" + posfile
         self.momenfile = rootdir + "/data/" + momenfile
         self.bodynames = bodynames
-        self.numTimesteps = numTimesteps
-        self.dt = dt
 
-    def readHeader(self):
+        run(
+            [
+                "./main.exe",
+                f"{numTimesteps}",
+                f"{dt}",
+                f"{write_limit}",
+                integration_method,
+                self.init_file,
+                self.posfile,
+                self.momenfile,
+            ],
+            cwd=src
+        )
+
+        if (self.numTimesteps > 1000) and (write_limit < 1000):
+            self.everyNlines = self.numTimesteps//1000
+        else:
+            self.everyNlines = 1
+
+        self.times = np.linspace(0,
+                                 numTimesteps*dt,
+                                 numTimesteps//self.everyNlines)
+        self.readData()
+
+    def readData(self):
         """Read header from datafile and set number of bodies."""
+
         with open(self.posfile) as infile:
-            self.colsPrBod = 3
             header1 = infile.readline().split()
             self.numBods = int(header1[3][0])
 
-    def readBodyData(self, currentbod):
-        """Reads position-data for current body from datafile.
-        Result is stored as x y z coulmns in 3xN array self.bodyPos.
-        Arg:
-            currentbod: Integer - index of current celestial body.
-        """
-        self.bodyPos = np.genfromtxt(
-            self.posfile,
-            skip_header=3,
-            usecols=np.arange(
-                self.colsPrBod*currentbod,
-                self.colsPrBod*currentbod + self.colsPrBod
-            )
-        )
+            self.bodyPos = np.genfromtxt(itertools.islice(
+                infile, 2, self.numTimesteps, self.everyNlines))
+
+        with open(self.momenfile, "r") as infile:
+            self.angmom = np.genfromtxt(itertools.islice(
+                infile, 1, self.numTimesteps, self.everyNlines),
+                usecols=[2, 3, 4])
+
+        with open(self.momenfile, "r") as infile:
+            self.energy = np.genfromtxt(itertools.islice(
+                infile, 1, self.numTimesteps, self.everyNlines),
+                usecols=[0, 1])
+
+        print(self.energy.shape, self.angmom.shape,
+              self.bodyPos.shape, self.numTimesteps, self.everyNlines)
 
     def orbit2D(self):
         """Create 2D plot of orbits."""
-        self.readHeader()  # reading data from header
         plt.figure()  # creates figure
-        # limiting number of datapoints plotted
-        if self.numTimesteps > 1000:
-            plotStep = self.numTimesteps//1000
-        else:
-            plotStep = 1
 
         # running through celestial bodies:
         for i in range(self.numBods):
@@ -88,9 +111,9 @@ class SolarSystemFiles:
                 plottype = "."
             else:
                 plottype = "-"
-            self.readBodyData(i)
-            plt.plot(self.bodyPos[::plotStep, 0],
-                     self.bodyPos[::plotStep, 1],
+
+            plt.plot(self.bodyPos[:, 3*i],
+                     self.bodyPos[:, 3*i + 1],
                      plottype,
                      label=self.bodynames[i])
 
@@ -104,12 +127,6 @@ class SolarSystemFiles:
         """Create 3D plot of orbits."""
         fig = plt.figure()  # creates figure
         ax = fig.add_subplot(111, projection='3d')  # create 3D subplot
-        self.readHeader()  # reading data from header
-        # limiting number of datapoints plotted:
-        if self.numTimesteps > 1000:
-            plotStep = self.numTimesteps//1000
-        else:
-            plotStep = 1
 
         # running through celestial bodies:
         for i in range(self.numBods):
@@ -118,11 +135,10 @@ class SolarSystemFiles:
             else:
                 plottype = "-"
 
-            self.readBodyData(i)  # reading position data of current body
             # plotting orbit of current body:
-            ax.plot(self.bodyPos[::plotStep, 0],
-                    self.bodyPos[::plotStep, 1],
-                    self.bodyPos[::plotStep, 2],
+            ax.plot(self.bodyPos[:, 3*i],
+                    self.bodyPos[:, 3*i + 1],
+                    self.bodyPos[:, 3*i + 2],
                     plottype,
                     label=self.bodynames[i])
 
@@ -132,26 +148,17 @@ class SolarSystemFiles:
         ax.legend()
 
     def plotEnergy(self):
-        self.readHeader()
-        if self.numTimesteps > 1000:
-            plotStep = self.numTimesteps//1000
-        else:
-            plotStep = 1
-
-        energy = np.genfromtxt(self.momenfile, skip_header=1, usecols=[0, 1])
-        totenergy = energy[:, 0] + energy[:, 1]
-        times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
+        totenergy = self.energy[:, 0] + self.energy[:, 1]
 
         plt.figure()
-
-        plt.plot(times[::plotStep],
-                 energy[::plotStep, 0],
+        plt.plot(self.times,
+                 self.energy[:, 0],
                  label="Kinetic energy")
-        plt.plot(times[::plotStep],
-                 energy[::plotStep, 1],
+        plt.plot(self.times,
+                 self.energy[:, 1],
                  label="Potential energy")
-        plt.plot(times[::plotStep],
-                 totenergy[::plotStep], '--',
+        plt.plot(self.times,
+                 totenergy, '--',
                  label="Total energy")
 
         plt.xlabel("Time [year]")
@@ -160,23 +167,14 @@ class SolarSystemFiles:
         plt.grid()
 
     def plotAngMomMagnitude(self):
-        self.readHeader()
-        if self.numTimesteps > 1000:
-            plotStep = self.numTimesteps//1000
-        else:
-            plotStep = 1
 
-        angmom = np.genfromtxt(self.momenfile,
-                               skip_header=1,
-                               usecols=[2, 3, 4])
-        angmommag = np.sqrt(angmom[:, 0]**2 +
-                            angmom[:, 1]**2 +
-                            angmom[:, 2]**2)
-        times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
+        angmommag = np.sqrt(self.angmom[:, 0]**2 +
+                            self.angmom[:, 1]**2 +
+                            self.angmom[:, 2]**2)
 
         plt.figure()
-        plt.plot(times[::plotStep],
-                 angmommag[::plotStep],
+        plt.plot(self.times,
+                 angmommag,
                  label="Angular momentum magnitude")
 
         plt.xlabel("Time [year]")
@@ -193,16 +191,21 @@ dt = float(eval(input("Size of time step dt = ")))
 if runflag == "se":
     build_cpp()
 
+    write_limit = 1
+    integration_method = "Euler"
+    init_file = "earth-sun-init.txt"
     posfile = "positions.xyz"
     momenfile = "energies.dat"
     bodynames = ["Sun", "Earth"]
-    sun_earth = SolarSystemFiles(posfile,
-                                 momenfile,
-                                 bodynames,
-                                 numTimesteps,
-                                 dt)
-    # Tstop = dt*numTimesteps
-    run(["./main.exe", runflag, f"{numTimesteps}", f"{dt}"], cwd=src)
+
+    sun_earth = SolarSystem(numTimesteps,
+                            dt,
+                            write_limit,
+                            integration_method,
+                            init_file,
+                            posfile,
+                            momenfile,
+                            bodynames)
 
     print("Integration done!")
     sun_earth.orbit3D()
