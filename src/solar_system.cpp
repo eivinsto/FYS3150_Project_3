@@ -118,7 +118,6 @@ int SolarSystem::numberOfBodies() const {
 void SolarSystem::calculateForcesAndEnergy() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
-  const double G = 4*M_PI*M_PI;
   m_angular_momentum = arma::zeros(3);
 
   for (CelestialBody &body: m_bodies) {
@@ -133,7 +132,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       arma::vec dr_vec = body2.position - body1.position;
 
       double dr = arma::norm(dr_vec);
-      double potential_energy = G*body1.mass*body2.mass/dr;
+      double potential_energy = m_G*body1.mass*body2.mass/dr;
 
       arma::vec gravforce = dr_vec*potential_energy/std::pow(dr,m_beta);
 
@@ -152,7 +151,6 @@ void SolarSystem::calculateForcesAndEnergy() {
 void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
-  const double G = 4*M_PI*M_PI;
   m_angular_momentum = arma::zeros(3);
 
 
@@ -174,7 +172,7 @@ void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
 
       double dr = arma::norm(dr_vec);
       double dr2 = dr*dr;
-      double potential_energy = G*body1.mass*body2.mass/dr;
+      double potential_energy = m_G*body1.mass*body2.mass/dr;
 
 
       arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
