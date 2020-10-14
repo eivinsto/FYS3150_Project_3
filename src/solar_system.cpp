@@ -24,12 +24,7 @@ SolarSystem::SolarSystem(double beta) {
   m_beta = beta;
 }
 
-SolarSystem::SolarSystem(std::string input_filename) {
-  m_kinetic_energy = 0;
-  m_potential_energy = 0;
-  m_angular_momentum = arma::zeros(3);
-  m_beta = 2;
-
+SolarSystem::SolarSystem(std::string input_filename, double beta) : SolarSystem(beta) {
   std::ifstream input_file(input_filename);
   std::string line;
   std::string word;
@@ -56,6 +51,8 @@ SolarSystem::SolarSystem(std::string input_filename) {
     createCelestialBody(x,v,mass);
   }
 }
+
+SolarSystem::SolarSystem(std::string input_filename) : SolarSystem(input_filename, 2.0){}
 
 CelestialBody& SolarSystem::createCelestialBody(arma::vec& pos, arma::vec& vel, double m){
   m_bodies.push_back(CelestialBody(pos,vel,m));

@@ -10,6 +10,7 @@ public:
   SolarSystem();
   SolarSystem(double beta);
   SolarSystem(std::string input_filename);
+  SolarSystem(std::string input_filename, double beta);
   CelestialBody& createCelestialBody(arma::vec& pos, arma::vec& vel, double m);
   int numberOfBodies() const;
   void calculateForcesAndEnergy();
