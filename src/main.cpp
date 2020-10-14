@@ -35,7 +35,7 @@ int main(int numArguments, char **arguments) {
   for(int timestep=0; timestep<numTimesteps; timestep++) {
     integrator.integrateOneStep(solarSystem);
 
-    if (i%write_limit == 0){
+    if (timestep%write_limit == 0){
     solarSystem.writeToFile();
     solarSystem.writeEnergyToFile();
     }
