@@ -57,7 +57,7 @@ SolarSystem::SolarSystem(std::string input_filename, double beta) : SolarSystem(
     word = "";
     x = arma::zeros(3);
     v = arma::zeros(3);
-    m = 0;
+    mass = 0;
 
     // Redefine line as a new stringstream variable ssline so that getline() can be used to split around whitespaces.
     std::stringstream ssline(line);
@@ -338,4 +338,31 @@ void SolarSystem::writeEnergyToFile() {
   // Write energies and angular momentum to file
   m_energy_file << kineticEnergy() << " " << potentialEnergy() << " " << m_angular_momentum(0) << " " <<
                    m_angular_momentum(1) << " " << m_angular_momentum(2) << std::endl;
+}
+
+/**
+* Function that moves the system to the center of mass frame.
+*/
+void SolarSystem::moveToCOFMFrame(){
+  // Sum weighted positions, momentum and mass in r, v, and tot_mass respectively
+  arma::vec r = arma::zeros(3);
+  arma::vec v = arma::zeros(3);
+  double tot_mass = 0;
+  for (int i = 0; i<numberOfBodies(); ++i){
+    CelestialBody& body = m_bodies[i];
+    r += body.mass*body.position;
+    v += body.mass*body.velocity;
+    tot_mass += body.mass;
+  }
+
+  // Get center of mass position and velocity (overwrite r and v)
+  r = r/tot_mass;
+  v = v/tot_mass;
+
+  // Subtract center of mass position and velocity from all positions and velocity
+  for (int i = 0; i<numberOfBodies(); ++i){
+    CelestialBody& body = m_bodies[i];
+    body.position -= r;
+    body.velocity -= v;
+  }
 }

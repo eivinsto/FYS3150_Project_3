@@ -26,6 +26,7 @@ public:
   void initiateDataFile(std::string positions_filename, std::string energy_filename);
   void writeToFile();
   void writeEnergyToFile();
+  void moveToCOFMFrame();
 
 private:
   // Private members
