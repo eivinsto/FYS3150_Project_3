@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <iostream>
 
+
 TEST_CASE("Test energy conservation with VelocityVerlet") {
   int numTimesteps = 100000;
   double dt = 0.001;
@@ -26,10 +27,12 @@ TEST_CASE("Test energy conservation with VelocityVerlet") {
   REQUIRE(energy[0] == Approx(energy[numTimesteps-1]));
 }
 
+
 TEST_CASE("Test Angular momentum conservation with VelocityVerlet") {
   int numTimesteps = 100000;
   double dt = 0.001;
   arma::vec angmom(numTimesteps);
+  arma::vec angmomcomp(6);
 
   SolarSystem solarSystem;
   arma::vec suninit = {0,0,0};
@@ -44,12 +47,31 @@ TEST_CASE("Test Angular momentum conservation with VelocityVerlet") {
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
     arma::vec angmomvec = solarSystem.angularMomentum();
+
+    if (i == 0) {
+      angmomcomp[0] = angmomvec[0];
+      angmomcomp[1] = angmomvec[1];
+      angmomcomp[2] = angmomvec[2];
+    } else if (i == numTimesteps-1) {
+      angmomcomp[3] = angmomvec[0];
+      angmomcomp[4] = angmomvec[1];
+      angmomcomp[5] = angmomvec[2];
+    }
+
     angmom[i] = angmomvec[0]*angmomvec[0] +
                        angmomvec[1]*angmomvec[1] +
                        angmomvec[2]*angmomvec[2];
   }
-  REQUIRE(angmom[0] == Approx(angmom[numTimesteps-1]));
+  SECTION("Testing L² magnitude") {
+    REQUIRE(angmom[0] == Approx(angmom[numTimesteps-1]));
+  }
+  SECTION("Testing L direction") {
+    for (int i = 0; i < 3; i++) {
+      REQUIRE(angmomcomp[i] == Approx(angmomcomp[i + 3]).margin(1e-12));
+    }
+  }
 }
+
 
 TEST_CASE("Test energy conservation with Euler") {
   int numTimesteps = 100000;
@@ -73,10 +95,12 @@ TEST_CASE("Test energy conservation with Euler") {
   REQUIRE(energy[0] == Approx(energy[numTimesteps-1]));
 }
 
+
 TEST_CASE("Test Angular momentum conservation with Euler") {
   int numTimesteps = 100000;
   double dt = 0.001;
   arma::vec angmom(numTimesteps);
+  arma::vec angmomcomp(6);
 
   SolarSystem solarSystem;
   arma::vec suninit = {0,0,0};
@@ -91,10 +115,28 @@ TEST_CASE("Test Angular momentum conservation with Euler") {
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
     arma::vec angmomvec = solarSystem.angularMomentum();
+
+    if (i == 0) {
+      angmomcomp[0] = angmomvec[0];
+      angmomcomp[1] = angmomvec[1];
+      angmomcomp[2] = angmomvec[2];
+    } else if (i == numTimesteps-1) {
+      angmomcomp[3] = angmomvec[0];
+      angmomcomp[4] = angmomvec[1];
+      angmomcomp[5] = angmomvec[2];
+    }
+
     angmom[i] = angmomvec[0]*angmomvec[0] +
                        angmomvec[1]*angmomvec[1] +
                        angmomvec[2]*angmomvec[2];
 
   }
-  REQUIRE(angmom[0] == Approx(angmom[numTimesteps-1]));
+  SECTION("Testing L² magnitude") {
+    REQUIRE(angmom[0] == Approx(angmom[numTimesteps-1]));
+  }
+  SECTION("Testing L direction") {
+    for (int i = 0; i < 3; i++) {
+      REQUIRE(angmomcomp[i] == Approx(angmomcomp[i + 3]).margin(1e-12));
+    }
+  }
 }
