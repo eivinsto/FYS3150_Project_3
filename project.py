@@ -46,6 +46,8 @@ class SolarSystem:
             numTimesteps: integer - number of time steps to take.
             dt: float (64bit) - size of time step.
         """
+        self.isgenerated = False
+
         self.numTimesteps = numTimesteps
         self.dt = dt
         self.integration_method = integration_method
@@ -54,21 +56,7 @@ class SolarSystem:
         self.momenfile = rootdir + "/data/" + momenfile
         self.bodynames = bodynames
 
-        run(
-            [
-                "./main.exe",
-                f"{numTimesteps}",
-                f"{dt}",
-                f"{write_limit}",
-                integration_method,
-                self.init_file,
-                self.posfile,
-                self.momenfile,
-            ],
-            cwd=src
-        )
-
-        if (self.numTimesteps > 1000) and (write_limit < 1000):
+        if (self.numTimesteps > 1000):
             self.everyNlines = self.numTimesteps//1000
         else:
             self.everyNlines = 1
@@ -76,7 +64,26 @@ class SolarSystem:
         self.times = np.linspace(0,
                                  numTimesteps*dt,
                                  numTimesteps//self.everyNlines)
+
+    def generateSystem(self):
+        build_cpp()
+        run(
+            [
+                "./main.exe",
+                f"{numTimesteps}",
+                f"{dt}",
+                f"{write_limit}",
+                self.integration_method,
+                self.init_file,
+                self.posfile,
+                self.momenfile,
+            ],
+            cwd=src
+        )
+
         self.readData()
+        print("Done generating data")
+        self.isgenerated = True
 
     def readData(self):
         """Read header from datafile and set number of bodies."""
@@ -86,16 +93,16 @@ class SolarSystem:
             self.numBods = int(header1[3][0])
 
             self.bodyPos = np.genfromtxt(itertools.islice(
-                infile, 2, self.numTimesteps, self.everyNlines))
+                infile, 2, self.numTimesteps+2, self.everyNlines))
 
         with open(self.momenfile, "r") as infile:
             self.angmom = np.genfromtxt(itertools.islice(
-                infile, 1, self.numTimesteps, self.everyNlines),
+                infile, 1, self.numTimesteps+1, self.everyNlines),
                 usecols=[2, 3, 4])
 
         with open(self.momenfile, "r") as infile:
             self.energy = np.genfromtxt(itertools.islice(
-                infile, 1, self.numTimesteps, self.everyNlines),
+                infile, 1, self.numTimesteps+1, self.everyNlines),
                 usecols=[0, 1])
 
         print(self.energy.shape, self.angmom.shape,
@@ -103,6 +110,9 @@ class SolarSystem:
 
     def orbit2D(self):
         """Create 2D plot of orbits."""
+        if not self.isgenerated:
+            self.generateSystem()
+
         plt.figure()  # creates figure
 
         # running through celestial bodies:
@@ -125,6 +135,9 @@ class SolarSystem:
 
     def orbit3D(self):
         """Create 3D plot of orbits."""
+        if not self.isgenerated:
+            self.generateSystem()
+
         fig = plt.figure()  # creates figure
         ax = fig.add_subplot(111, projection='3d')  # create 3D subplot
 
@@ -148,6 +161,9 @@ class SolarSystem:
         ax.legend()
 
     def plotEnergy(self):
+        if not self.isgenerated:
+            self.generateSystem()
+
         totenergy = self.energy[:, 0] + self.energy[:, 1]
 
         plt.figure()
@@ -167,6 +183,8 @@ class SolarSystem:
         plt.grid()
 
     def plotAngMomMagnitude(self):
+        if not self.isgenerated:
+            self.generateSystem()
 
         angmommag = np.sqrt(self.angmom[:, 0]**2 +
                             self.angmom[:, 1]**2 +
@@ -189,10 +207,8 @@ numTimesteps = int(eval(input("Number of time steps N = ")))
 dt = float(eval(input("Size of time step dt = ")))
 
 if runflag == "se":
-    build_cpp()
-
     write_limit = 1
-    integration_method = "Euler"
+    integration_method = "VelocityVerlet"
     init_file = "earth-sun-init.txt"
     posfile = "positions.xyz"
     momenfile = "energies.dat"
@@ -207,7 +223,6 @@ if runflag == "se":
                             momenfile,
                             bodynames)
 
-    print("Integration done!")
     sun_earth.orbit3D()
     sun_earth.orbit2D()
     sun_earth.plotEnergy()
