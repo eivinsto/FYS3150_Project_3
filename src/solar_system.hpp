@@ -12,6 +12,7 @@ public:
   CelestialBody& createCelestialBody(arma::vec& pos, arma::vec& vel, double m);
   int numberOfBodies() const;
   void calculateForcesAndEnergy();
+  void calculateForcesAndEnergyWithRelativisticCorrection();
   std::vector<CelestialBody> &bodies();
   double potentialEnergy();
   double kineticEnergy();
@@ -31,6 +32,8 @@ private:
   std::string m_energy_filename;
   std::ofstream m_energy_file;
   double m_beta;
+  const double m_c = 63239.7263;  // AU/y
+  const double m_rel_constant = 3/(m_c*m_c); // For use in calculateForcesAndEnergyWithRelativisticCorrection
 };
 
 #endif
