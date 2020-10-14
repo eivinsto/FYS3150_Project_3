@@ -141,7 +141,7 @@ class SolarSystemFiles:
             plotStep = 1
 
         energy = np.genfromtxt(self.momenfile, skip_header=1, usecols=[0, 1])
-        totenergy = energy[:, 0] + energy[:, 0]
+        totenergy = energy[:, 0] + energy[:, 1]
         times = np.linspace(0, self.numTimesteps*dt, self.numTimesteps)
 
         plt.figure()
