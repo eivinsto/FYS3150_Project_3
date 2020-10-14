@@ -116,100 +116,149 @@ int SolarSystem::numberOfBodies() const {
 * and the force that the bodies exert on each other.
 */
 void SolarSystem::calculateForcesAndEnergy() {
+  // Clear variables
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
-
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
   }
 
+  // Iterate over every body (body1)
   for (int i = 0; i<numberOfBodies();++i){
     CelestialBody &body1 = m_bodies[i];
+    // Second iteration over every body after body1 (body2)
     for (int j = i+1; j<numberOfBodies();++j) {
       CelestialBody &body2 = m_bodies[j];
 
+      // Distance vector
       arma::vec dr_vec = body2.position - body1.position;
 
+      // Length of distance vector
       double dr = arma::norm(dr_vec);
+
+      // Potential energy between body1 and body2
       double potential_energy = m_G*body1.mass*body2.mass/dr;
 
+      // Force vector between the bodies (sign adjusted when adding to the bodies)
       arma::vec gravforce = dr_vec*potential_energy/std::pow(dr,m_beta);
-
       body1.force += gravforce;
       body2.force -= gravforce;
 
+      // Adding potential energy to total
       m_potential_energy += potential_energy;
     }
 
+    // Adding kinetic energy of body1 to total
     double v = arma::norm(body1.velocity);
     m_kinetic_energy += 0.5*body1.mass*v*v;
+
+    // Adding angular momentum of body1 to total angular momentum
     m_angular_momentum += arma::cross(body1.position,body1.mass*body1.velocity);
   }
 }
 
+/**
+* Function that calculates kinetic and potential energy, angular momentum,
+* and the force that the bodies exert on each other with a relativistic correction.
+*/
 void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
+  // Clear variables
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
-
-
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
   }
 
+  // Iterate over every body (body1)
   for (int i = 0; i<numberOfBodies();++i){
     CelestialBody &body1 = m_bodies[i];
+
+    // Calculate angular momentum vector, size and squared size
     arma::vec l_vec = arma::cross(body1.position,body1.mass*body1.velocity);
     double l = arma::norm(l_vec);
     double l2 = l*l;
 
-
+    // Iterate over every body after body1 (body2)
     for (int j = i+1; j<numberOfBodies();++j) {
       CelestialBody &body2 = m_bodies[j];
 
+      // Distance vector
       arma::vec dr_vec = body2.position - body1.position;
 
+      // Length of distance vector
       double dr = arma::norm(dr_vec);
       double dr2 = dr*dr;
+
+      // Potential energy between body1 and body2
       double potential_energy = m_G*body1.mass*body2.mass/dr;
 
-
+      // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
       arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
-
       body1.force += gravforce;
       body2.force -= gravforce;
 
+      // Adding potential energy to total
       m_potential_energy += potential_energy;
     }
 
+    // Adding kinetic energy to total
     double v = arma::norm(body1.velocity);
     m_kinetic_energy += 0.5*body1.mass*v*v;
+
+    // Adding angular momentum to total
     m_angular_momentum += l_vec;
   }
 }
 
+/**
+* Returns a vector containing the CelestialBody objects currently in the
+* SolarSystem obect.
+*/
 std::vector<CelestialBody> &SolarSystem::bodies(){
   return m_bodies;
 }
 
+/**
+* Returns total potential energy. If calculateForcesAndEnergy() has not been run
+* this returns 0.
+*/
 double SolarSystem::potentialEnergy(){
   return m_potential_energy;
 }
 
+/**
+* Returns total kinetic energy. If calculateForcesAndEnergy() has not been run
+* this returns 0.
+*/
 double SolarSystem::kineticEnergy(){
   return m_kinetic_energy;
 }
 
+/**
+* Returns total angular momentum. If calculateForcesAndEnergy() has not been run
+* this returns a 0-vector.
+*/
 arma::vec SolarSystem::angularMomentum(){
   return m_angular_momentum;
 }
 
+/**
+* This function initiates a data file to store the positions of the objects.
+* It should be followed up by using writeToFile() in every time step to actually
+* write data in the file.
+*
+* @positions_filename Name of file to store position data in.
+*/
 void SolarSystem::initiateDataFile(std::string positions_filename) {
+  // Save filename internally
   m_positions_filename = positions_filename;
 
+  // Open file
   m_file.open(m_positions_filename.c_str(), std::ofstream::out);
 
+  // Write header in file describing contents
   int numBods = numberOfBodies();
   m_file << "Number of bodies: " << numBods << ". Number of columns: "
          << 3*numBods << "." << std::endl;
@@ -223,17 +272,37 @@ void SolarSystem::initiateDataFile(std::string positions_filename) {
          << std::endl;
 }
 
+/**
+* This function initiates a data file to store the positions of the objects, and
+* another file in which to store total kinetic and potential energy, and angular
+* momentum.
+* It should be followed up by using writeEnergyToFile() in every time step to
+* actually write data in the file.
+*
+* @positions_filename Name of file to store position data in.
+* @energy_filename Name of file to store energies and angular momentum in.
+*/
 void SolarSystem::initiateDataFile(std::string positions_filename, std::string energy_filename) {
+  // Inititate datafile for the positions
   initiateDataFile(positions_filename);
+
+  // Store filename for energies and angular momentum internally
   m_energy_filename = energy_filename;
 
+  // Open file
   m_energy_file.open(m_energy_filename.c_str(),std::ofstream::out);
 
+  // Write header describing contents of file.
   m_energy_file << "The five columns in this file are (in order): kinetic energy, potential energy, angular momentum (x,y,z)";
   m_energy_file << std::endl;
 }
 
+/**
+* Function that writes positions to file in current timestep. The file must be
+* initialized using initiateDataFile() before this function can be used.
+*/
 void SolarSystem::writeToFile() {
+  // Check whether file is still working as it should
   if(!m_file.good()) {
     m_file.open(m_positions_filename.c_str(), std::ofstream::out);
     if(!m_file.good()) {
@@ -242,13 +311,22 @@ void SolarSystem::writeToFile() {
     }
   }
 
+  // Write positions to file
   for(CelestialBody &body : m_bodies) {
     m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
   }
+
+  // Change line
   m_file << std::endl;
 }
 
+/**
+* Function that writes energies and angular momentum in current timestep
+* to file. The file must be initialized using initiateDataFile() before this
+* function can be used.
+*/
 void SolarSystem::writeEnergyToFile() {
+  // Check whether file is still working as it should
   if(!m_energy_file.good()) {
     m_energy_file.open(m_energy_filename.c_str(), std::ofstream::out);
     if(!m_file.good()) {
@@ -256,6 +334,8 @@ void SolarSystem::writeEnergyToFile() {
       std::terminate();
     }
   }
+
+  // Write energies and angular momentum to file
   m_energy_file << kineticEnergy() << " " << potentialEnergy() << " " << m_angular_momentum(0) << " " <<
                    m_angular_momentum(1) << " " << m_angular_momentum(2) << std::endl;
 }
