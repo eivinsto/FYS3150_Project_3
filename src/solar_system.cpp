@@ -10,19 +10,14 @@
 #include <sstream>
 #include <iterator>
 
-SolarSystem::SolarSystem() {
-  m_kinetic_energy = 0;
-  m_potential_energy = 0;
-  m_angular_momentum = arma::zeros(3);
-  m_beta = 2;
-}
-
 SolarSystem::SolarSystem(double beta) {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
   m_beta = beta;
 }
+
+SolarSystem::SolarSystem() : SolarSystem(2.0) {}
 
 SolarSystem::SolarSystem(std::string input_filename, double beta) : SolarSystem(beta) {
   std::ifstream input_file(input_filename);
