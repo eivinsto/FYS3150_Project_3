@@ -6,7 +6,7 @@
 
 
 TEST_CASE("Test energy conservation with VelocityVerlet") {
-  int numTimesteps = 100000;
+  int numTimesteps = 10000;
   double dt = 0.001;
   arma::vec energy(numTimesteps);
 
@@ -29,7 +29,7 @@ TEST_CASE("Test energy conservation with VelocityVerlet") {
 
 
 TEST_CASE("Test Angular momentum conservation with VelocityVerlet") {
-  int numTimesteps = 100000;
+  int numTimesteps = 10000;
   double dt = 0.001;
   arma::vec angmom(numTimesteps);
   arma::vec angmomcomp(6);
@@ -74,7 +74,7 @@ TEST_CASE("Test Angular momentum conservation with VelocityVerlet") {
 
 
 TEST_CASE("Test energy conservation with Euler") {
-  int numTimesteps = 100000;
+  int numTimesteps = 10000;
   double dt = 0.001;
   arma::vec energy(numTimesteps);
 
@@ -97,7 +97,7 @@ TEST_CASE("Test energy conservation with Euler") {
 
 
 TEST_CASE("Test Angular momentum conservation with Euler") {
-  int numTimesteps = 100000;
+  int numTimesteps = 10000;
   double dt = 0.001;
   arma::vec angmom(numTimesteps);
   arma::vec angmomcomp(6);
