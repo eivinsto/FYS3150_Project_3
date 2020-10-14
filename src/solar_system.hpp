@@ -8,6 +8,7 @@
 class SolarSystem {
 public:
   SolarSystem();
+  SolarSystem(double beta);
   CelestialBody& createCelestialBody(arma::vec& pos, arma::vec& vel, double m);
   int numberOfBodies() const;
   void calculateForcesAndEnergy();
@@ -29,6 +30,7 @@ private:
   std::ofstream m_file;
   std::string m_energy_filename;
   std::ofstream m_energy_file;
+  double m_beta;
 };
 
 #endif

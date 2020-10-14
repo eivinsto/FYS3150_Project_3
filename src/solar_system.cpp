@@ -10,6 +10,14 @@ SolarSystem::SolarSystem() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
+  m_beta = 2;
+}
+
+SolarSystem::SolarSystem(double beta) {
+  m_kinetic_energy = 0;
+  m_potential_energy = 0;
+  m_angular_momentum = arma::zeros(3);
+  m_beta = beta;
 }
 
 CelestialBody& SolarSystem::createCelestialBody(arma::vec& pos, arma::vec& vel, double m){
@@ -41,7 +49,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       double dr = arma::norm(dr_vec);
       double potential_energy = G*body1.mass*body2.mass/dr;
 
-      arma::vec gravforce = dr_vec*potential_energy/(dr*dr);
+      arma::vec gravforce = dr_vec*potential_energy/std::pow(dr,m_beta);
 
       body1.force += gravforce;
       body2.force -= gravforce;
