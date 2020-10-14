@@ -11,19 +11,8 @@ int main(int numArguments, char **arguments) {
   int numTimesteps = 1000;
   if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
 
-  SolarSystem solarSystem;
-  // We create new bodies like this. Note that the createCelestialBody function returns a reference to the newly created body
-  // This can then be used to modify properties or print properties of the body if desired
-  // Use with: solarSystem.createCelestialBody( position, velocity, mass );
-
-  arma::vec suninit = {0,0,0};
-  CelestialBody &sun = solarSystem.createCelestialBody( suninit, suninit, 1.0 );
-
-  // We don't need to store the reference, but just call the function without a left hand side
-  arma::vec earthposinit = {1,0,0};
-  arma::vec earthvelinit = {0, 2*M_PI, 0};
-  solarSystem.createCelestialBody( earthposinit, earthvelinit, 3e-6 );
-
+  // Reading initial state from file
+  SolarSystem solarSystem("../data/earth-sun-init.txt");
 
   double dt = 0.001;
   if(numArguments >= 3) dt = atof(arguments[2]);

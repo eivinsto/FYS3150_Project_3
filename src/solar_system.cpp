@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iterator>
 
 SolarSystem::SolarSystem() {
   m_kinetic_energy = 0;
