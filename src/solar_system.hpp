@@ -7,6 +7,7 @@
 
 class SolarSystem {
 public:
+  // Public methods
   SolarSystem();
   SolarSystem(double beta);
   SolarSystem(std::string input_filename);
@@ -25,17 +26,18 @@ public:
   void writeEnergyToFile();
 
 private:
-  std::vector<CelestialBody> m_bodies;
-  double m_potential_energy;
-  double m_kinetic_energy;
-  arma::vec m_angular_momentum;
-  std::string m_positions_filename;
-  std::ofstream m_file;
-  std::string m_energy_filename;
-  std::ofstream m_energy_file;
-  double m_beta;
-  const double m_c = 63239.7263;  // AU/y
-  const double m_rel_constant = 3/(m_c*m_c); // For use in calculateForcesAndEnergyWithRelativisticCorrection
+  // Private members
+  std::vector<CelestialBody> m_bodies;       // Vector storing the celestial body objects
+  double m_potential_energy;                 // Total potential energy ([mass of the sun] AU^2 y^-2)
+  double m_kinetic_energy;                   // Total kinetic energy ([mass of the sun] AU^2 y^-2)
+  arma::vec m_angular_momentum;              // Total angular momentum vector ([mass of the sun] AU^2 y^-1)
+  std::string m_positions_filename;          // Name of file to write positions to
+  std::ofstream m_file;                      // File to write positions to
+  std::string m_energy_filename;             // Name of file to write energy and angular momentum to
+  std::ofstream m_energy_file;               // File to write energy and angular momentum to
+  double m_beta;                             // Exponent in force
+  const double m_c = 63239.7263;             // Speed of light (AU y^-1)
+  const double m_rel_constant = 3/(m_c*m_c); // For use in calculateForcesAndEnergyWithRelativisticCorrection (y^2 AU^-2)
 };
 
 #endif

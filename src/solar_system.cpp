@@ -10,6 +10,13 @@
 #include <sstream>
 #include <iterator>
 
+
+/**
+* Constructor that takes only the exponent to be used in the force as argument.
+* SolarSystem object is created empty in this case.
+*
+* @beta Exponent in the force
+*/
 SolarSystem::SolarSystem(double beta) {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
@@ -17,47 +24,97 @@ SolarSystem::SolarSystem(double beta) {
   m_beta = beta;
 }
 
+/**
+* Basic constructor that takes no argument. Creates an empty SolarSystem object
+* with the exponent in the force set to 2.
+*/
 SolarSystem::SolarSystem() : SolarSystem(2.0) {}
 
+/**
+* Constructor that takes an input file and reads initial conditions from said file.
+* A parameter beta also specifies the exponent in the force. Initial conditions of one object
+* should be on a single line: first the three position coordinates (x,y,z), then
+* three velocity coordinates (vx,vy,vz) and the last element should be the mass.
+* Elements should be separated by whitespace.
+* Position should be in units AU, velocity in AU y^-1 and mass in units of the
+* mass of the sun.
+*
+* @input_filename Name of file to read initial conditions from.
+* @beta Exponent in the force
+*/
 SolarSystem::SolarSystem(std::string input_filename, double beta) : SolarSystem(beta) {
-  std::ifstream input_file(input_filename);
+  std::ifstream input_file(input_filename); // Get input stream
+  // Define variables to be used in iteration
   std::string line;
   std::string word;
   arma::vec x = arma::zeros(3);
   arma::vec v = arma::zeros(3);
   double mass = 0;
 
+  // Iterate over the lines in the file
   while ( std::getline(input_file, line)) {
+    // Clear variables
     word = "";
+    x = arma::zeros(3);
+    v = arma::zeros(3);
+    m = 0;
+
+    // Redefine line as a new stringstream variable ssline so that getline() can be used to split around whitespaces.
     std::stringstream ssline(line);
+
+    // Read positions
     for (int i = 0; i<3; ++i){
       std::getline(ssline,word,' ');
       x(i) = std::stod(word);
     }
 
+    // Read velocities
     for (int i = 0; i<3; ++i){
       std::getline(ssline,word,' ');
       v(i) = std::stod(word);
     }
 
+    // Read mass
     std::getline(ssline,word,' ');
     mass = std::stod(word);
 
+    // Generate CelestialBody object and add to current SolarSystem object.
     createCelestialBody(x,v,mass);
   }
 }
 
+/**
+* Constructor that only takes an input file name and calls
+* SolarSystem(std::string input_filename, double beta) with said file name and
+* beta = 2.
+*
+* @input_filename Name of file to read initial conditions from.
+*/
 SolarSystem::SolarSystem(std::string input_filename) : SolarSystem(input_filename, 2.0){}
 
+/**
+* Add a new CelestialBody object to the SolarSystem object.
+*
+* @pos Vector containing position of the new body.
+* @vel Vector containing position of the new body.
+* @m Double containing mass of the new body.
+*/
 CelestialBody& SolarSystem::createCelestialBody(arma::vec& pos, arma::vec& vel, double m){
   m_bodies.push_back(CelestialBody(pos,vel,m));
   return m_bodies.back();
 }
 
+/**
+* Returns number of CelestialBody objects currently in the SolarSystem object.
+*/
 int SolarSystem::numberOfBodies() const {
   return m_bodies.size();
 }
 
+/**
+* Function that calculates kinetic and potential energy, angular momentum,
+* and the force that the bodies exert on each other.
+*/
 void SolarSystem::calculateForcesAndEnergy() {
   m_kinetic_energy = 0;
   m_potential_energy = 0;
