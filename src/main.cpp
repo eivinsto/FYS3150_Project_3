@@ -2,6 +2,7 @@
 #include "solar_integrator.hpp"
 #include "solar_system.hpp"
 #include "celestial_body.hpp"
+#include <string>
 #include <armadillo>
 #include <cmath>
 

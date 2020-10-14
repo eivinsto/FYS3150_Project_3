@@ -4,9 +4,7 @@ Python script to interface with project code.
 from subprocess import run
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import os
-import sys
 
 # retriveing working directories:
 rootdir = os.getcwd()
@@ -187,27 +185,31 @@ class SolarSystemFiles:
         plt.grid()
 
 
-print("Set up run:")
-numTimesteps = 1000
-if len(sys.argv) >= 2:
-    numTimesteps = int(eval(sys.argv[1]))
-if len(sys.argv) >= 3:
-    dt = float(eval(sys.argv[2]))
-# dt = eval(input("Time step = "))
-posfile = "positions.xyz"
-momenfile = "energies.dat"
-bodynames = ["Sun", "Earth"]
-sun_earth = SolarSystemFiles(posfile, momenfile, bodynames, numTimesteps, dt)
-# Tstop = dt*numTimesteps
+print("Write se for Sun-Earth simulation:")
+runflag = input("Choose run: ")
+numTimesteps = int(eval(input("Number of time steps N = ")))
+dt = float(eval(input("Size of time step dt = ")))
 
-build_cpp()
-run(["./main.exe", f"{numTimesteps}", f"{dt}"], cwd=src)
-print("Integration done!")
-sun_earth.orbit3D()
-sun_earth.orbit2D()
-sun_earth.plotEnergy()
-sun_earth.plotAngMomMagnitude()
+if runflag == "se":
+    build_cpp()
 
-plt.show()
-# test_cpp()
-clean()
+    posfile = "positions.xyz"
+    momenfile = "energies.dat"
+    bodynames = ["Sun", "Earth"]
+    sun_earth = SolarSystemFiles(posfile,
+                                 momenfile,
+                                 bodynames,
+                                 numTimesteps,
+                                 dt)
+    # Tstop = dt*numTimesteps
+    run(["./main.exe", runflag, f"{numTimesteps}", f"{dt}"], cwd=src)
+
+    print("Integration done!")
+    sun_earth.orbit3D()
+    sun_earth.orbit2D()
+    sun_earth.plotEnergy()
+    sun_earth.plotAngMomMagnitude()
+
+    plt.show()
+    # test_cpp()
+    clean()
