@@ -19,12 +19,12 @@ int main(int numArguments, char **arguments) {
 
   // Reading variables from command line
   if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
-  if(numArguments >= 3) dt = atod(arguments[2]);
+  if(numArguments >= 3) dt = atof(arguments[2]);
   if(numArguments >= 5) write_limit = atoi(arguments[3]);
   if(numArguments >= 6) integration_method = arguments[4];
-  if(numArguments >= 4) init_file = "../data/" + arguments[5];
-  if(numArguments >= 7) positions_file = "../data/" + arguments[6];
-  if(numArguments >= 8) energies_file = "../data/" + arguments[7];
+  if(numArguments >= 4) init_file = arguments[5];
+  if(numArguments >= 7) positions_file = arguments[6];
+  if(numArguments >= 8) energies_file = arguments[7];
 
   // Reading initial state from file
   SolarSystem solarSystem(init_file);
