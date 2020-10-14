@@ -5,6 +5,9 @@
 #include "celestial_body.hpp"
 #include <armadillo>
 #include <vector>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 SolarSystem::SolarSystem() {
   m_kinetic_energy = 0;
@@ -18,6 +21,39 @@ SolarSystem::SolarSystem(double beta) {
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
   m_beta = beta;
+}
+
+SolarSystem::SolarSystem(std::string input_filename) {
+  m_kinetic_energy = 0;
+  m_potential_energy = 0;
+  m_angular_momentum = arma::zeros(3);
+  m_beta = 2;
+
+  std::ifstream input_file(input_filename);
+  std::string line;
+  std::string word;
+  arma::vec x = arma::zeros(3);
+  arma::vec v = arma::zeros(3);
+  double mass = 0;
+
+  while ( std::getline(input_file, line)) {
+    word = "";
+    std::stringstream ssline(line);
+    for (int i = 0; i<3; ++i){
+      std::getline(ssline,word,' ');
+      x(i) = std::stod(word);
+    }
+
+    for (int i = 0; i<3; ++i){
+      std::getline(ssline,word,' ');
+      v(i) = std::stod(word);
+    }
+
+    std::getline(ssline,word,' ');
+    mass = std::stod(word);
+
+    createCelestialBody(x,v,mass);
+  }
 }
 
 CelestialBody& SolarSystem::createCelestialBody(arma::vec& pos, arma::vec& vel, double m){
