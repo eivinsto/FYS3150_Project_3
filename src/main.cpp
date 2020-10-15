@@ -31,7 +31,7 @@ int main(int numArguments, char **arguments) {
 
   // Initiate integrator
   solar_integrator integrator(dt, integration_method);
-  solarSystem.initiateDataFile("../data/positions.xyz", "../data/energies.dat");
+  solarSystem.initiateDataFile(positions_file, energies_file);
   for(int timestep=0; timestep<numTimesteps; timestep++) {
     integrator.integrateOneStep(solarSystem);
 
