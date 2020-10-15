@@ -214,14 +214,16 @@ if runflag == "se":
     momenfile = "energies.dat"
     bodynames = ["Sun", "Earth"]
 
-    sun_earth = SolarSystem(numTimesteps,
-                            dt,
-                            write_limit,
-                            integration_method,
-                            init_file,
-                            posfile,
-                            momenfile,
-                            bodynames)
+    sun_earth = SolarSystem(
+        numTimesteps,
+        dt,
+        write_limit,
+        integration_method,
+        init_file,
+        posfile,
+        momenfile,
+        bodynames
+    )
 
     sun_earth.orbit3D()
     sun_earth.orbit2D()
