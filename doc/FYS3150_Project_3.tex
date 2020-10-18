@@ -137,17 +137,17 @@
 \section{Formalism} \label{sec:II}
 
 \subsection{Two methods for numerical integration}
-To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the genereic function \(f\) that depends on a variable \(t\) such that
+To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the generic function \(f\) that depends on a variable \(t\) such that
 \begin{align*}
-	f(t) = g(t, f(t)), \numberthis \label{eq:fofg}
+	\frac{d}{dt}f(t) = g(t, f(t)). \numberthis \label{eq:fofg}
 \end{align*}
 Given an arbitrary point \(f(t_{0})\), we wish to approximate the point \(f(t_{1})\). Thus we can integrate each side of \eqref{eq:fofg}, such that
 \begin{align*}
-	\int_{t_{0}}^{t_{1}} f(t) dt = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt.
+	\int_{t_{0}}^{t_{1}} \frac{d}{dt} f(t) dt = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt.
 \end{align*}
 Applying the fundemental theorem of calculus, we get that
 \begin{align*}
-	f(t_{1}) - f(t_{1}) = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt, \\
+	f(t_{1}) - f(t_{0}) = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt, \\
 	f(t_{1}) = f(t_{0}) + \int_{t_{0}}^{t_{1}} g(t, f(t)) dt. \numberthis \label{eq:foft1}
 \end{align*}
 To complete the approximation, we define a step-lengt \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0})\) and \(g(t_{1}, f(t_{1})\) as the area of a rectangle whith height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields
@@ -162,9 +162,78 @@ Finally we can simplify the notation by setting \(f_{k+1} = f(t_{k})\) resulting
 \begin{align*}
 	f_{k+1} = f_{k} + \Delta t g(t_{k}, f_{k}). \numberthis \label{eq:forwardEuler}
 \end{align*}
-This method of numerical integration is known as Euler's method, henceforth refered to as the forward Euler method.
+This method of numerical integration is known as Euler's method, henceforth referred to as the forward Euler method.
 
 Since we are approximating the integral between each pair of \(g(t, f_{k})\) and \(g(t, f_{k+1})\)  as a single rectangle with width \(\Delta t\), our approximation will be more accurate for smaller values of \(\Delta t\). Thus to approximate the curve of the function \(f\), we create a set of \(f_{k}\) values for a given \(f_{0}\) and \(\Delta t\) by repeatedly taking steps using the forward Euler method.
+
+Many physical problems can be represented by a second order differential equation:
+
+\begin{align*}
+\frac{d^2}{dt^2} \vec{x}(t) &= \vec{a}(t,\vec{x}(t)) \, , \numberthis \label{eq:sodiff}
+\end{align*}
+
+where $\vec{x}(t)$ is the function we want to find and $\vec{a}(t,\vec{x}(t))$ is a function dependent on $\vec{x}(t)$. This differential equation can be split into two first order differential equations:
+
+\begin{align*}
+\frac{d}{dt} \vec{v}(t) &= \vec{a}(t,\vec{x}(t))  \\
+\frac{d}{dt} \vec{x}(t) &= \vec{v}(t) \, , \numberthis \label{eq:sodiff_split}
+\end{align*}
+
+When split into parts like this we can easily solve this using methods such as the forward Euler method. In this kind of system we can make a small adaptation to the forward Euler method. The method with this small change is called the Euler-Cromer method (using the same discretization that was described earlier): 
+
+\begin{align*}
+\vec{v}_{k+1} &= \vec{v}_k + \Delta t  \vec{a}(t_k, \vec{x}_k) \\
+\vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_{k+1} \numberthis \label{eq:EulerCromer}
+\end{align*}  
+
+Instead of using $\vec{v}_k$ to calculate $\vec{x}_{k+1}$ we use the next step $\vec{v}_{k+1}$. This improves the accuracy of the numerical solution. 
+
+Another method used to solve the system of equations in \eqref{eq:sodiff_split} is the Velocity Verlet algorithm. We will now derive this algorithm. First we Taylor expand $\vec{x}(t + \Delta t)$:
+
+\begin{align*}
+\vec{x}(t \pm \Delta t) &= \vec{x}(t) + \Delta t \vec{v}(t) + \frac{\Delta t^2}{2} \vec{a}(t) + \mathcal{O}(\Delta t^3) \numberthis \label{eq:so_taylorx}
+\end{align*}
+
+Using the discretization described earlier this gives:
+
+\begin{align*}
+\vec{x}_{k + 1} &= \vec{x}_k + \Delta t \vec{v}_k + \frac{\Delta t^2}{2} \vec{a}(t_k,\vec{x}_k) \numberthis \label{eq:so_taylorx_disc}
+\end{align*}
+
+Similarly we can also Taylor expand $\vec{v}(t+\Delta t)$:
+
+\begin{align*}
+\vec{v}(t+\Delta t) &= \vec{v}(t) + \Delta t \vec{a}(t) + \frac{\Delta t^2}{2} \frac{d}{dt} \vec{a}(t) + \mathcal{O}(\Delta t^3) \numberthis \label{eq:so_taylorv}
+\end{align*}
+
+We do not know what $\frac{d}{dt} \vec{a}(t)$ is, but we can approximate it:
+
+\begin{align*}
+\frac{d}{dt}\vec{a}(t) &= \frac{\vec{a}(t+\Delta t) - \vec{a}(t)}{\Delta t} + \mathcal{O}(\Delta t^2) \\
+\Delta t \frac{d}{dt} \vec{a}(t) &= \vec{a}(t+ \Delta t ) - \vec{a}(t) + \mathcal{O}(\Delta t^3) 
+\end{align*}
+
+Inserting this into \eqref{eq:so_taylorv} gives:
+
+\begin{align*}
+\vec{v}(t+\Delta t) &= \vec{v}(t) + \Delta t \vec{a}(t) + \frac{\Delta t}{2} (\vec{a}(t+ \Delta t ) - \vec{a}(t)) + \mathcal{O}(\Delta t^3) \\
+&= \vec{v}(t) + \frac{\Delta t}{2} (\vec{a}(t+ \Delta t ) + \vec{a}(t)) +  \mathcal{O}(\Delta t^3) 
+\end{align*}
+
+Discretizing this gives:
+
+\begin{align*}
+\vec{v}_{k+1} &= \vec{v}_k + \frac{\Delta t}{2} \bigg( \vec{a}(t_{k+1}, \vec{x}_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg)
+\end{align*}
+
+Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algorithm:
+
+\begin{align*}
+\vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_k + \frac{1}{2} \Delta t^2 \vec{a}(t_k,\vec{x}_k) \\
+\vec{v}_{k+1} &= \vec{v}_k + \frac{1}{2}\Delta t \bigg( \vec{a}(t_{k+1},x_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg) \, . \numberthis \label{eq:VelocityVerlet}
+\end{align*}
+
+In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the Euler-Cromer method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the Euler-Cromer method. 
 
 \subsection{A generalized gravitational force}
 For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
