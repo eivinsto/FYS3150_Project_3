@@ -22,7 +22,7 @@ TEST_CASE("Test energy conservation with VelocityVerlet") {
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
-    energy[i] = solarSystem.potentialEnergy();
+    energy[i] = solarSystem.potentialEnergy() + solarSystem.kineticEnergy();
   }
   REQUIRE(energy[0] == Approx(energy[numTimesteps-1]));
 }
@@ -90,7 +90,7 @@ TEST_CASE("Test energy conservation with Euler") {
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
-    energy[i] = solarSystem.potentialEnergy();
+    energy[i] = solarSystem.potentialEnergy() + solarSystem.kineticEnergy();
   }
   REQUIRE(energy[0] == Approx(energy[numTimesteps-1]));
 }
