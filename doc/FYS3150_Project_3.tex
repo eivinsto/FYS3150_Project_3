@@ -268,6 +268,12 @@ Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), al
 
 \section{Method} \label{sec:III}
 
+We have written a set of object oriented programs in C++ that together simulate a set of point objects with a gravitational interaction. We use these programs to simulate the solar systems. In order to better interface with these programs we have automated running them using a python script, which we will get back to once we have explained the general layout and implementation of the algorithms.
+
+The most basic part of the program is the \verb+CelestialBody+ class. The \verb+CelestialBody+ object is used to store the position, velocity, mass, and force an object is experiencing. No calculation in general is done in this class. See appendix \hyperref[A.5]{A.5} for the full code.
+
+The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in a standard library vector object. In this class we also calculate the forces that each object feels. Depending on how the class is instantiated the force used 
+
 \section{Results} \label{sec:IV}
 
 \section{Discussion} \label{sec:V}
@@ -311,7 +317,7 @@ Source file \verb+solar_system.cpp+:
 Header file \verb+solar_system.hpp+:
 \url{https://github.com/eivinsto/FYS3150_Project_3/blob/main/src/solar_system.hpp}
 
-\cprotect\subsection{\verb+celestila_body+} \label{A.5}
+\cprotect\subsection{\verb+celestial_body+} \label{A.5}
 Source and header file containing class defining gravitational bodies.
 
 Source file \verb+celestial_body.cpp+:
