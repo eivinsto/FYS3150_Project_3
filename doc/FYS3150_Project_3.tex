@@ -150,11 +150,13 @@ Applying the fundemental theorem of calculus, we get that
 	f(t_{1}) - f(t_{0}) = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt, \\
 	f(t_{1}) = f(t_{0}) + \int_{t_{0}}^{t_{1}} g(t, f(t)) dt. \numberthis \label{eq:foft1}
 \end{align*}
-To complete the approximation, we define a step-lengt \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0})\) and \(g(t_{1}, f(t_{1})\) as the area of a rectangle whith height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields
+To complete the approximation, we define a step-length \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0})\) and \(g(t_{1}, f(t_{1}))\) as the area of a rectangle whith height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields
 \begin{align*}
 	f(t_{0} + \Delta t) \approx f(t_{0}) + \Delta t g(t_{0}, f(t_{0})).
 \end{align*}
-Thus, if we wan't to approximate a value \(f(t_{k+1})\), we can simply start with a known value at a \(t_{k} < t_{k+1}\) and take a step with our approximation such that
+
+As we neglect all terms of second order or higher in this approximation we have that the error goes as $\mathcal{O}(\Delta t^2)$. 
+If we want to approximate a value \(f(t_{k+1})\), we can simply start with a known value at a \(t_{k} < t_{k+1}\) and take a step with our approximation such that
 \begin{align*}
 	f(t_{k+1}) \approx f(t_{k}) + \Delta t g(t_{k}, f(t_{k})).
 \end{align*}
@@ -172,32 +174,34 @@ Many physical problems can be represented by a second order differential equatio
 \frac{d^2}{dt^2} \vec{x}(t) &= \vec{a}(t,\vec{x}(t)) \, , \numberthis \label{eq:sodiff}
 \end{align*}
 
-where $\vec{x}(t)$ is the function we want to find and $\vec{a}(t,\vec{x}(t))$ is a function dependent on $\vec{x}(t)$. This differential equation can be split into two first order differential equations:
+where $\vec{x}(t)$ is the function we want to find and $\vec{a}(t,\vec{x}(t))$ is a function dependent on $\vec{x}(t)$. As the parts of this equation are vectors, this is actually a set of $D$ differential equations, where $D$ is the length of the vectors. This differential equation can be split into $2D$ first order differential equations:
 
 \begin{align*}
 \frac{d}{dt} \vec{v}(t) &= \vec{a}(t,\vec{x}(t))  \\
 \frac{d}{dt} \vec{x}(t) &= \vec{v}(t) \, , \numberthis \label{eq:sodiff_split}
 \end{align*}
 
-When split into parts like this we can easily solve this using methods such as the forward Euler method. In this kind of system we can make a small adaptation to the forward Euler method. The method with this small change is called the Euler-Cromer method (using the same discretization that was described earlier): 
+When split into first order differential equations like this we can easily solve this system using methods such as the forward Euler method given a set of initial conditions. 
 
-\begin{align*}
-\vec{v}_{k+1} &= \vec{v}_k + \Delta t  \vec{a}(t_k, \vec{x}_k) \\
-\vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_{k+1} \numberthis \label{eq:EulerCromer}
-\end{align*}  
+%In this kind of system we can make a small adaptation to the forward Euler method. The method with this small change is called the Euler-Cromer method (using the same discretization that was described earlier): 
 
-Instead of using $\vec{v}_k$ to calculate $\vec{x}_{k+1}$ we use the next step $\vec{v}_{k+1}$. This improves the accuracy of the numerical solution. 
+%\begin{align*}
+%\vec{v}_{k+1} &= \vec{v}_k + \Delta t  \vec{a}(t_k, \vec{x}_k) \\
+%\vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_{k+1} \numberthis \label{eq:EulerCromer}
+%\end{align*}  
+
+%Instead of using $\vec{v}_k$ to calculate $\vec{x}_{k+1}$ we use the next step $\vec{v}_{k+1}$. This improves the accuracy of the numerical solution. 
 
 Another method used to solve the system of equations in \eqref{eq:sodiff_split} is the Velocity Verlet algorithm. We will now derive this algorithm. First we Taylor expand $\vec{x}(t + \Delta t)$:
 
 \begin{align*}
-\vec{x}(t \pm \Delta t) &= \vec{x}(t) + \Delta t \vec{v}(t) + \frac{\Delta t^2}{2} \vec{a}(t) + \mathcal{O}(\Delta t^3) \numberthis \label{eq:so_taylorx}
+\vec{x}(t + \Delta t) &= \vec{x}(t) + \Delta t \vec{v}(t) + \frac{\Delta t^2}{2} \vec{a}(t) + \mathcal{O}(\Delta t^3) \numberthis \label{eq:so_taylorx}
 \end{align*}
 
-Using the discretization described earlier this gives:
+Using the discretization described earlier, along with defining $\vec{x}(t_k) = \vec{x}_k$ and $\vec{v}(t_k) = \vec{v}_k$ we can rewrite this equation: 
 
 \begin{align*}
-\vec{x}_{k + 1} &= \vec{x}_k + \Delta t \vec{v}_k + \frac{\Delta t^2}{2} \vec{a}(t_k,\vec{x}_k) \numberthis \label{eq:so_taylorx_disc}
+\vec{x}_{k + 1} &\approx \vec{x}_k + \Delta t \vec{v}_k + \frac{\Delta t^2}{2} \vec{a}(t_k,\vec{x}_k) \numberthis \label{eq:so_taylorx_disc}
 \end{align*}
 
 Similarly we can also Taylor expand $\vec{v}(t+\Delta t)$:
@@ -223,7 +227,7 @@ Inserting this into \eqref{eq:so_taylorv} gives:
 Discretizing this gives:
 
 \begin{align*}
-\vec{v}_{k+1} &= \vec{v}_k + \frac{\Delta t}{2} \bigg( \vec{a}(t_{k+1}, \vec{x}_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg)
+\vec{v}_{k+1} &\approx \vec{v}_k + \frac{\Delta t}{2} \bigg( \vec{a}(t_{k+1}, \vec{x}_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg)
 \end{align*}
 
 Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algorithm:
@@ -233,7 +237,7 @@ Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algo
 \vec{v}_{k+1} &= \vec{v}_k + \frac{1}{2}\Delta t \bigg( \vec{a}(t_{k+1},x_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg) \, . \numberthis \label{eq:VelocityVerlet}
 \end{align*}
 
-In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the Euler-Cromer method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the Euler-Cromer method. 
+In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method. 
 
 \subsection{A generalized gravitational force}
 For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
