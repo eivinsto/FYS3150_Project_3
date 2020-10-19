@@ -201,35 +201,55 @@ class SolarSystem:
         plt.grid()
 
 
-print("Write se for Sun-Earth simulation:")
+bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
+             "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
+
+print("""Write se for Sun-Earth simulation,
+sej for Sun-Earth-Jupiter,
+sm for Sun-Mercury,
+and ss for entire Solar System.""")
+
 runflag = input("Choose run: ")
 numTimesteps = int(eval(input("Number of time steps N = ")))
 dt = float(eval(input("Size of time step dt = ")))
 
 if runflag == "se":
-    write_limit = 1
-    integration_method = "VelocityVerlet"
     init_file = "earth-sun-init.txt"
-    posfile = "positions.xyz"
-    momenfile = "energies.dat"
-    bodynames = ["Sun", "Earth"]
+    bodynames = [bodynames[0], bodynames[3]]
 
-    sun_earth = SolarSystem(
-        numTimesteps,
-        dt,
-        write_limit,
-        integration_method,
-        init_file,
-        posfile,
-        momenfile,
-        bodynames
-    )
+elif runflag == "sej":
+    init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
+    bodynames = [bodynames[0], bodynames[3], bodynames[5]]
 
-    sun_earth.orbit3D()
-    sun_earth.orbit2D()
-    sun_earth.plotEnergy()
-    sun_earth.plotAngMomMagnitude()
+elif runflag == "sm":
+    init_file = "sun-mercury-2020-Oct-19-00:00:00.init"
+    bodynames = [bodynames[0], bodynames[1]]
 
-    plt.show()
-    # test_cpp()
-    clean()
+elif runflag == "ss":
+    init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
+
+
+write_limit = 1
+integration_method = "VelocityVerlet"
+posfile = "positions.xyz"
+momenfile = "energies.dat"
+
+sun_earth = SolarSystem(
+    numTimesteps,
+    dt,
+    write_limit,
+    integration_method,
+    init_file,
+    posfile,
+    momenfile,
+    bodynames
+)
+
+sun_earth.orbit3D()
+sun_earth.orbit2D()
+sun_earth.plotEnergy()
+sun_earth.plotAngMomMagnitude()
+
+plt.show()
+# test_cpp()
+clean()
