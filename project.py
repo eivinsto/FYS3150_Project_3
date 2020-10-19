@@ -2,11 +2,12 @@
 Python script to interface with project code.
 """
 from subprocess import run
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import itertools
-from mpl_toolkits.mplot3d import Axes3D
+
 
 # retriveing working directories:
 rootdir = os.getcwd()
@@ -141,7 +142,7 @@ class SolarSystem:
             self.generateSystem()
 
         fig = plt.figure()  # creates figure
-        ax = fig.add_subplot(111, projection='3d')  # create 3D subplot
+        ax = Axes3D(fig)  # create 3D subplot
 
         # running through celestial bodies:
         for i in range(self.numBods):
@@ -151,11 +152,11 @@ class SolarSystem:
                 plottype = "-"
 
             # plotting orbit of current body:
-            ax.plot(self.bodyPos[:, 3*i],
-                    self.bodyPos[:, 3*i + 1],
-                    self.bodyPos[:, 3*i + 2],
-                    plottype,
-                    label=self.bodynames[i])
+            ax.plot3D(self.bodyPos[:, 3*i],
+                      self.bodyPos[:, 3*i + 1],
+                      self.bodyPos[:, 3*i + 2],
+                      plottype,
+                      label=self.bodynames[i])
 
         ax.set_xlabel("x [AU]")
         ax.set_ylabel("y [AU]")
