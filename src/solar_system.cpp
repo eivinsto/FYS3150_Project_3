@@ -147,7 +147,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       body2.force -= gravforce;
 
       // Adding potential energy to total
-      m_potential_energy += potential_energy;
+      m_potential_energy -= potential_energy;
     }
 
     // Adding kinetic energy of body1 to total
