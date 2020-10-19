@@ -91,7 +91,8 @@ class SolarSystem:
 
         with open(self.posfile) as infile:
             header1 = infile.readline().split()
-            self.numBods = int(header1[3][0])
+            word = header1[3].rstrip('.')
+            self.numBods = int(word)
 
             self.bodyPos = np.genfromtxt(itertools.islice(
                 infile, 2, self.numTimesteps+2, self.everyNlines))
