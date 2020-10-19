@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import itertools
+from mpl_toolkits.mplot3d import Axes3D
 
 # retriveing working directories:
 rootdir = os.getcwd()
