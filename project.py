@@ -25,14 +25,6 @@ def test_cpp():
     run("./test_main.exe", cwd=src)
 
 
-def clean(files="dat"):
-    """Function for cleaning datafiles in src directory."""
-    if files == "dat":
-        run(["make", "cleandat"], cwd=src)
-    if files == "all":
-        run(["make", "clean"], cwd=src)
-
-
 class SolarSystem:
     """SolarSystemFiles is a class for reading data from SolarSystem C++
     program, and plotting orbits and energy/momentum."""
@@ -58,14 +50,13 @@ class SolarSystem:
         self.momenfile = rootdir + "/data/" + momenfile
         self.bodynames = bodynames
 
-        if (self.numTimesteps > 1000):
-            self.everyNlines = self.numTimesteps//1000
+        if (self.numTimesteps//write_limit > 1000):
+            self.everyNlines = self.numTimesteps // (write_limit*1000)
         else:
             self.everyNlines = 1
 
-        self.times = np.linspace(0,
-                                 numTimesteps*dt,
-                                 numTimesteps//self.everyNlines)
+        self.times = np.linspace(0, numTimesteps*dt,
+                                 numTimesteps//(self.everyNlines*write_limit))
 
     def generateSystem(self):
         build_cpp()
@@ -108,9 +99,6 @@ class SolarSystem:
                 infile, 1, self.numTimesteps+1, self.everyNlines),
                 usecols=[0, 1])
 
-        print(self.energy.shape, self.angmom.shape,
-              self.bodyPos.shape, self.numTimesteps, self.everyNlines)
-
     def orbit2D(self):
         """Create 2D plot of orbits."""
         if not self.isgenerated:
@@ -130,6 +118,11 @@ class SolarSystem:
                      plottype,
                      label=self.bodynames[i])
 
+        plt.title(
+            f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
+            + " " + integration_method +
+            f", Simulated time = {self.dt*self.numTimesteps} years"
+        )
         plt.xlabel("x [AU]")
         plt.ylabel("y [AU]")
         plt.legend()
@@ -180,6 +173,11 @@ class SolarSystem:
                  totenergy, '--',
                  label="Total energy")
 
+        plt.title(
+            f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
+            + " " + integration_method +
+            f", Simulated time = {self.dt*self.numTimesteps} years"
+        )
         plt.xlabel("Time [year]")
         plt.ylabel("Energy")
         plt.legend()
@@ -194,10 +192,16 @@ class SolarSystem:
                             self.angmom[:, 2]**2)
 
         plt.figure()
+
         plt.plot(self.times,
                  angmommag,
                  label="Angular momentum magnitude")
 
+        plt.title(
+            f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
+            + " " + integration_method +
+            f", Simulated time = {self.dt*self.numTimesteps} years"
+        )
         plt.xlabel("Time [year]")
         plt.ylabel("Angular momentum")
         plt.legend()
@@ -210,11 +214,16 @@ bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
 print("""Write se for Sun-Earth simulation,
 sej for Sun-Earth-Jupiter,
 sm for Sun-Mercury,
-and ss for entire Solar System.""")
+and ss for entire Solar System.
+Write test to run unit-tests""")
 
 runflag = input("Choose run: ")
-numTimesteps = int(eval(input("Number of time steps N = ")))
-dt = float(eval(input("Size of time step dt = ")))
+if runflag != "test":
+    numTimesteps = int(eval(input("Number of time steps N = ")))
+    dt = float(eval(input("Size of time step dt = ")))
+    limit_write = input(
+        "Only write the data from 1000 evenly spaced time steps? y/n: "
+    )
 
 if runflag == "se":
     init_file = "earth-sun-init.txt"
@@ -231,28 +240,41 @@ elif runflag == "sm":
 elif runflag == "ss":
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
+if runflag != "test":
+    if limit_write == "y":
+        write_limit = numTimesteps//1000
+    else:
+        write_limit = 1
 
-write_limit = 1
-integration_method = "VelocityVerlet"
-posfile = "positions.xyz"
-momenfile = "energies.dat"
+    integration_method = input("""Choose integration method:
+    Write fe for forward Euler,
+    or vv for Velocity-Verlet: """)
 
-sun_earth = SolarSystem(
-    numTimesteps,
-    dt,
-    write_limit,
-    integration_method,
-    init_file,
-    posfile,
-    momenfile,
-    bodynames
-)
+    if integration_method == "vv":
+        integration_method = "VelocityVerlet"
+    elif integration_method == "fe":
+        integration_method = "Euler"
 
-sun_earth.orbit3D()
-sun_earth.orbit2D()
-sun_earth.plotEnergy()
-sun_earth.plotAngMomMagnitude()
+    posfile = runflag + "_" + integration_method + "_" + "positions.xyz"
+    momenfile = runflag + "_" + integration_method + "_" + "energies.dat"
 
-plt.show()
-# test_cpp()
-clean()
+    sun_earth = SolarSystem(
+        numTimesteps,
+        dt,
+        write_limit,
+        integration_method,
+        init_file,
+        posfile,
+        momenfile,
+        bodynames
+    )
+
+    sun_earth.orbit3D()
+    sun_earth.orbit2D()
+    sun_earth.plotEnergy()
+    sun_earth.plotAngMomMagnitude()
+
+    plt.show()
+
+elif runflag == "test":
+    test_cpp()
