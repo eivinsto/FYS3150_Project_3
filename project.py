@@ -329,10 +329,15 @@ class SolarSystem:
         if self.correction == "nonrel":
             self.moveToSunFrame()
 
+        # finding perihelion:
         rvec = self.bodyPos[:, 3:6]
         r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
         mask = (np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True])
-        # print(mask)
+
+        self.thetaP = np.arctan(
+            self.bodyPos[mask, 3]/self.bodyPos[mask, 4]
+        )
+        print(self.thetaP)
 
 
 # name of bodies used in project:
