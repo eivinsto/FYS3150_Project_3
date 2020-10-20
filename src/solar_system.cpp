@@ -163,7 +163,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 * Function that calculates kinetic and potential energy, angular momentum,
 * and the force that the bodies exert on each other with a relativistic correction.
 */
-void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
+void SolarSystem::calculateForcesWithRelativisticCorrection() {
   // Clear variables
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
