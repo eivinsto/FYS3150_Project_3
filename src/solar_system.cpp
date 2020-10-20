@@ -165,9 +165,6 @@ void SolarSystem::calculateForcesAndEnergy() {
 */
 void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
   // Clear variables
-  m_kinetic_energy = 0;
-  m_potential_energy = 0;
-  m_angular_momentum = arma::zeros(3);
   for (CelestialBody &body: m_bodies) {
     body.force.zeros();
   }
@@ -199,17 +196,7 @@ void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
       arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
       body1.force += gravforce;
       body2.force -= gravforce;
-
-      // Adding potential energy to total
-      m_potential_energy += potential_energy;
     }
-
-    // Adding kinetic energy to total
-    double v = arma::norm(body1.velocity);
-    m_kinetic_energy += 0.5*body1.mass*v*v;
-
-    // Adding angular momentum to total
-    m_angular_momentum += body1.mass*l_vec;
   }
 }
 
