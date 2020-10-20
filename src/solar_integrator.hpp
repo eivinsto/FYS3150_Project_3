@@ -8,6 +8,7 @@
 class solar_integrator {
 public:
   // Public function
+  void integrateOneStep(SolarSystem& system, std::string relOrNonRel);
   void integrateOneStep(SolarSystem& system);
 
   // Constructor

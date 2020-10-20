@@ -24,16 +24,27 @@ solar_integrator::solar_integrator(double dt, std::string integrator) {
 * Chooses which method used depending on keyword specified in constructor.
 *
 * @system SolarSystem object to integrate.
+* @relOrNonRel string containing whether to use relativistic corrections.
 */
-void solar_integrator::integrateOneStep(SolarSystem& system) {
+void solar_integrator::integrateOneStep(SolarSystem& system, std::string relOrNonRel) {
   // If-test determining which integration method to use
   if (m_integrator=="Euler") {
-    Euler(system);
+    Euler(system, relOrNonRel);
   }
 
   if (m_integrator=="VelocityVerlet") {
-    VelocityVerlet(system);
+    VelocityVerlet(system, relOrNonRel);
   }
+}
+
+/**
+* Function that calls integrateOneStep without relativistic corrections.
+* Chooses which method used depending on keyword specified in constructor.
+*
+* @system SolarSystem object to integrate.
+*/
+void solar_integrator::integrateOneStep(SolarSystem& system) {
+  solar_integrator::integrateOneStep(system, "nonrel");
 }
 
 /**
