@@ -323,7 +323,7 @@ elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     bodynames = [bodynames[0], bodynames[3], bodynames[5]]
 
 elif runflag == "sm":  # initial data for sun_mercury run:
-    init_file = "sun-mercury-2020-Oct-19-00:00:00.init"
+    init_file = "sun-mercury.init"
     bodynames = [bodynames[0], bodynames[1]]
 
 elif runflag == "ss":  # initial data for entire SolarSystem run:
