@@ -275,6 +275,43 @@ We will also be experimenting with a slightly different form of the force in \eq
 where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to the normal gravitational force, and choosing a $\beta$ larger than this means that the force will be stronger for objects that are closer to each other and weaker for those that are far from each other.
 
 
+\subsection{Conservation of angular momentum}
+
+Kepler's second law states that the position vector between a planet and the Sun sweeps out a constant area for a given interval of time, no matter the starting position of the planet in its orbit. Mathematically this can be formulated as follows:
+
+\begin{align*}
+\frac{dA}{dt} &= \frac{r^2}{2} \frac{d\theta}{dt} \, , \numberthis \label{eq:kepler_second}
+\end{align*}   
+
+where $A$ is the area swept by the position vector, $r$ is the length of the position vector and $\theta$ is the angle determining the direction of the position vector. It is implicit here that we are looking at the 2D plane that the planet orbits the Sun in as the $xy$-plane, as this simplifies the equation significantly. 
+
+The angular momentum is given by:
+
+\begin{align*}
+\ell &= |\vec{r} \cross \vec{p}| \, ,\numberthis \label{eq:ang_mom}
+\end{align*}
+
+where $\vec{r}$ is the position vector, and $\vec{p} = m \vec{v}$ is the momentum vector with $\vec{v}$ being the velocity vector and $m$ being the mass. Now we can make some assumptions. Assuming that the position vector rotates in the $xy$-plane the only contribution to the cross product comes from the tangential component of the velocity $v_\theta$. If we assume the tangential velocity to be in positive $\theta$-direction (we can always transform the chosen plane so that this is the case) we get:
+
+\begin{align*}
+\ell &= mrv_\theta \numberthis \label{eq:2D_ang_mom}
+\end{align*}
+
+Using that $\vec{v} = \frac{d}{dt} \vec{r}$ we can write:
+
+\begin{align*}
+v_\theta &= r \frac{d\theta}{dt}
+\end{align*}
+
+We can insert this along with \eqref{eq:2D_ang_mom} into \eqref{eq:kepler_second}:
+
+\begin{align*}
+\frac{dA}{dt} &= \frac{r^2}{2} \frac{d\theta}{dt} \\
+\frac{dA}{dt} &= \frac{r}{2} v_\theta \\
+\frac{dA}{dt} &= \frac{1}{2} \frac{\ell}{m} 
+\end{align*}
+
+Since we already know that the left-hand side of this equation is constant this directly implies that the size of the angular momentum is a conserved quantity as we also assume the mass to be constant. 
 
 \section{Method} \label{sec:III}
 
