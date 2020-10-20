@@ -139,10 +139,10 @@ void SolarSystem::calculateForcesAndEnergy() {
       double dr = arma::norm(dr_vec);
 
       // Potential energy between body1 and body2
-      double potential_energy = m_G*body1.mass*body2.mass/dr;
+      double potential_energy = m_G*body1.mass*body2.mass/std::pow(dr,m_beta-1);
 
       // Force vector between the bodies (sign adjusted when adding to the bodies)
-      arma::vec gravforce = dr_vec*potential_energy/std::pow(dr,m_beta);
+      arma::vec gravforce = dr_vec*potential_energy/(dr*dr);
       body1.force += gravforce;
       body2.force -= gravforce;
 
