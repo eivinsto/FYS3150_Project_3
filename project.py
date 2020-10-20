@@ -25,6 +25,34 @@ def test_cpp():
     run("./test_main.exe", cwd=src)
 
 
+def benchmark_cpp():
+    """Function for running unit-tests."""
+    run(["make", "benchmark"], cwd=src)
+    run("./benchmark.exe", cwd=src)
+    benchmark_times = np.genfromtxt(rootdir + "benchmarkdata.dat", skip_header=2)
+    euler_mean = np.mean(benchmark_times[0])
+    euler_std = np.std(benchmark_times[0])
+
+    verlet_mean = np.mean(benchmark_times[1])
+    verlet_std = np.std(benchmark_times[1])
+
+    header1 = f"Time spent solving Sun Earth system using 5000 runs."
+    header2 = f"N = 10000, dt = 0.0001"
+    eulerstr = f"Euler: {euler_mean:.4e} s \u00B1 {euler_std:.4e} s"
+    verletstr = f"Armadillo solver: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
+    print(header1)
+    print(header2)
+    print(eulerstr)
+    print(verletstr)
+
+    # writing results to file in data directory:
+    with open(pwd + "/data/benchmark_sun_earth.dat", "w") as output:
+        output.write(header1 + "\n")
+        output.write(header2 + "\n")
+        output.write(eulerstr + "\n")
+        output.write(verletstr + "\n")
+
+
 class SolarSystem:
     """SolarSystemFiles is a class for reading data from SolarSystem C++
     program, and plotting orbits and energy/momentum."""
@@ -342,3 +370,6 @@ if runflag != "test" or runflag != "b":  # setting up run:
 
 elif runflag == "test":
     test_cpp()
+
+elif runflag == "b":
+    benchmark_cpp()
