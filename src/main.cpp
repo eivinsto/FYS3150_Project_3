@@ -13,7 +13,7 @@ int main(int numArguments, char **arguments) {
   double dt = 0.001;                                // Timestep
   int write_limit = 1;                              // How often data should be written to file
   string integration_method = "VelocityVerlet";     // Which integration method to use
-  string init_file = "../data/earth-sun-init.txt";  // File containing initial conditions
+  string init_file = "../data/sun-earth.init";  // File containing initial conditions
   string positions_file = "../data/positions.xyz";  // Which file to store output positions in
   string energies_file = "../data/energies.dat";    // Which file to store energies and angular momentum output in
   string correction = "nonrel";

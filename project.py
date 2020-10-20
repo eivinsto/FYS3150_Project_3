@@ -312,14 +312,27 @@ class SolarSystem:
         plt.legend()
         plt.grid()
 
-    # def perihelionAngle(self):
-    #     """Method for calculating all perihelionAngles in array of body 1."""
-    #     if not self.isgenerated:
-    #         self.generateSystem()
-    #
-    #     rvec = self.bodyPos[:, :3] - self.bodyPos[:, 3:]
-    #     r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
-    #     np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True]
+    def moveToSunFrame(self):
+        """Method for moving positions to Sun's frame of refrence."""
+        if not self.isgenerated:
+            self.generateSystem()
+        for i in range(1, self.numBods):
+            self.bodyPos[:, 3*i:3*i+3] = (self.bodyPos[:, 3*i:3*i+3] -
+                                          self.bodyPos[:, :3])
+
+        self.bodyPos[:, :3] = np.zeros((self.numTimesteps, 3))
+
+    def perihelionAngle(self):
+        """Method for calculating all perihelionAngles in array of body 1."""
+        if not self.isgenerated:
+            self.generateSystem()
+        if self.correction == "nonrel":
+            self.moveToSunFrame()
+
+        rvec = self.bodyPos[:, 3:6]
+        r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
+        mask = (np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True])
+        # print(mask)
 
 
 # name of bodies used in project:
@@ -345,7 +358,7 @@ if (runflag != "test") and (runflag != "b"):
     )
 
 if runflag == "se":  # initial data for sun_earth run:
-    init_file = "earth-sun-init.txt"
+    init_file = "sun-earth.init"
     bodynames = [bodynames[0], bodynames[3]]
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
@@ -357,7 +370,7 @@ elif runflag == "sm":  # initial data for sun_mercury run:
     bodynames = [bodynames[0], bodynames[1]]
 
     correction = input("Use relativistic correction of gravity?" +
-                       "y/n: ")
+                       "\ny/n: ")
     if (correction == "y"):
         correction = "rel"
 
@@ -407,7 +420,7 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
         plt.show()
 
     elif runflag == "sm":
-        system.generateSystem()
+        system.perihelionAngle()
 
 elif runflag == "test":
     test_cpp()
