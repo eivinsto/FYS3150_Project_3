@@ -29,7 +29,8 @@ def benchmark_cpp():
     """Function for running unit-tests."""
     run(["make", "benchmark"], cwd=src)
     run("./benchmark.exe", cwd=src)
-    benchmark_times = np.genfromtxt(rootdir + "benchmarkdata.dat", skip_header=2)
+    benchmark_times = np.genfromtxt(rootdir +
+                                    "/data/benchmarkdata.dat", skip_header=2)
     euler_mean = np.mean(benchmark_times[0])
     euler_std = np.std(benchmark_times[0])
 
@@ -39,14 +40,14 @@ def benchmark_cpp():
     header1 = f"Time spent solving Sun Earth system using 5000 runs."
     header2 = f"N = 10000, dt = 0.0001"
     eulerstr = f"Euler: {euler_mean:.4e} s \u00B1 {euler_std:.4e} s"
-    verletstr = f"Armadillo solver: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
+    verletstr = f"Verlet: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
     print(header1)
     print(header2)
     print(eulerstr)
     print(verletstr)
 
     # writing results to file in data directory:
-    with open(pwd + "/data/benchmark_sun_earth.dat", "w") as output:
+    with open(rootdir + "/data/benchmark_sun_earth.dat", "w") as output:
         output.write(header1 + "\n")
         output.write(header2 + "\n")
         output.write(eulerstr + "\n")
@@ -306,7 +307,7 @@ Write test to run unit-tests,
 or b for benchmark.""")
 runflag = input("Choose run: ")
 
-if runflag != "test" or runflag != "b":
+if (runflag != "test") and (runflag != "b"):
     # asking for imput parameters from user:
     numTimesteps = int(eval(input("Number of time steps N = ")))
     dt = float(eval(input("Size of time step dt = ")))
@@ -329,7 +330,7 @@ elif runflag == "sm":  # initial data for sun_mercury run:
 elif runflag == "ss":  # initial data for entire SolarSystem run:
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
-if runflag != "test" or runflag != "b":  # setting up run:
+if (runflag != "test") and (runflag != "b"):  # setting up run:
     if limit_write == "y":
         write_limit = numTimesteps//1000
     else:
