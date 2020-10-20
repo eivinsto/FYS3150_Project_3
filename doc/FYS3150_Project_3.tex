@@ -244,7 +244,13 @@ For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\)
 \begin{align*}
 	\vec{F}_{a} = -G\frac{m_{a}m_{b}}{|\vec{r}_{a}-\vec{r}_{b}|^{3}}\left(\vec{r}_{a}-\vec{r}_{b}\right), \numberthis \label{eq:grav} \\
 \end{align*}
-where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant.
+where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant. The potential energy in such a gravitational field is:
+
+\begin{align*}
+U &= - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|} \numberthis \label{eq:pot_en}
+\end{align*}
+
+For a circular motion of body $a$ around $b$ this should remain constant as the distance between the objects is always the same. The total energy of any closed system is also conserved, and this means that the kinetic energy also has to be conserved, as the total energy is the sum of the kinetic and potential energy. In an elliptical motion however, only the total energy is conserved, and we will see oscillations in the kinetic and potential energy.
 
 If we consider a body in a \(n\)-body system where the only interaction is gravitational, the net force on any body \(i\) becomes the sum of all the forces on body \(i\) from every other body in the system. Using \eqref{eq:grav} and summing over all bodies \(j\), where \(j\neq i\), we get
 \begin{align*}
@@ -264,7 +270,19 @@ In addition we have the differential equation
 	\frac{d\vec{r}_{i}(t)}{dt} = \vec{v}(t) \numberthis \label{eq:gendr}.
 \end{align*}
 
-Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allows us to find the internal motion of a given n-body system with only gravitational interaction.
+Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allows us to find the internal motion of a given n-body system with only gravitational interaction. In this system we can also define total potential energy:
+
+\begin{align*}
+U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|} \, , \numberthis \label{eq:tot_pot_en}
+\end{align*}
+
+and the total kinetic energy:
+
+\begin{align*}
+K_\text{tot} &= \sum\limits_i \frac{1}{2}m_i \vec{v}_i^2 \numberthis \label{eq:tot_kin_en}
+\end{align*}
+
+The sum of the total kinetic and potential energy of the system should be constant. This can be used to test the algorithms.
 
 We will also be experimenting with a slightly different form of the force in \eqref{eq:grav}:
 
@@ -272,10 +290,21 @@ We will also be experimenting with a slightly different form of the force in \eq
 \vec{F}_a = - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|^{\beta + 1} } ( \vec{r}_a - \vec{r}_b) \, , \numberthis \label{eq:beta_grav}
 \end{align*}
 
-where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to the normal gravitational force, and choosing a $\beta$ larger than this means that the force will be stronger for objects that are closer to each other and weaker for those that are far from each other.
+where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to the normal gravitational force, and choosing a $\beta$ larger than this means that the force will be stronger for objects that are closer to each other and weaker for those that are far from each other. In a $n$-body system such as in \eqref{eq:gengrav} we have that the total force an object experiences is:
 
+\begin{align*}
+\vec{F}_{i} = -Gm_{i}\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}-\vec{r}_{j}}{|\vec{r}_{i}-\vec{r}_{j}|^{\beta + 1}}. \numberthis \label{eq:beta_gengrav}
+\end{align*}
 
-\subsection{Conservation of angular momentum}
+We can also define the total potential energy in this case:
+
+\begin{align*}
+U_\text{tot} = U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|^{\beta-1}} . \numberthis \label{eq:beta_tot_pot_en}
+\end{align*}
+
+The total kinetic energy remains the same in this case.
+
+\subsection{Conservation of angular momentum} \label{sec:II:c}
 
 Kepler's second law states that the position vector between a planet and the Sun sweeps out a constant area for a given interval of time, no matter the starting position of the planet in its orbit. Mathematically this can be formulated as follows:
 
@@ -313,13 +342,86 @@ We can insert this along with \eqref{eq:2D_ang_mom} into \eqref{eq:kepler_second
 
 Since we already know that the left-hand side of this equation is constant this directly implies that the size of the angular momentum is a conserved quantity as we also assume the mass to be constant. 
 
+For a system of $n$-bodies such as in the previous section we can define the total angular momentum of a system as:
+
+\begin{align*}
+\vec{L}_\text{tot} &= \sum\limits_i \vec{r}_i \cross m\vec{v}_i \numberthis \label{eq:tot_ang_mom}
+\end{align*}
+
+For a closed system the norm of this quantity should be conserved.
+
+\subsection{Escape velocity of object in gravitational field} \label{sec:II:d}
+
+An object has a velocity large enough to escape a gravitational field when the total energy of the object is larger than zero. In other words we need the velocity $v$ to fulfill the following requirement:
+
+\begin{align*}
+K + U &\geq 0 \\
+\frac{1}{2}mv^2 - \frac{GMm}{r} &\geq 0 \\
+v &\geq \sqrt{\frac{2GM}{r}} \, ,
+\end{align*}
+
+where $K$ is the kinetic energy, $U$ the potential energy, $G$ the gravitational constant, $m$ the mass of the object, $M$ the mass of the object causing the gravitational field, $r$ the distance between them, and $v$ the size of the velocity of the object relative to the object causing the field. The escape velocity $v_e$ is the lowest velocity that allows escape in this way, and is thus given by the formula:
+
+\begin{align*}
+v_e &= \sqrt{\frac{2GM}{r}} \numberthis \label{eq:esc_vel}
+\end{align*} 
+
 \section{Method} \label{sec:III}
+
+\subsection{Implementation} \label{sec:III:a}
+
+In this section we will discuss the layout of the code and what each part does. As there is a lot of code we will only be including some snippets of code directly, and in some instances we will make references to functions and variables not shown in the code snippets. In these cases the reader should look to the source code if he or she wishes to know more. Links to the source code can be found in appendix \hyperref[A]{A}. 
 
 We have written a set of object oriented programs in C++ that together simulate a set of point objects with a gravitational interaction. We use these programs to simulate the solar systems. In order to better interface with these programs we have automated running them using a python script, which we will get back to once we have explained the general layout and implementation of the algorithms.
 
-The most basic part of the program is the \verb+CelestialBody+ class. The \verb+CelestialBody+ object is used to store the position, velocity, mass, and force an object is experiencing. No calculation in general is done in this class. See appendix \hyperref[A.5]{A.5} for the full code.
+The most basic part of the program is the \verb+CelestialBody+ class. The \verb+CelestialBody+ object is used to store the position, velocity, mass, and force an object is experiencing. No calculation in general is done in this class. See appendix \hyperref[A.5]{A.5} for the full code. The vectors (position, velocity and force) are stored as Armadillo \citep{Armadillo} vectors, as these have built-in functionality for the mathematical operations we need.
 
-The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in a standard library vector object. In this class we also calculate the forces that each object feels. Depending on how the class is instantiated the force used 
+The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in the standard library vector object \verb+m_bodies+. In this class we also calculate the forces that each object feels with one of two functions. The first one \verb+calculateForcesAndEnergy()+ uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to soon. The \verb+calculateForcesAndEnergy()+ is as follows:
+
+\begin{cpp}
+void SolarSystem::calculateForcesAndEnergy() {
+  // Clear variables
+  m_kinetic_energy = 0;
+  m_potential_energy = 0;
+  m_angular_momentum = arma::zeros(3);
+  for (CelestialBody &body: m_bodies) {
+    body.force.zeros();
+  }
+
+  // Iterate over every body (body1)
+  for (int i = 0; i<numberOfBodies();++i){
+    CelestialBody &body1 = m_bodies[i];
+    // Second iteration over every body after body1 (body2)
+    for (int j = i+1; j<numberOfBodies();++j) {
+      CelestialBody &body2 = m_bodies[j];
+
+      // Distance vector
+      arma::vec dr_vec = body2.position - body1.position;
+
+      // Length of distance vector
+      double dr = arma::norm(dr_vec);
+
+      // Potential energy between body1 and body2
+      double potential_energy = m_G*body1.mass*body2.mass/std::pow(dr,m_beta-1);
+
+      // Force vector between the bodies (sign adjusted when adding to the bodies)
+      arma::vec gravforce = dr_vec*potential_energy/(dr*dr);
+      body1.force += gravforce;
+      body2.force -= gravforce;
+
+      // Adding potential energy to total
+      m_potential_energy -= potential_energy;
+    }
+
+    // Adding kinetic energy of body1 to total
+    double v = arma::norm(body1.velocity);
+    m_kinetic_energy += 0.5*body1.mass*v*v;
+
+    // Adding angular momentum of body1 to total angular momentum
+    m_angular_momentum += arma::cross(body1.position,body1.mass*body1.velocity);
+  }
+}
+\end{cpp}
 
 \section{Results} \label{sec:IV}
 
