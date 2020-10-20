@@ -4,7 +4,7 @@ DEBUG := -g
 LIBS := -larmadillo
 OFILES := solar_integrator.o solar_system.o celestial_body.o
 
-.PHONY: all clean cleanbin test
+.PHONY: all clean benchmark test
 
 # compile code:
 all: main.exe
@@ -38,14 +38,19 @@ test_main.o: test_main.cpp
 test_functions.o: test_functions.cpp
 	$(CC) $(FLAGS) test_functions.cpp -c
 
+# benchmark
+benchmark: benchmark.exe
+
+benchmark.exe: benchmark.o $(OFILES)
+	$(CC) $(FLAGS) benchmark.o $(OFILES) -o benchmark.exe $(LIBS)
+
+benchmark.o: benchmark.cpp
+	$(CC) $(FLAGS) benchmark.cpp -c
+
 # project cleaning:
 clean:
 	rm -f *.o
 	rm -f *.exe
-	rm -f *.dat
-
-# data cleaning:
-cleandat:
 	rm -f *.dat
 
 print-% : ; @echo $* = $($*)

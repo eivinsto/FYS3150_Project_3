@@ -2,7 +2,6 @@
 #include "solar_integrator.hpp"
 #include "solar_system.hpp"
 #include <armadillo>
-#include <iostream>
 
 
 TEST_CASE("Test energy conservation with VelocityVerlet") {

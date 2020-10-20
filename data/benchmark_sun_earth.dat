@@ -1,0 +1,4 @@
+Time spent solving Sun Earth system using 5000 runs.
+N = 10000, dt = 0.0001
+Euler: 1.8415e-03 s ± 1.4500e-05 s
+Verlet: 1.8435e-03 s ± 8.5000e-06 s
