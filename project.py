@@ -70,7 +70,7 @@ class SolarSystem:
     """
 
     def __init__(self, numTimesteps, dt, write_limit, integration_method,
-                 init_file, posfile, momenfile, bodynames):
+                 init_file, posfile, momenfile, bodynames, correction):
         """Class constructor.
         Args:
             numTimesteps: integer - number of time steps to take.
@@ -98,6 +98,7 @@ class SolarSystem:
         self.momenfile = rootdir + "/data/" + momenfile
 
         self.bodynames = bodynames
+        self.correction = correction
 
         # ensuring that maximum 1000 lines of data are read from each file,
         # this is to limit memory use.
@@ -125,6 +126,7 @@ class SolarSystem:
                 self.init_file,
                 self.posfile,
                 self.momenfile,
+                self.correction
             ],
             cwd=src
         )
@@ -310,10 +312,20 @@ class SolarSystem:
         plt.legend()
         plt.grid()
 
+    # def perihelionAngle(self):
+    #     """Method for calculating all perihelionAngles in array of body 1."""
+    #     if not self.isgenerated:
+    #         self.generateSystem()
+    #
+    #     rvec = self.bodyPos[:, :3] - self.bodyPos[:, 3:]
+    #     r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
+    #     np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True]
+
 
 # name of bodies used in project:
 bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
              "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
+correction = "nonrel"
 
 # asking for imput:
 print("""Write se for Sun-Earth simulation,
@@ -344,6 +356,12 @@ elif runflag == "sm":  # initial data for sun_mercury run:
     init_file = "sun-mercury.init"
     bodynames = [bodynames[0], bodynames[1]]
 
+    correction = input("Use relativistic correction of gravity?" +
+                       "y/n: ")
+    if (correction == "y"):
+        correction = "rel"
+
+
 elif runflag == "ss":  # initial data for entire SolarSystem run:
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
@@ -367,7 +385,7 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
     momenfile = runflag + "_" + integration_method + "_" + "energies.dat"
 
     # initalising instance of SolarSystem class with parameters:
-    sun_earth = SolarSystem(
+    system = SolarSystem(
         numTimesteps,
         dt,
         write_limit,
@@ -375,16 +393,21 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
         init_file,
         posfile,
         momenfile,
-        bodynames
+        bodynames,
+        correction
     )
 
-    # calling the various plot functions:
-    sun_earth.orbit3D()
-    sun_earth.orbit2D()
-    sun_earth.plotEnergy()
-    sun_earth.plotAngMomMagnitude()
+    if runflag != "sm":
+        # calling the various plot functions:
+        system.orbit3D()
+        system.orbit2D()
+        system.plotEnergy()
+        system.plotAngMomMagnitude()
 
-    plt.show()
+        plt.show()
+
+    elif runflag == "sm":
+        system.generateSystem()
 
 elif runflag == "test":
     test_cpp()

@@ -16,6 +16,7 @@ int main(int numArguments, char **arguments) {
   string init_file = "../data/earth-sun-init.txt";  // File containing initial conditions
   string positions_file = "../data/positions.xyz";  // Which file to store output positions in
   string energies_file = "../data/energies.dat";    // Which file to store energies and angular momentum output in
+  string correction = "nonrel";
 
   // Reading variables from command line
   if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
@@ -25,6 +26,7 @@ int main(int numArguments, char **arguments) {
   if(numArguments >= 6) init_file = arguments[5];
   if(numArguments >= 7) positions_file = arguments[6];
   if(numArguments >= 8) energies_file = arguments[7];
+  if(numArguments >= 9) correction = arguments[8];
 
   // Reading initial state from file
   SolarSystem solarSystem(init_file);
