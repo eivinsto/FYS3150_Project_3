@@ -129,16 +129,21 @@ class SolarSystem:
             # each time step as the first column and potential energy
             # each time step as the second column.
 
-    def orbit2D(self):
+    def orbit2D(self, number_of_bodies=None):
         """Method for creating 2D plot of orbits,
-           by plotting the x and y coordinates of the bodies' positions."""
+           by plotting the x and y coordinates of the bodies' positions.
+           Args:
+               number_of_bodies: int - number of bodies to plot,
+                                       counting from zero"""
         if not self.isgenerated:  # generating data if necessary.
             self.generateSystem()
+        if number_of_bodies is None:
+            number_of_bodies = self.numBods
 
         plt.figure()  # creates figure
 
         # running through celestial bodies:
-        for i in range(self.numBods):
+        for i in range(number_of_bodies):
             if i == 0:
                 plottype = "."  # marking sun with dotted orbit.
             else:
@@ -162,16 +167,21 @@ class SolarSystem:
         plt.grid()
         plt.axis('equal')
 
-    def orbit3D(self):
-        """Create 3D plot of orbits."""
+    def orbit3D(self, number_of_bodies=None):
+        """Create 3D plot of orbits.
+        Args:
+            number_of_bodies: int - number of bodies to plot,
+                                    counting from zero"""
         if not self.isgenerated:  # generating data if necessary.
             self.generateSystem()
+        if number_of_bodies is None:
+            number_of_bodies = self.numBods
 
         fig = plt.figure()  # creates figure
         ax = Axes3D(fig)  # create 3D subplot
 
         # running through celestial bodies:
-        for i in range(self.numBods):
+        for i in range(number_of_bodies):
             if i == 0:
                 plottype = "."  # marking sun with dotted orbit.
             else:
