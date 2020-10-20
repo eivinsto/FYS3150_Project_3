@@ -177,7 +177,7 @@ void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
     CelestialBody &body1 = m_bodies[i];
 
     // Calculate angular momentum vector, size and squared size
-    arma::vec l_vec = arma::cross(body1.position,body1.mass*body1.velocity);
+    arma::vec l_vec = arma::cross(body1.position,body1.velocity);
     double l = arma::norm(l_vec);
     double l2 = l*l;
 
@@ -209,7 +209,7 @@ void SolarSystem::calculateForcesAndEnergyWithRelativisticCorrection() {
     m_kinetic_energy += 0.5*body1.mass*v*v;
 
     // Adding angular momentum to total
-    m_angular_momentum += l_vec;
+    m_angular_momentum += body1.mass*l_vec;
   }
 }
 
