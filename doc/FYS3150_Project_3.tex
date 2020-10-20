@@ -366,18 +366,42 @@ where $K$ is the kinetic energy, $U$ the potential energy, $G$ the gravitational
 v_e &= \sqrt{\frac{2GM}{r}} \numberthis \label{eq:esc_vel}
 \end{align*} 
 
+\subsection{Perihelion precession of Mercury}
+
+The observed precession of Mercury's perihelion is about 43'' per century when all contributions from classical effects are subtracted. By adding a relativistic correction term we can verify that we obtain the same result. The gravitational force between Mercury and the Sun with the relativistic correction term is as follows:
+
+\begin{align*}
+F_G &= \frac{GM_\text{Mercury} M_\text{Sun}}{r^2} \bigg[ 1 + \frac{3l^2}{r^2 c^2}\bigg] \, , \numberthis \label{eq:grav_rel} 
+\end{align*}
+
+where $M_\text{Mercury}$ is the mass of Mercury, $M_\text{Sun}$ the mass of the Sun, $r$ the distance between Mercury and the Sun, $c$ the speed of light, and $l$ the size of the angular momentum per unit mass. 
+
 \section{Method} \label{sec:III}
 
 \subsection{Implementation} \label{sec:III:a}
 
-In this section we will discuss the layout of the code and what each part does. As there is a lot of code we will only be including some snippets of code directly, and in some instances we will make references to functions and variables not shown in the code snippets. In these cases the reader should look to the source code if he or she wishes to know more. Links to the source code can be found in appendix \hyperref[A]{A}. 
+In this section we will discuss the layout of the code and what each part does. As there is a lot of code we will only be including some snippets of code directly, and in some instances we will make references to functions and variables not shown in the code snippets. In these cases the reader should look to the source code if he or she wishes to know more. Links to the source code can be found in appendix \hyperref[A]{A}. The units chosen can be found Table \hyperref[table:III:a:i]{1}.
+
+\begin{table}[h!] \label{table:III:a:i}
+\caption{Table containing the units used in the programs. See section \hyperref[sec:III:a]{III.A} for more details on these programs.}
+\begin{tabular}{|c|c|}
+\hline
+ & Unit \\
+\hline
+Length & AU \\
+Time & Year \\
+Mass & Mass of the Sun \\
+\hline
+\end{tabular}
+\end{table}
 
 We have written a set of object oriented programs in C++ that together simulate a set of point objects with a gravitational interaction. We use these programs to simulate the solar systems. In order to better interface with these programs we have automated running them using a python script, which we will get back to once we have explained the general layout and implementation of the algorithms.
 
 The most basic part of the program is the \verb+CelestialBody+ class. The \verb+CelestialBody+ object is used to store the position, velocity, mass, and force an object is experiencing. No calculation in general is done in this class. See appendix \hyperref[A.5]{A.5} for the full code. The vectors (position, velocity and force) are stored as Armadillo \citep{Armadillo} vectors, as these have built-in functionality for the mathematical operations we need.
 
-The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in the standard library vector object \verb+m_bodies+. In this class we also calculate the forces that each object feels with one of two functions. The first one \verb+calculateForcesAndEnergy()+ uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to soon. The \verb+calculateForcesAndEnergy()+ is as follows:
+The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in the standard library vector object \verb+m_bodies+. In this class we also calculate the forces that each object feels with one of two functions. The first one, called \verb+calculateForcesAndEnergy()+, is as follows:
 
+\onecolumngrid
 \begin{cpp}
 void SolarSystem::calculateForcesAndEnergy() {
   // Clear variables
@@ -422,6 +446,66 @@ void SolarSystem::calculateForcesAndEnergy() {
   }
 }
 \end{cpp}
+\twocolumngrid
+
+The function uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to. 
+
+The second function is \verb+calculateForcesWithRelativisticCorrection()+:
+
+\onecolumngrid
+\begin{cpp}
+void SolarSystem::calculateForcesWithRelativisticCorrection() {
+  // Clear variables
+  for (CelestialBody &body: m_bodies) {
+    body.force.zeros();
+  }
+
+  // Iterate over every body (body1)
+  for (int i = 0; i<numberOfBodies();++i){
+    CelestialBody &body1 = m_bodies[i];
+
+    // Calculate angular momentum vector, size and squared size
+    arma::vec l_vec = arma::cross(body1.position,body1.velocity);
+    double l = arma::norm(l_vec);
+    double l2 = l*l;
+
+    // Iterate over every body after body1 (body2)
+    for (int j = i+1; j<numberOfBodies();++j) {
+      CelestialBody &body2 = m_bodies[j];
+
+      // Distance vector
+      arma::vec dr_vec = body2.position - body1.position;
+
+      // Length of distance vector
+      double dr = arma::norm(dr_vec);
+      double dr2 = dr*dr;
+
+      // Potential energy between body1 and body2
+      double potential_energy = m_G*body1.mass*body2.mass/dr;
+
+      // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
+      arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
+      body1.force += gravforce;
+      body2.force -= gravforce;
+    }
+  }
+}
+\end{cpp}
+\twocolumngrid
+
+This one calculates the forces on each object using \eqref{eq:grav_rel}. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these functions these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum.
+
+There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. 
+
+The third way to instantiate the class is with a string as an argument. The string is taken to be the path leading to a file with initial conditions for the system. Each line in such a file should contain first the three cartesian coordinates ($x$,$y$,$z$) of an object, then the three components of the velocity ($v_x$,$v_y$,$v_z$), and then  lastly the mass of the object, all with a single whitespace between them. The file can be of arbitrary length as long as it is formatted correctly. This constructor first calls the first constructor, then instantiates all the objects in the file using the \verb+createCelestialBody()+ function, and then calls the \verb+moveToCOFMFrame()+ function which we will cover shortly. The fourth way of instantiating class works very similarly to the third one, in that it takes the path to a file of initial conditions as an argument, but now it also takes a double, which is taken to be \verb+m_beta+. It functions in exactly the same way as the third one, except that instead of calling the first constructor, it calls the second one so that \verb+m_beta+ is stored correctly.
+
+The class also contains the \verb+moveToCOFMFrame()+ function. As the name says, this transforms the coordinates and velocities of all the objects of the system so that the origin is the center of mass in the simulation.
+
+The three last functions of the class that we want to cover are \verb+initiateDataFile()+, \verb+writeToFile()+ and \verb+writeEnergyToFile()+. These are used together to write data generated during the simulation to files. The \verb+initiateDataFile()+ is overloaded so that it takes either one or two strings as arguments. If one is given, it is taken to be the path leading to the file that the positions of all the objects should be written to. If two are given, the first one is taken to be the path leading to the file that the positions of the objects should be written to, and the second is taken to be the path leading to the file that potential energy, kinetic energy and angular momentum should be written to. 
+
+The \verb+writeToFile()+ function takes no arguments, but any time it is called, the current positions of all the objects are written on a new line in the file. Each line contains first the $x$, $y$ and $z$ coordinates of the first object (in that order), then the same coordinates for the second object, and so on until all the positions have been written to the file specified with \verb+initiateDataFile()+. All the coordinates are separated by a single whitespace. If \verb+initiateDataFile()+ has not been ran, this function will not work. 
+
+The \verb+writeEnergyToFile()+ function takes no arguments, but any time it is called, the current kinetic energy, potential energy, and the components of the angular momentum are written to a new line (in that order, separated by a single whitespace) in the datafile specified with \verb+initiateDataFile()+. If \verb+initiateDataFile()+ has not been ran, or if it has only been ran with one argument this function will not work.
 
 \section{Results} \label{sec:IV}
 
