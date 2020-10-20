@@ -26,19 +26,28 @@ def test_cpp():
 
 
 def benchmark_cpp():
-    """Function for running unit-tests."""
+    """
+    Function for running benchmark of euler and verlet integration using
+    entire solar system.
+    """
+    # building and running benchmark program:
     run(["make", "benchmark"], cwd=src)
     run("./benchmark.exe", cwd=src)
+
+    # reading benchmark data from file:
     benchmark_times = np.genfromtxt(rootdir +
                                     "/data/benchmarkdata.dat", skip_header=2)
+
+    # taking mean and standard deviation:
     euler_mean = np.mean(benchmark_times[0])
     euler_std = np.std(benchmark_times[0])
 
     verlet_mean = np.mean(benchmark_times[1])
     verlet_std = np.std(benchmark_times[1])
 
-    header1 = "Time spent solving Sun Earth system using 5000 runs."
-    header2 = "N = 10000, dt = 0.0001"
+    # printing results to terminal:
+    header1 = "Time spent solving Solar system averaged over 500 runs."
+    header2 = "N = 10000, dt = 0.00248"
     eulerstr = f"Euler: {euler_mean:.4e} s \u00B1 {euler_std:.4e} s"
     verletstr = f"Verlet: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
     print(header1)
@@ -47,7 +56,7 @@ def benchmark_cpp():
     print(verletstr)
 
     # writing results to file in data directory:
-    with open(rootdir + "/data/benchmark_sun_earth.dat", "w") as output:
+    with open(rootdir + "/data/benchmark_sun_and_friends.dat", "w") as output:
         output.write(header1 + "\n")
         output.write(header2 + "\n")
         output.write(eulerstr + "\n")
@@ -55,8 +64,10 @@ def benchmark_cpp():
 
 
 class SolarSystem:
-    """SolarSystemFiles is a class for reading data from SolarSystem C++
-    program, and plotting orbits and energy/momentum."""
+    """
+    SolarSystemFiles is a class for reading data from SolarSystem C++
+    program, and plotting orbits and energy/momentum.
+    """
 
     def __init__(self, numTimesteps, dt, write_limit, integration_method,
                  init_file, posfile, momenfile, bodynames):
@@ -159,11 +170,13 @@ class SolarSystem:
             # each time step as the second column.
 
     def orbit2D(self, number_of_bodies=None):
-        """Method for creating 2D plot of orbits,
-           by plotting the x and y coordinates of the bodies' positions.
-           Args:
-               number_of_bodies: int - number of bodies to plot,
-                                       counting from zero"""
+        """
+        Method for creating 2D plot of orbits,
+        by plotting the x and y coordinates of the bodies' positions.
+        Args:
+            number_of_bodies: int - number of bodies to plot,
+                                    counting from zero.
+        """
         if not self.isgenerated:  # generating data if necessary.
             self.generateSystem()
         if number_of_bodies is None:
@@ -197,10 +210,12 @@ class SolarSystem:
         plt.axis('equal')
 
     def orbit3D(self, number_of_bodies=None):
-        """Create 3D plot of orbits.
+        """
+        Create 3D plot of orbits.
         Args:
             number_of_bodies: int - number of bodies to plot,
-                                    counting from zero"""
+                                    counting from zero.
+        """
         if not self.isgenerated:  # generating data if necessary.
             self.generateSystem()
         if number_of_bodies is None:
@@ -230,9 +245,11 @@ class SolarSystem:
         ax.legend()
 
     def plotEnergy(self):
-        """Plotting kinetic, potential and total energy for system as
+        """
+        Plotting kinetic, potential and total energy for system as
         function of time steps. Values are scaled by maximum magnitude of
-        total energy."""
+        total energy.
+        """
         if not self.isgenerated:  # generating data if necessary.
             self.generateSystem()
 
