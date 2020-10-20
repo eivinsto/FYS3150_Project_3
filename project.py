@@ -37,8 +37,8 @@ def benchmark_cpp():
     verlet_mean = np.mean(benchmark_times[1])
     verlet_std = np.std(benchmark_times[1])
 
-    header1 = "Time spent solving Sun Earth system using 5000 runs."
-    header2 = "N = 10000, dt = 0.0001"
+    header1 = "Time spent solving Solar system averaged over 500 runs."
+    header2 = "N = 10000, dt = 0.00248"
     eulerstr = f"Euler: {euler_mean:.4e} s \u00B1 {euler_std:.4e} s"
     verletstr = f"Verlet: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
     print(header1)
@@ -47,7 +47,7 @@ def benchmark_cpp():
     print(verletstr)
 
     # writing results to file in data directory:
-    with open(rootdir + "/data/benchmark_sun_earth.dat", "w") as output:
+    with open(rootdir + "/data/benchmark_sun_and_friends.dat", "w") as output:
         output.write(header1 + "\n")
         output.write(header2 + "\n")
         output.write(eulerstr + "\n")
