@@ -21,7 +21,9 @@ private:
   double m_dt_2;
 
   // Private functions
+  void Euler(SolarSystem& system, std::string relOrNonRel);
   void Euler(SolarSystem& system);
+  void VelocityVerlet(SolarSystem& system, std::string relOrNonRel);
   void VelocityVerlet(SolarSystem& system);
 };
 

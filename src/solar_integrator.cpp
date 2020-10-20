@@ -42,10 +42,15 @@ void solar_integrator::integrateOneStep(SolarSystem& system) {
 * specified to be the Euler method in the constructor.
 *
 * @system SolarSystem object to be integrated.
+* @relOrNonRel string containing flag for whether to use relativistic correction.
 */
-void solar_integrator::Euler(SolarSystem& system) {
+void solar_integrator::Euler(SolarSystem& system, std::string relOrNonRel) {
   // Calculate forces and energy
-  system.calculateForcesAndEnergy();
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
 
   // Integrate every body one step
   for (CelestialBody &body: system.bodies()) {
@@ -55,15 +60,28 @@ void solar_integrator::Euler(SolarSystem& system) {
 }
 
 /**
+* Function calling Euler with no relativistic correction.
+*
+* @system SolarSystem object to be integrated.
+*/
+void solar_integrator::Euler(SolarSystem& system) {
+  solar_integrator::Euler(system, "nonrel");
+}
+
+/**
 * Function that integrates one step with the velocity verlet method. This
 * function is by the integrateOneStep() function internally if the method to be
 * used was specified to be the velocity verlet method in the constructor.
 *
 * @system SolarSystem object to be integrated.
 */
-void solar_integrator::VelocityVerlet(SolarSystem& system) {
+void solar_integrator::VelocityVerlet(SolarSystem& system, std::string relOrNonRel) {
   // Calculate forces and energy
-  system.calculateForcesAndEnergy();
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
 
   // Initializing matrix to store the acceleration in current timestep
   arma::mat prev_acceleration(3,system.numberOfBodies());
@@ -77,7 +95,11 @@ void solar_integrator::VelocityVerlet(SolarSystem& system) {
   }
 
   // Calculate forces and energy again (to get acceleration in next timestep)
-  system.calculateForcesAndEnergy();
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
 
   // Integrates the velocity of the bodies one step using the acceleration in the current and the next timestep
   i = 0;
@@ -85,4 +107,13 @@ void solar_integrator::VelocityVerlet(SolarSystem& system) {
     body.velocity += m_dt_2*( prev_acceleration.col(i) + body.force / body.mass);
     ++i;
   }
+}
+
+/**
+* Function calling VelocityVerlet with no relativistic correction.
+*
+* @system SolarSystem object to be integrated.
+*/
+void solar_integrator::VelocityVerlet(SolarSystem& system) {
+  solar_integrator::VelocityVerlet(system, "nonrel");
 }
