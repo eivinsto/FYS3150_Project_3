@@ -266,6 +266,16 @@ In addition we have the differential equation
 
 Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allows us to find the internal motion of a given n-body system with only gravitational interaction.
 
+We will also be experimenting with a slightly different form of the force in \eqref{eq:grav}:
+
+\begin{align*}
+\vec{F}_a = - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|^{\beta + 1} } ( \vec{r}_a - \vec{r}_b) \, , \numberthis \label{eq:beta_grav}
+\end{align*}
+
+where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to the normal gravitational force, and choosing a $\beta$ larger than this means that the force will be stronger for objects that are closer to each other and weaker for those that are far from each other.
+
+
+
 \section{Method} \label{sec:III}
 
 We have written a set of object oriented programs in C++ that together simulate a set of point objects with a gravitational interaction. We use these programs to simulate the solar systems. In order to better interface with these programs we have automated running them using a python script, which we will get back to once we have explained the general layout and implementation of the algorithms.
