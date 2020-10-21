@@ -259,7 +259,7 @@ If we consider a body in a \(n\)-body system where the only interaction is gravi
 
 We then find the acceleration of body \(i\) at time \(t\) by dividing the net force by \(m_{a}\) resulting in
 \begin{align*}
-	\vec{a}_{i}(t) = \frac{\vec{F}_{i}(t)}{m_{i}} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}},
+	\vec{a}_{i}(t) = \frac{\vec{F}_{i}(t)}{m_{i}} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}}, \numberthis \label{eq:accel}
 \end{align*}
 which can be written as the differential equation
 \begin{align*}
@@ -451,7 +451,7 @@ We have written a set of object oriented programs in C++ that together simulate 
 
 The most basic part of the program is the \verb+CelestialBody+ class. The \verb+CelestialBody+ object is used to store the position, velocity, mass, and force an object is experiencing. No calculation in general is done in this class. See appendix \hyperref[A.5]{A.5} for the full code. The vectors (position, velocity and force) are stored as Armadillo \citep{Armadillo} vectors, as these have built-in functionality for the mathematical operations we need.
 
-The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in the standard library vector object \verb+m_bodies+. In this class we also calculate the forces that each object feels with one of two functions. The first one, called \verb+calculateForcesAndEnergy()+, is as follows:
+The level above the \verb+CelestialBody+ class is the \verb+SolarSystem+ class. This class creates \verb+CelestialBody+ objects and stores them in the standard library vector object \verb+m_bodies+. In this class we also calculate the forces that each object feels with one of two methods. The first one, called \verb+calculateForcesAndEnergy()+, is as follows:
 
 \onecolumngrid
 \begin{cpp}
@@ -500,9 +500,9 @@ void SolarSystem::calculateForcesAndEnergy() {
 \end{cpp}
 \twocolumngrid
 
-The function uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to. 
+The method uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to. 
 
-The second function is \verb+calculateForcesWithRelativisticCorrection()+:
+The second method is \verb+calculateForcesWithRelativisticCorrection()+:
 
 \onecolumngrid
 \begin{cpp}
@@ -541,19 +541,94 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
 \end{cpp}
 \twocolumngrid
 
-This is a specialized function, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these functions these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This function is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:e]{II.E}.
+This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these methods these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This method is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:e]{II.E}.
 
 There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. 
 
-The third way to instantiate the class is with a string as an argument. The string is taken to be the path leading to a file with initial conditions for the system. Each line in such a file should contain first the three cartesian coordinates ($x$,$y$,$z$) of an object, then the three components of the velocity ($v_x$,$v_y$,$v_z$), and then  lastly the mass of the object, all with a single whitespace between them. The file can be of arbitrary length as long as it is formatted correctly. This constructor first calls the first constructor, then instantiates all the objects in the file using the \verb+createCelestialBody()+ function, and then calls the \verb+moveToCOFMFrame()+ function which we will cover shortly. The fourth way of instantiating class works very similarly to the third one, in that it takes the path to a file of initial conditions as an argument, but now it also takes a double, which is taken to be \verb+m_beta+. It functions in exactly the same way as the third one, except that instead of calling the first constructor, it calls the second one so that \verb+m_beta+ is stored correctly.
+The third way to instantiate the class is with a string as an argument. The string is taken to be the path leading to a file with initial conditions for the system. Each line in such a file should contain first the three cartesian coordinates ($x$,$y$,$z$) of an object, then the three components of the velocity ($v_x$,$v_y$,$v_z$), and then  lastly the mass of the object, all with a single whitespace between them. The file can be of arbitrary length as long as it is formatted correctly. This constructor first calls the first constructor, then instantiates all the objects in the file using the \verb+createCelestialBody()+ method. The fourth way of instantiating class works very similarly to the third one, in that it takes the path to a file of initial conditions as an argument, but now it also takes a double, which is taken to be \verb+m_beta+. It functions in exactly the same way as the third one, except that instead of calling the first constructor, it calls the second one so that \verb+m_beta+ is stored correctly.
 
-The class also contains the \verb+moveToCOFMFrame()+ function. As the name says, this transforms the coordinates and velocities of all the objects of the system so that the origin is the center of mass in the simulation. The function uses \eqref{eq:cofm_pos}, \eqref{eq:cofm_vel} and \eqref{eq:cofm_transform} to perform the transformation.
+The class also contains the \verb+moveToCOFMFrame()+ method. As the name says, this transforms the coordinates and velocities of all the objects of the system so that the origin is the center of mass in the simulation. The method uses \eqref{eq:cofm_pos}, \eqref{eq:cofm_vel} and \eqref{eq:cofm_transform} to perform the transformation. In general it is recommended to call this method before starting the simulation. If we later want to see things in terms of the reference system of the Sun or any other body for that matter we can transform to these reference systems when processing the data after running the simulation. 
 
-The three last functions of the class that we want to cover are \verb+initiateDataFile()+, \verb+writeToFile()+ and \verb+writeEnergyToFile()+. These are used together to write data generated during the simulation to files. The \verb+initiateDataFile()+ is overloaded so that it takes either one or two strings as arguments. If one is given, it is taken to be the path leading to the file that the positions of all the objects should be written to. If two are given, the first one is taken to be the path leading to the file that the positions of the objects should be written to, and the second is taken to be the path leading to the file that potential energy, kinetic energy and angular momentum should be written to. 
+There are also some methods that serve as ways to retrieve private variables from the class. We list them all here. The \verb+bodies()+ method returns the standard library vector containing the \verb+CelestialBody+ objects, \verb+m_bodies+, \verb+potentialEnergy()+ and \verb+kineticEnergy()+ returns the total potential and kinetic energy of the system respectively (these are zero if \verb+calculateForcesAndEnergy()+ has not been ran yet), \verb+angularMomentum()+ returns the total angular momentum vector (this is the zero-vector if \verb+calculateForcesAndEnergy()+ has not been ran yet), and \verb+numberOfBodies()+ which returns the amount of \verb+CelestialBody+ objects currently stored in \verb+m_bodies+.  
 
-The \verb+writeToFile()+ function takes no arguments, but any time it is called, the current positions of all the objects are written on a new line in the file. Each line contains first the $x$, $y$ and $z$ coordinates of the first object (in that order), then the same coordinates for the second object, and so on until all the positions have been written to the file specified with \verb+initiateDataFile()+. All the coordinates are separated by a single whitespace. If \verb+initiateDataFile()+ has not been ran, this function will not work. 
+The three last methods of the class that we want to cover are \verb+initiateDataFile()+, \verb+writeToFile()+ and \verb+writeEnergyToFile()+. These are used together to write data generated during the simulation to files. The \verb+initiateDataFile()+ is overloaded so that it takes either one or two strings as arguments. If one is given, it is taken to be the path leading to the file that the positions of all the objects should be written to. If two are given, the first one is taken to be the path leading to the file that the positions of the objects should be written to, and the second is taken to be the path leading to the file that potential energy, kinetic energy and angular momentum should be written to. 
 
-The \verb+writeEnergyToFile()+ function takes no arguments, but any time it is called, the current kinetic energy, potential energy, and the components of the angular momentum are written to a new line (in that order, separated by a single whitespace) in the datafile specified with \verb+initiateDataFile()+. If \verb+initiateDataFile()+ has not been ran, or if it has only been ran with one argument this function will not work.
+The \verb+writeToFile()+ method takes no arguments, but any time it is called, the current positions of all the objects are written on a new line in the file. Each line contains first the $x$, $y$ and $z$ coordinates of the first object (in that order), then the same coordinates for the second object, and so on until all the positions have been written to the file specified with \verb+initiateDataFile()+. All the coordinates are separated by a single whitespace. If \verb+initiateDataFile()+ has not been ran, this method will not work. 
+
+The \verb+writeEnergyToFile()+ method takes no arguments, but any time it is called, the current kinetic energy, potential energy, and the components of the angular momentum are written to a new line (in that order, separated by a single whitespace) in the datafile specified with \verb+initiateDataFile()+. If \verb+initiateDataFile()+ has not been ran, or if it has only been ran with one argument this method will not work.
+
+The next class we need to talk about is the \verb+solar_integrator+ class. When instantiating this class two arguments are required, a double containing the timestep to be used for the simulation, and a string specifying which integration method should be used. Currently there are two methods of integration method, the forward Euler method \eqref{eq:forwardEuler} and the Velocity Verlet algorithm \eqref{eq:VelocityVerlet}. We will get back to how these are implmented once we have outlined the general structure of the class. 
+
+The main method of the class is the \verb+integrateOneStep()+ method. This takes a \verb+SolarSystem+ object as an argument and moves the system one timestep forward. Depending on what was specified when instantiating the class, this uses either the forward Euler method or the Velocity Verlet algorithm. The method is also overloaded so that it may take a string as an argument as well. In this case the string is a flag that tells the integrator to use either \verb+calculateForcesAndEnergy()+ or \verb+calculateForcesWithRelativisticCorrection()+ to get the forces each body in the system is experiencing. 
+
+The forward Euler method is implemented as follows:
+\begin{cpp}
+void solar_integrator::Euler(SolarSystem& system, 
+							 std::string relOrNonRel) {
+  // Calculate forces and energy
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
+
+  // Integrate every body one step
+  for (CelestialBody &body: system.bodies()) {
+    body.position += body.velocity*m_dt;
+    body.velocity += m_dt * body.force / body.mass;
+  }
+}
+\end{cpp} 
+
+The string \verb+relOrNonRel+ is the flag that tells which method the integrator should use to calculate the forces.    The main part of the implmentation is in the for loop. We loop over all the bodies stored in the class, and update their positions and velocities using \eqref{eq:forwardEuler} on the two differential equations outlined in \eqref{eq:gendv} and \eqref{eq:gendr}. This is done in a vectorized fashion, as Armadillo \citep{Armadillo} vectors supports these kinds of mathematical operations on vectors.
+
+The Velocity Verlet algorithm is implemented as follows:
+
+\begin{cpp}
+void solar_integrator::VelocityVerlet(SolarSystem& system,
+									  std::string relOrNonRel) {
+  // Calculate forces and energy
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
+
+  // Initializing matrix to store the acceleration in current 
+  // timestep
+  arma::mat prev_acceleration(3,system.numberOfBodies());
+
+  // Integrates the position of the bodies one step
+  int i = 0;
+  for (CelestialBody &body: system.bodies()) {
+    prev_acceleration.col(i) = body.force / body.mass;
+    body.position += m_dt * body.velocity 
+    				 + m_dt_sqr_2 * prev_acceleration.col(i);
+    ++i;
+  }
+
+  // Calculate forces and energy again (to get acceleration in 
+  // next timestep)
+  if (relOrNonRel == "rel") {
+    system.calculateForcesWithRelativisticCorrection();
+  } else if (relOrNonRel == "nonrel") {
+    system.calculateForcesAndEnergy();
+  }
+
+  // Integrates the velocity of the bodies one step using the 
+  // acceleration in the current and the next timestep
+  i = 0;
+  for (CelestialBody &body: system.bodies()) {
+    body.velocity += m_dt_2*( prev_acceleration.col(i) 
+    				 + body.force / body.mass);
+    ++i;
+  }
+}
+\end{cpp}
+
+The \verb+relOrNonRel+ flag works in the same way as in the forward Euler method. Note that the key difference here is that there are two loops instead of one. As seen in \eqref{eq:VelocityVerlet} we need to first update the position in order to update the velocity, as the velocity requires the acceleration in both the current timestep and the one we are integrating to. The acceleration is given by the force \eqref{eq:accel}, and so we need to calculate the force again before we can calculate the velocity. In order to improve the efficiency of the code it is thus better to split the integration into two loops and call the method to update the forces once in between those loops. We also need to store the acceleration in the current timestep, as calling the methods that update the forces delete the force of the current timestep stored in the \verb+SolarSystem+ object we are integrating. Thus we initialize and use the Armadillo \citep{Armadillo} matrix \verb+prev_acceleration+. The second loop then uses the acceleration in the current timestep, and the next, to update the velocity of each \verb+CelestialBody+ object stored in the \verb+SolarSystem+ object we are integrating. The variable \verb+m_dt_sqr_2+ used when updating the position is the timestep squared and divided by two. Similarly the variable \verb+m_dt_2+ is the timestep divided by two. These calculations are done when instantiating the class in order to reduce the amount of FLOPs. While the compiler should be able to move these calculations out of the loops automatically when using flags for optimizing, we have chosen to do it explicitly where we can.
+
+The \verb+Euler()+ and \verb+VelocityVerlet+ methods shown in the previous two code snippets cannot be called directly as they are private methods of the class. Instead the \verb+integrateOneStep()+ method should be called, as it calls either of these methods depending on what was specified when instantiating the class.
 
 \section{Results} \label{sec:IV}
 
