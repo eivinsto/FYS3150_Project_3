@@ -384,7 +384,7 @@ elif runflag == "ss":  # initial data for entire SolarSystem run:
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
 if (runflag != "test") and (runflag != "b"):  # setting up run:
-    if limit_write == "y":
+    if limit_write == "y" and numTimesteps > 1000:
         write_limit = numTimesteps//1000
     else:
         write_limit = 1
@@ -401,7 +401,6 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
 
     posfile = runflag + "_" + integration_method + "_" + "positions.xyz"
     momenfile = runflag + "_" + integration_method + "_" + "energies.dat"
-
     # initalising instance of SolarSystem class with parameters:
     system = SolarSystem(
         numTimesteps,

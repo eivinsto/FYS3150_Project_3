@@ -81,7 +81,6 @@ SolarSystem::SolarSystem(std::string input_filename, double beta) : SolarSystem(
     // Generate CelestialBody object and add to current SolarSystem object.
     createCelestialBody(x,v,mass);
   }
-  moveToCOFMFrame();
 }
 
 /**

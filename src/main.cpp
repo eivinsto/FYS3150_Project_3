@@ -34,8 +34,11 @@ int main(int numArguments, char **arguments) {
   // Initiate integrator
   solar_integrator integrator(dt, integration_method);
   solarSystem.initiateDataFile(positions_file, energies_file);
+
+  if (correction == "nonrel") solarSystem.moveToCOFMFrame();
+
   for(int timestep=0; timestep<numTimesteps; timestep++) {
-    integrator.integrateOneStep(solarSystem);
+    integrator.integrateOneStep(solarSystem, correction);
 
     if (timestep%write_limit == 0){
       solarSystem.writeToFile();
