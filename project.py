@@ -91,6 +91,7 @@ class SolarSystem:
 
         self.numTimesteps = numTimesteps
         self.dt = dt
+        self.write_limit = write_limit
         self.integration_method = integration_method
         # adding path to filenames:
         self.init_file = rootdir + "/data/" + init_file
@@ -119,9 +120,9 @@ class SolarSystem:
         run(
             [
                 "./main.exe",
-                f"{numTimesteps}",
-                f"{dt}",
-                f"{write_limit}",
+                f"{self.numTimesteps}",
+                f"{self.dt}",
+                f"{self.write_limit}",
                 self.integration_method,
                 self.init_file,
                 self.posfile,
@@ -316,11 +317,13 @@ class SolarSystem:
         """Method for moving positions to Sun's frame of refrence."""
         if not self.isgenerated:
             self.generateSystem()
+
         for i in range(1, self.numBods):
             self.bodyPos[:, 3*i:3*i+3] = (self.bodyPos[:, 3*i:3*i+3] -
                                           self.bodyPos[:, :3])
-
-        self.bodyPos[:, :3] = np.zeros((self.numTimesteps, 3))
+        self.bodyPos[:, :3] = np.zeros(
+            (self.numTimesteps//(self.everyNlines*self.write_limit), 3)
+        )
 
     def perihelionAngle(self):
         """Method for calculating all perihelionAngles in array of body 1."""
@@ -334,10 +337,9 @@ class SolarSystem:
         r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
         mask = (np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True])
 
-        self.thetaP = np.arctan(
-            self.bodyPos[mask, 3]/self.bodyPos[mask, 4]
-        )
-        print(self.thetaP)
+        self.xp = self.bodyPos[mask, 3]
+        self.yp = self.bodyPos[mask, 4]
+        self.thetaP = np.arctan(self.xp/self.yp)
 
 
 # name of bodies used in project:
@@ -352,14 +354,19 @@ sm for Sun-Mercury,
 and ss for entire Solar System.
 Write test to run unit-tests,
 or b for benchmark.""")
-runflag = input("Choose run: ")
+runflag = "start"
+while (runflag != "se" and runflag != "sej" and runflag != "sm" and
+       runflag != "ss" and runflag != "test" and runflag != "b"):
+
+    runflag = input("Choose run: ")
+
 
 if (runflag != "test") and (runflag != "b"):
     # asking for imput parameters from user:
-    numTimesteps = int(eval(input("Number of time steps N = ")))
+    numTimesteps = int(eval(input("\nNumber of time steps N = ")))
     dt = float(eval(input("Size of time step dt = ")))
     limit_write = input(
-        "Only write the data from 1000 evenly spaced time steps? y/n: "
+        "\nOnly write the data from 1000 evenly spaced time steps? y/n: "
     )
 
 if runflag == "se":  # initial data for sun_earth run:
@@ -374,11 +381,6 @@ elif runflag == "sm":  # initial data for sun_mercury run:
     init_file = "sun-mercury.init"
     bodynames = [bodynames[0], bodynames[1]]
 
-    correction = input("Use relativistic correction of gravity?" +
-                       "\ny/n: ")
-    if (correction == "y"):
-        correction = "rel"
-
 
 elif runflag == "ss":  # initial data for entire SolarSystem run:
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
@@ -389,9 +391,11 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
     else:
         write_limit = 1
 
-    integration_method = input("""Choose integration method:
+    integration_method = input("""
+Choose integration method:
     Write fe for forward Euler,
-    or vv for Velocity-Verlet: """)
+    or vv for Velocity-Verlet:
+""")
 
     # setting up algorithm and output filenames:
     if integration_method == "vv":
@@ -424,7 +428,21 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
         plt.show()
 
     elif runflag == "sm":
+        system2 = SolarSystem(numTimesteps, dt, write_limit,
+                              integration_method, init_file,
+                              "rel_" + posfile, "rel_" + momenfile,
+                              bodynames, "rel")
         system.perihelionAngle()
+        system2.perihelionAngle()
+        self.numTimesteps = numTimesteps
+        self.dt = dt
+        self.write_limit = write_limit
+        self.integration_method = integration_method
+        # adding path to filenames:
+        self.init_file = rootdir + "/data/" + init_file
+
+        print(f"{system.thetaP[0]:e}", f"{system2.thetaP[0]:e}")
+        print(f"{system.thetaP[-1]:e}", f"{system2.thetaP[-1]:e}")
 
 elif runflag == "test":
     test_cpp()
