@@ -376,6 +376,24 @@ F_G &= \frac{GM_\text{Mercury} M_\text{Sun}}{r^2} \bigg[ 1 + \frac{3l^2}{r^2 c^2
 
 where $M_\text{Mercury}$ is the mass of Mercury, $M_\text{Sun}$ the mass of the Sun, $r$ the distance between Mercury and the Sun, $c$ the speed of light, and $l$ the size of the angular momentum per unit mass. 
 
+If we simulate the orbit of the Mercury around the Sun as an isolated system, using \eqref{eq:grav_rel} as the force that the sun exerts on Mercury, we can use the resulting data to find the perihelion precession of Mercury. This can be compared with the measured precession due to relativistic effects listed earlier to test the accuracy of our numerical solution in this case. 
+
+To measure the precession of Mercury's perihelion we can use the following process. First we initialize a system with only Mercury and the Sun. We choose the reference frame of the Sun with Mercury orbiting in the $xy$-plane, as this means we only have to calculate the force that the Sun exerts on Mercury and reduces the problem from a three-dimensional one to a two-dimensional one. In order to simplify some calculations earlier we also initialize Mercury along the $x$-axis in its perihelion, and with initial velocity in positive orientation. Secondly we simulate the system for an amount of timesteps such that Mercury reaches perihelion a few times. Thirdly we process the data and identify the positions of the perihelion. Now we can calculate the change in the angular position of Mercury's perihelion with each revolution around the Sun, which gives us the precession. Since our system is generally in cartesian coordinates, we can find the angular position as:
+
+\begin{align*}
+\theta_p &= \arctan(\frac{x_p}{y_p}) \, ,\numberthis \label{eq:prec_ang_pos}
+\end{align*}
+
+where $\theta_p$ is the angular position of the perihelion, and $x_p$ and $y_p$ are the cartesian coordinates of the position of the perihelion.
+
+Given two subsequent angular positions of the perihelion $\theta_{p,1}$ and $\theta_{p,2}$ with the second coming after the first, we define the change in the angular position as $\Delta \theta_p = \theta_{p,2} - \theta_{p,1}$. The change in the angular position per unit time is the precession of the perihelion:
+
+\begin{align*}
+p &= \frac{\Delta \theta_p}{T} \, , \numberthis \label{eq:precession}
+\end{align*}
+
+where $p$ is the precession per unit time, and $T$ is the time it takes Mercury to reach the second position of the perihelion ($\theta_{p,2}$) after leaving the first ($\theta_{p,1}$).
+
 \subsection{Center of mass} \label{sec:II:f}
 
 In an $n$-body system, where body $i$ has mass $m_i$, position $\vec{r}_i$, and velocity $\vec{v}_i$ we have that the position of the center of mass $\vec{R}$ is:
@@ -404,6 +422,11 @@ We can always transform to a reference frame where the origin is placed at the c
 \end{align*}
 
 where $\vec{r}_i'$ is the position of body $i$ in the center of mass reference frame, and $\vec{v}_i$ the velocity of body $i$ in the center of mass reference frame.
+
+This only works in the classical limit, as when we are considering relativistic effects we also have to consider that the frame may be accelerated due to the center of mass potentially having a non-zero velocity.
+\newpage \newpage
+
+
 
 \section{Method} \label{sec:III}
 
@@ -489,40 +512,36 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
     body.force.zeros();
   }
 
-  // Iterate over every body (body1)
-  for (int i = 0; i<numberOfBodies();++i){
-    CelestialBody &body1 = m_bodies[i];
+  // Load Sun (body1)
+  CelestialBody &body1 = m_bodies[0];
 
-    // Calculate angular momentum vector, size and squared size
-    arma::vec l_vec = arma::cross(body1.position,body1.velocity);
-    double l = arma::norm(l_vec);
-    double l2 = l*l;
+  // Load Mercury (body2)
+  CelestialBody &body2 = m_bodies[1];
 
-    // Iterate over every body after body1 (body2)
-    for (int j = i+1; j<numberOfBodies();++j) {
-      CelestialBody &body2 = m_bodies[j];
+  // Calculate angular momentum vector, size and squared size
+  arma::vec l_vec = arma::cross(body2.position, body2.velocity);
+  double l = arma::norm(l_vec);
+  double l2 = l*l;
 
-      // Distance vector
-      arma::vec dr_vec = body2.position - body1.position;
 
-      // Length of distance vector
-      double dr = arma::norm(dr_vec);
-      double dr2 = dr*dr;
+  // Distance vector
+  arma::vec dr_vec = body2.position;
 
-      // Potential energy between body1 and body2
-      double potential_energy = m_G*body1.mass*body2.mass/dr;
+  // Length of distance vector
+  double dr = arma::norm(dr_vec);
+  double dr2 = dr*dr;
 
-      // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
-      arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
-      body1.force += gravforce;
-      body2.force -= gravforce;
-    }
-  }
+  // Potential energy between body1 and body2
+  double potential_energy = m_G*body1.mass*body2.mass/dr;
+
+  // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
+  arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
+  body2.force -= gravforce;
 }
 \end{cpp}
 \twocolumngrid
 
-This one calculates the forces on each object using \eqref{eq:grav_rel}. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these functions these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum.
+This is a specialized function, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these functions these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This function is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:e]{II.E}.
 
 There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. 
 
