@@ -169,35 +169,31 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
     body.force.zeros();
   }
 
-  // Iterate over every body (body1)
-  for (int i = 0; i<numberOfBodies();++i){
-    CelestialBody &body1 = m_bodies[i];
+  // Load Sun (body1)
+  CelestialBody &body1 = m_bodies[0];
 
-    // Calculate angular momentum vector, size and squared size
-    arma::vec l_vec = arma::cross(body1.position,body1.velocity);
-    double l = arma::norm(l_vec);
-    double l2 = l*l;
+  // Load Mercury (body2)
+  CelestialBody &body2 = m_bodies[1];
 
-    // Iterate over every body after body1 (body2)
-    for (int j = i+1; j<numberOfBodies();++j) {
-      CelestialBody &body2 = m_bodies[j];
+  // Calculate angular momentum vector, size and squared size
+  arma::vec l_vec = arma::cross(body2.position, body2.velocity);
+  double l = arma::norm(l_vec);
+  double l2 = l*l;
 
-      // Distance vector
-      arma::vec dr_vec = body2.position - body1.position;
 
-      // Length of distance vector
-      double dr = arma::norm(dr_vec);
-      double dr2 = dr*dr;
+  // Distance vector
+  arma::vec dr_vec = body2.position;
 
-      // Potential energy between body1 and body2
-      double potential_energy = m_G*body1.mass*body2.mass/dr;
+  // Length of distance vector
+  double dr = arma::norm(dr_vec);
+  double dr2 = dr*dr;
 
-      // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
-      arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
-      body1.force += gravforce;
-      body2.force -= gravforce;
-    }
-  }
+  // Potential energy between body1 and body2
+  double potential_energy = m_G*body1.mass*body2.mass/dr;
+
+  // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
+  arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
+  body2.force -= gravforce;
 }
 
 /**

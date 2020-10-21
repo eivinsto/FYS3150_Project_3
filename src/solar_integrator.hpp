@@ -8,6 +8,7 @@
 class solar_integrator {
 public:
   // Public function
+  void integrateOneStep(SolarSystem& system, std::string relOrNonRel);
   void integrateOneStep(SolarSystem& system);
 
   // Constructor
@@ -21,7 +22,9 @@ private:
   double m_dt_2;
 
   // Private functions
+  void Euler(SolarSystem& system, std::string relOrNonRel);
   void Euler(SolarSystem& system);
+  void VelocityVerlet(SolarSystem& system, std::string relOrNonRel);
   void VelocityVerlet(SolarSystem& system);
 };
 
