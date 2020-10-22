@@ -387,7 +387,7 @@ if runflag == "se":  # initial data for sun_earth run:
     bodynames = [bodynames[0], bodynames[3]]
     betaflag = input("Run sun earht with varying beta? y/n: ")
     if betaflag == "y":
-        init_file2 = "sun-earth-peturbed.init"
+        # init_file2 = "sun-earth-peturbed.init"
         beta_array = np.linspace(2, 3, 4)
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
@@ -431,7 +431,7 @@ Choose integration method:
                 dt,
                 write_limit,
                 integration_method,
-                init_file2,
+                init_file,
                 posfile,
                 momenfile,
                 bodynames,
