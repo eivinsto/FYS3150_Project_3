@@ -22,6 +22,7 @@ SolarSystem::SolarSystem(double beta) {
   m_potential_energy = 0;
   m_angular_momentum = arma::zeros(3);
   m_beta = beta;
+  m_beta_1 = m_beta-1.0;
 }
 
 /**
@@ -138,7 +139,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       double dr = arma::norm(dr_vec);
 
       // Potential energy between body1 and body2
-      double potential_energy = m_G*body1.mass*body2.mass/std::pow(dr,m_beta-1);
+      double potential_energy = m_G*body1.mass*body2.mass/std::pow(dr,m_beta_1);
 
       // Force vector between the bodies (sign adjusted when adding to the bodies)
       arma::vec gravforce = dr_vec*potential_energy/(dr*dr);
@@ -146,7 +147,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       body2.force -= gravforce;
 
       // Adding potential energy to total
-      m_potential_energy -= potential_energy;
+      m_potential_energy -= potential_energy/m_beta_1;
     }
 
     // Adding kinetic energy of body1 to total
