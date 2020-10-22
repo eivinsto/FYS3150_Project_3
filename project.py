@@ -19,6 +19,19 @@ def build_cpp():
     run(["make", "all"], cwd=src)
 
 
+def escvelinit(escvel):
+    """
+    Function writing init file for sun earth escape velocity
+    simulations.
+    """
+    init_file = "sun-earth-escvel.init"
+    with open(rootdir + "/data/" + init_file, "w") as outfile:
+        outfile.write("0 0 0 0 0 0 1\n")
+        outfile.write(f"1 0 0 0 {escvel:g} 0 3e-6\n")
+
+    return init_file
+
+
 def test_cpp():
     """Function for running unit-tests."""
     run(["make", "test"], cwd=src)
@@ -385,10 +398,17 @@ if (runflag != "test") and (runflag != "b"):
 if runflag == "se":  # initial data for sun_earth run:
     init_file = "sun-earth.init"
     bodynames = [bodynames[0], bodynames[3]]
-    betaflag = input("Run sun earht with varying beta? y/n: ")
-    if betaflag == "y":
-        # init_file2 = "sun-earth-peturbed.init"
-        beta_array = np.linspace(2, 3, 4)
+
+    escvelflag = input("Run escape velocity test ? y/n: ")
+    if escvelflag == "y":
+        escvel = float(eval(input("Enter initial escape velocity: ")))
+        init_file = escvelinit(escvel)
+
+    else:
+        betaflag = input("Run sun earht with varying beta? y/n: ")
+        if betaflag == "y":
+            # init_file2 = "sun-earth-peturbed.init"
+            beta_array = np.linspace(2, 3, 4)
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
