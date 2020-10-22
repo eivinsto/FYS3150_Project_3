@@ -244,7 +244,7 @@ For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\)
 \begin{align*}
 	\vec{F}_{a} = -G\frac{m_{a}m_{b}}{|\vec{r}_{a}-\vec{r}_{b}|^{3}}\left(\vec{r}_{a}-\vec{r}_{b}\right), \numberthis \label{eq:grav} \\
 \end{align*}
-where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant. The potential energy in such a gravitational field is:
+where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant. The potential energy and the force are connected by the relation $\vec{F} = - \gradient U$. This gives us that the potential energy has to be:
 
 \begin{align*}
 U &= - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|} \numberthis \label{eq:pot_en}
@@ -296,10 +296,10 @@ where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to 
 \vec{F}_{i} = -Gm_{i}\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}-\vec{r}_{j}}{|\vec{r}_{i}-\vec{r}_{j}|^{\beta + 1}}. \numberthis \label{eq:beta_gengrav}
 \end{align*}
 
-We can also define the total potential energy in this case:
+We can also write down the total potential energy in this case:
 
 \begin{align*}
-U_\text{tot} = U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|^{\beta-1}} . \numberthis \label{eq:beta_tot_pot_en}
+U_\text{tot} &= \sum\limits_i - \frac{G m_i}{\beta - 1} \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|^{\beta-1}} . \numberthis \label{eq:beta_tot_pot_en}
 \end{align*}
 
 The total kinetic energy remains the same in this case.
