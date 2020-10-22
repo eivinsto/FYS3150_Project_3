@@ -153,7 +153,7 @@ class SolarSystem:
         )
 
         self.readData()  # reading data from files
-        print("Done generating data")
+        print("\nDone generating data")
         self.isgenerated = True  # setting flag that data has been generated.
 
     def readData(self):
@@ -438,15 +438,16 @@ if runflag == "se":  # initial data for sun_earth run:
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
     bodynames = [bodynames[0], bodynames[3], bodynames[5]]
-    jup_m_fac = [10, 1000]
+    jup_m_fac = [1, 10, 1000]
     init_files = [init_file]
 
     for i in jup_m_fac:
-        initconditions = np.genfromtxt(rootdir + "/data/" + init_file)
-        initconditions[2, 6] *= i
-        file = f"sej_{i}" + init_file
-        init_file_maker(initconditions, file)
-        init_files.append(file)
+        if i > 1:
+            initconditions = np.genfromtxt(rootdir + "/data/" + init_file)
+            initconditions[2, 6] *= i
+            file = f"sej_{i}" + init_file
+            init_file_maker(initconditions, file)
+            init_files.append(file)
 
 
 elif runflag == "sm":  # initial data for sun_mercury run:
@@ -533,6 +534,7 @@ Choose integration method:
                 "nonrel",
                 beta
             )
+            print(f"\nPlotting for Jupiter mass multiplier = {jup_m_fac[i]}x")
             system.orbit3D(number_of_bodies=num_bods_to_plot,
                            center_on_sun=center_on_sun)
             system.orbit2D(number_of_bodies=num_bods_to_plot,
@@ -543,7 +545,6 @@ Choose integration method:
             plt.show()
 
     if runflag != "sm" and runflag != "sej" and betaflag != "y":
-        print(bodynames)
         # calling the various plot functions:
         system.orbit3D(number_of_bodies=num_bods_to_plot,
                        center_on_sun=center_on_sun)
