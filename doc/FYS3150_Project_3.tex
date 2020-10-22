@@ -399,7 +399,7 @@ Using \eqref{eq:pot_en_der} and \eqref{eq:kin_en_der1} in this gives us:
 \begin{align*}
 \frac{1}{2}\sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_{ij}}{dt} \cdot \vec{F}_{ij} + \frac{\partial}{\partial t} U_\text{tot} - \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \vec{F}_{ij} \cdot \frac{d\vec{r}_{ij}}{dt} &= 0 \\
 \frac{\partial}{\partial t} U_\text{tot} &= 0 \\
-\sum\limits_i \sum\limits_{j\neq i } \frac{\partial}{\partial t} U(\vec{r}_{ij},t) &= 0 \numberthis \label{eq:energy_cons}
+\frac{1}{2}\sum\limits_i \sum\limits_{j\neq i } \frac{\partial}{\partial t} U(\vec{r}_{ij},t) &= 0 \numberthis \label{eq:energy_cons}
 \end{align*}
 
 In other words for an $n$-body system to have conserved energy we need the potential energy to be independent of time. Another assumption made along the way was that there are no external forces, which means that this is only for a closed system. This proves that total energy is conserved both in $n$-body systems where the force interaction is given by \eqref{eq:gengrav} or \eqref{eq:beta_gengrav} as there are no external forces and the potential energies (\eqref{eq:tot_pot_en} and \eqref{eq:beta_tot_pot_en} respectively) are time independent.
