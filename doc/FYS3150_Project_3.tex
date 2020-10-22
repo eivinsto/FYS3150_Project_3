@@ -136,7 +136,7 @@
 
 \section{Formalism} \label{sec:II}
 
-\subsection{Two methods for numerical integration}
+\subsection{Two methods for numerical integration} \label{sec:II:a}
 To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the generic function \(f\) that depends on a variable \(t\) such that
 \begin{align*}
 	\frac{d}{dt}f(t) = g(t, f(t)). \numberthis \label{eq:fofg}
@@ -239,7 +239,7 @@ Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algo
 
 In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method. 
 
-\subsection{A generalized gravitational force}
+\subsection{A generalized gravitational force} \label{sec:II:b}
 For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
 \begin{align*}
 	\vec{F}_{a} = -G\frac{m_{a}m_{b}}{|\vec{r}_{a}-\vec{r}_{b}|^{3}}\left(\vec{r}_{a}-\vec{r}_{b}\right), \numberthis \label{eq:grav} \\
@@ -250,7 +250,7 @@ where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\
 U &= - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|} \numberthis \label{eq:pot_en}
 \end{align*}
 
-For a circular motion of body $a$ around $b$ this should remain constant as the distance between the objects is always the same. The total energy of any closed system is also conserved, and this means that the kinetic energy also has to be conserved, as the total energy is the sum of the kinetic and potential energy. In an elliptical motion however, only the total energy is conserved, and we will see oscillations in the kinetic and potential energy.
+For a circular motion of body $a$ around $b$ this should remain constant as the distance between the objects is always the same. The total energy in such a two-body system is also conserved, and this means that the kinetic energy also has to be conserved, as the total energy is the sum of the kinetic and potential energy. At this point this is just an assumption, but we will prove it in the next section. In an elliptical motion however, only the total energy is conserved, and we will see oscillations in the kinetic and potential energy.
 
 If we consider a body in a \(n\)-body system where the only interaction is gravitational, the net force on any body \(i\) becomes the sum of all the forces on body \(i\) from every other body in the system. Using \eqref{eq:grav} and summing over all bodies \(j\), where \(j\neq i\), we get
 \begin{align*}
@@ -282,7 +282,7 @@ and the total kinetic energy:
 K_\text{tot} &= \sum\limits_i \frac{1}{2}m_i \vec{v}_i^2 \numberthis \label{eq:tot_kin_en}
 \end{align*}
 
-The sum of the total kinetic and potential energy of the system should be constant. This can be used to test the algorithms.
+The sum of the total kinetic and potential energy of the system should be constant (this will be proven in the next section). This can be used to test the algorithms.
 
 We will also be experimenting with a slightly different form of the force in \eqref{eq:grav}:
 
@@ -304,7 +304,75 @@ U_\text{tot} = U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j\neq i} \frac
 
 The total kinetic energy remains the same in this case.
 
-\subsection{Conservation of angular momentum} \label{sec:II:c}
+\subsection{Conservation of energy} \label{sec:II:c}
+
+We have that the force $\vec{F}$ is related to the potential energy as follows:
+
+\begin{align*}
+\vec{F} &= - \gradient U \numberthis \label{eq:force_pot_en}
+\end{align*}
+
+This will be useful later. That the total energy $E$ is conserved can be written mathematically as:
+
+\begin{align*}
+\frac{dE}{dt} &= 0 \\
+\frac{d}{dt} (K_\text{tot} + U_\text{tot}) &= 0 \, ,
+\end{align*} 
+
+where we have used that the total energy is the sum of the total kinetic energy $K_\text{tot}$ and the total potential energy $U_\text{tot}$. We now assume that we are in an $n$-body system, where the potential energy is velocity independent. The potential energy is determined by the interaction between the bodies and a potential time dependent part. We define $\vec{r}_{ij} = \vec{r}_i - \vec{r}_j$ as the distance vector between the position of body $i$ ($\vec{r}_i$) and body $j$ ($\vec{r}_j$). This means that we can write the total potential energy as:
+
+\begin{align*}
+U_\text{tot} = \sum\limits_i \sum\limits_{j\neq i} U(\vec{r}_{ij},t) \, ,
+\end{align*}
+
+where $U$ here is the potential energy experienced by body $i$ because of body $j$. This also means that we can write the force experienced by body $i$ from body $j$ as:
+
+\begin{align*}
+\vec{F}_{ij} = - \gradient_{ij} U(\vec{r}_{ij}, t) \, ,
+\end{align*}
+
+where $\gradient_{ij}$ differentiates with respect to $\vec{r}_{ij}$. We can then write the time derivative of the potential energy as:
+
+\begin{align*}
+\frac{d}{dt}U_\text{tot} &= \sum\limits_{i} \sum\limits_{j\neq i} \frac{d}{dt} U (\vec{r}_{ij}, t ) \, , \\
+&= \sum\limits_{i} \sum\limits_{j\neq i} \bigg( \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} + \frac{\partial }{\partial t} U(\vec{r}_{ij}, t) \bigg) \\
+&= \frac{\partial}{\partial t} U_\text{tot} + \sum\limits_{i} \sum\limits_{j\neq i} \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} \\
+&= \frac{\partial}{\partial t} U_\text{tot} - \sum\limits_{i} \sum\limits_{j\neq i} \vec{F}_{ij} \cdot \frac{d\vec{r}_{ij}}{dt} \numberthis \label{eq:pot_en_der}
+\end{align*}
+
+The total kinetic energy can be given as the sum of the kinetic energy of each body:
+
+\begin{align*}
+K_\text{tot} &= \sum\limits_i \frac{1}{2} m \vec{v}_i^2 
+\end{align*}
+
+The time derivative of this is:
+
+\begin{align*}
+\frac{d}{dt} K_\text{tot} &= \sum\limits_i m \vec{v}_i \cdot \vec{a}_i \\
+&= \sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i \\
+&= \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \\
+&= \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_{ij}}{dt} \cdot \vec{F}_{ij} \numberthis \label{eq:kin_en_der1}
+\end{align*}
+
+
+where $\vec{F}_i$ is the total force body $i$ experiences given as $\vec{F}_i = \sum\limits_{j\neq i} \vec{F}_{ij}$. The second to last equality is non-trivial, which means we need to prove it. We have that:
+
+\begin{align*}
+\sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i &= \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} 
+\end{align*}
+
+The double sum on the right-hand side can be rewritten:
+
+\begin{align*}
+\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} &= -\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ji} \\
+&= - \sum\limits_j \sum\limits_{i \neq j} \frac{d\vec{r}_j}{dt} \vec{F}_{ij} \\
+&= - \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij}
+\end{align*}
+
+where we switched the indexation around in the second to last equality, and rewrote the summation in the last equality.
+
+\subsection{Conservation of angular momentum} \label{sec:II:d}
 
 Kepler's second law states that the position vector between a planet and the Sun sweeps out a constant area for a given interval of time, no matter the starting position of the planet in its orbit. Mathematically this can be formulated as follows:
 
@@ -350,7 +418,7 @@ For a system of $n$-bodies such as in the previous section we can define the tot
 
 For a closed system the norm of this quantity should be conserved.
 
-\subsection{Escape velocity of object in gravitational field} \label{sec:II:d}
+\subsection{Escape velocity of object in gravitational field} \label{sec:II:e}
 
 An object has a velocity large enough to escape a gravitational field when the total energy of the object is larger than zero. In other words we need the velocity $v$ to fulfill the following requirement:
 
@@ -366,7 +434,7 @@ where $K$ is the kinetic energy, $U$ the potential energy, $G$ the gravitational
 v_e &= \sqrt{\frac{2GM}{r}} \numberthis \label{eq:esc_vel}
 \end{align*} 
 
-\subsection{Perihelion precession of Mercury} \label{sec:II:e}
+\subsection{Perihelion precession of Mercury} \label{sec:II:f}
 
 The observed precession of Mercury's perihelion is about 43'' per century when all contributions from classical effects are subtracted. By adding a relativistic correction term we can verify that we obtain the same result. The gravitational force between Mercury and the Sun with the relativistic correction term is as follows:
 
@@ -546,7 +614,7 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
 }
 \end{cpp}
 
-This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these methods these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This method is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:e]{II.E}.
+This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these methods these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This method is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:f]{II.F}.
 
 There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. \newline
 
