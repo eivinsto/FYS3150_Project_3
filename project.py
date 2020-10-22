@@ -19,15 +19,20 @@ def build_cpp():
     run(["make", "all"], cwd=src)
 
 
-def escvelinit(escvel):
+def init_file_maker(mat, filname):
     """
     Function writing init file for sun earth escape velocity
     simulations.
     """
     init_file = "sun-earth-escvel.init"
     with open(rootdir + "/data/" + init_file, "w") as outfile:
-        outfile.write("0 0 0 0 0 0 1\n")
-        outfile.write(f"1 0 0 0 {escvel:g} 0 3e-6\n")
+        for i in range(len(mat[:, 0])):
+            for j in range(len(mat[0, :])):
+                outfile.write(f"{mat[i, j]}")
+                if j < len(mat[0, :])-1:
+                    outfile.write(" ")
+                else:
+                    outfile.write("\n")
 
     print(f"v_0 = {escvel}")
     return init_file
@@ -410,7 +415,16 @@ if runflag == "se":  # initial data for sun_earth run:
     escvelflag = input("Run escape velocity test? y/n: ")
     if escvelflag == "y":
         escvel = float(eval(input("Enter initial escape velocity: ")))
-        init_file = escvelinit(escvel)
+
+        # creating file with initial conditions:
+        init_file = "sun-earth-escvel.init"
+        mat = np.zeros((2, 7))
+        mat[0, 6] = 1  # sun mass
+        mat[1, 0] = 1  # earth x0
+        mat[1, 4] = escvel  # earth vx0
+        mat[1, 6] = 3e-6  # earth mass
+        init_file_maker(mat, init_file)
+
         axis = "auto"
 
     else:
@@ -501,10 +515,11 @@ Choose integration method:
         )
 
     if runflag != "sm" and betaflag != "y":
+        print(bodynames)
         # calling the various plot functions:
-        system.orbit3D(numberOfBodies=num_bods_to_plot,
+        system.orbit3D(number_of_bodies=num_bods_to_plot,
                        center_on_sun=center_on_sun)
-        system.orbit2D(numberOfBodies=num_bods_to_plot,
+        system.orbit2D(number_of_bodies=num_bods_to_plot,
                        axis=axis)
         system.plotEnergy()
         system.plotAngMomMagnitude()
