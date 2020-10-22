@@ -29,6 +29,7 @@ def escvelinit(escvel):
         outfile.write("0 0 0 0 0 0 1\n")
         outfile.write(f"1 0 0 0 {escvel:g} 0 3e-6\n")
 
+    print(f"v_0 = {escvel}")
     return init_file
 
 
@@ -188,7 +189,8 @@ class SolarSystem:
             # each time step as the second column.
         # print(self.bodyPos.shape)
 
-    def orbit2D(self, number_of_bodies=None, center_on_sun=False):
+    def orbit2D(self, number_of_bodies=None, center_on_sun=False,
+                axis='equal'):
         """
         Method for creating 2D plot of orbits,
         by plotting the x and y coordinates of the bodies' positions.
@@ -228,7 +230,7 @@ class SolarSystem:
         plt.ylabel("y [AU]")
         plt.legend()
         plt.grid()
-        plt.axis('equal')
+        plt.axis(axis)
 
     def orbit3D(self, number_of_bodies=None, center_on_sun=False):
         """
@@ -381,6 +383,7 @@ Write test to run unit-tests,
 or b for benchmark.""")
 runflag = "start"
 betaflag = "n"
+center_on_sun = True
 while (runflag != "se" and runflag != "sej" and runflag != "sm" and
        runflag != "ss" and runflag != "test" and runflag != "b"):
 
@@ -403,6 +406,7 @@ if runflag == "se":  # initial data for sun_earth run:
     if escvelflag == "y":
         escvel = float(eval(input("Enter initial escape velocity: ")))
         init_file = escvelinit(escvel)
+        axis = "auto"
 
     else:
         betaflag = input("Run sun earht with varying beta? y/n: ")
@@ -423,6 +427,7 @@ elif runflag == "sm":  # initial data for sun_mercury run:
 
 
 elif runflag == "ss":  # initial data for entire SolarSystem run:
+    center_on_sun = False
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
 if (runflag != "test") and (runflag != "b"):  # setting up run:
@@ -463,7 +468,7 @@ Choose integration method:
             )
 
             system.orbit3D(center_on_sun=True)
-            system.orbit2D()
+            system.orbit2D(axis=axis)
             system.plotEnergy()
             system.plotAngMomMagnitude()
             plt.show()
@@ -488,8 +493,8 @@ Choose integration method:
 
     if runflag != "sm" and betaflag != "y":
         # calling the various plot functions:
-        system.orbit3D()
-        system.orbit2D()
+        system.orbit3D(center_on_sun=center_on_sun)
+        system.orbit2D(axis=axis)
         system.plotEnergy()
         system.plotAngMomMagnitude()
 
