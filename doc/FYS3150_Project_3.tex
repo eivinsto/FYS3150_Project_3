@@ -385,7 +385,7 @@ Putting this all together, we can write:
 \begin{align*}
 \sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i &= \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} \\
 &= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} + \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} \\
-&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \, ,
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \, , \numberthis \label{eq:pos_force_dot_sum}
 \end{align*}
 
 which is the relation we wanted to show. Our requirement for the energy to be conserved was that:
@@ -443,13 +443,45 @@ We can insert this along with \eqref{eq:2D_ang_mom} into \eqref{eq:kepler_second
 
 Since we already know that the left-hand side of this equation is constant this directly implies that the size of the angular momentum is a conserved quantity as we also assume the mass to be constant. 
 
-For a system of $n$-bodies such as in the previous section we can define the total angular momentum of a system as:
+For a system of $n$-bodies such as in the previous sections we can define the total angular momentum of a system as:
 
 \begin{align*}
 \vec{L}_\text{tot} &= \sum\limits_i \vec{r}_i \cross m\vec{v}_i \numberthis \label{eq:tot_ang_mom}
 \end{align*}
 
-For a closed system the norm of this quantity should be conserved.
+This quantity should be conserved as long as there are no external forces, and the forces are conservative. We can prove that this is the case for both the forces we use in this report (\eqref{eq:gengrav} and \eqref{eq:beta_gengrav}). That the angular momentum is conserved means that:
+
+\begin{align*}
+\frac{d}{dt} \vec{L} &= 0 \, , 
+\end{align*}
+
+where 0 here corresponds to the zero vector technically. We find that the left-hand side of this can be written as:
+
+\begin{align*}
+\frac{d}{dt} \vec{L} &= \frac{d}{dt} (\sum\limits_i \vec{r}_i \cross m \vec{v}_i)  \\
+&= \sum\limits_i \vec{v}_i \cross m \vec{v}_i + \vec{r}_i \cross m \vec{a}_i \\
+&= \sum\limits_i \vec{r}_i \cross \vec{F}_i  \, , \numberthis \label{eq:interm_ang_mom_cons}
+\end{align*}
+
+where $\vec{F}_i$ is the force on body $i$, $\vec{a}_i$ is the acceleration on body $i$ and all other quantities are as previously defined. The cross product of a vector with itself is the zero vector, so that is why the $\vec{v} \cross \vec{v}$ term disappeared. Now we can use a result similar to the one found in \eqref{eq:pos_force_dot_sum}:
+
+\begin{align*}
+\sum\limits_i \vec{r}_i \cross \vec{F}_i &= \sum\limits_i \sum\limits_{j \neq i} \vec{r}_i \cross \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \vec{r}_i \cross \vec{F}_{ij} + \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \vec{r}_i \cross \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \vec{r}_i \cross \vec{F}_{ij} - \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \vec{r}_j \cross \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j\neq i } \vec{r}_{ij} \cross \vec{F}_{ij} \, , \numberthis \label{eq:pos_cross_force_sum}
+\end{align*}
+
+where $\vec{r}_{ij}$ is the distance vector between body $i$ and $j$. In both the forces we use in this report (\eqref{eq:gengrav} and \eqref{eq:beta_gengrav}) the force is in the direction of $\vec{r}_{ij}$. This means we can write $\vec{F}_{ij} = f_{ij} \vec{r}_{ij}$ where $f_{ij}$ is a scalar. Using this along with \eqref{eq:pos_cross_force_sum} in \eqref{eq:interm_ang_mom_cons} gives:
+
+\begin{align*}
+\frac{d}{dt} \vec{L} &= \sum\limits_i \vec{r}_i \cross \vec{F}_i \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j\neq i } \vec{r}_{ij} \cross \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j\neq i } \vec{r}_{ij} \cross f_{ij} \vec{r}_{ij} \\
+&= 0 \, , \numberthis \label{eq:ang_mom_cons}
+\end{align*}
+
+where we again used that the cross-product of a vector with itself is the zero-vector. This shows that the angular momentum is conserved.
 
 \subsection{Escape velocity of object in gravitational field} \label{sec:II:e}
 
