@@ -19,6 +19,11 @@
 \usepackage{cprotect}
 \usepackage{float}
 
+% svg package import and specification
+\usepackage{svg}
+\svgpath{{../data/figures/sun-earth-3c/}}
+
+
 % defines the color of hyperref objects
 % Blending two colors:  blue!80!black  =  80% blue and 20% black
 \hypersetup{ % this is just my personal choice, feel free to change things
@@ -808,7 +813,7 @@ When using the forward Euler method we can see that there are $15k$ FLOPs in the
 
 When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed in this method itself. It also calls either of the force calculation methods twice. If \verb+calculateForcesAndEnergy()+ is used this adds another $62((k-1)!) + 36k$ FLOPs for a total of $62((k-1)!) + 63k$ FLOPs per iteration. To complete a full simulation with these options we would need $(62((k-1)!) + 63k)N$ FLOPs. When \verb+calculateForcesWithRelativisticCorrection()+ is used this adds another $88$ FLOPs for a total of $27k + 88$ FLOPs per iteration. To complete a full simulation with these options we would need $(27k + 88)N$ FLOPs.
 
-All of these values are listed in table \hyperref[table:III:b:i]{2} for ease of access. \newline
+All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of access. \newline
 
 \begin{table}[h!] \label{table:III:b:i}
 \caption{Table showing the amount of floating point operations needed to complete a simulation with $k$ bodies and $N$ steps for four sets of options. "Non-relativistic" and "relativistic" refers to the calculation of the forces in the system. What these options are is detailed in section \hyperref[sec:III:a]{III.A}.}
@@ -843,7 +848,10 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 
 \section{Results} \label{sec:IV}
 
-\subsubsection{Benchmark results} \label{sec:IV:a}
+\subsection{Benchmark results} \label{sec:IV:a}
+
+We ran 500 simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and Velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:IV:a]{III}.
+
 \begin{table}[H] \label{table:IV:a}
 \caption{Table showing the mean time and standard deviation of \(500\) runs integrating our Solar System for \(N = \num{1e+04}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and Velocity Verlet methods (se \hyperref[sec:III:e]{III.E} for more details).}
 \begin{tabular}{|c|c|c|}
@@ -855,6 +863,15 @@ Velocity Verlet &  \(\SI{2.6939e-02}{\second}\) & \(\SI{8.9105e-03}{\second}\)\\
 \hline
 \end{tabular}
 \end{table} 
+
+\subsection{Simulation of the earth and the sun for a few selected timesteps}
+
+In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method.
+
+\begin{figure}
+%\includesvg{se_dt1e-3_fe_orbit2D}
+\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation).}
+\end{figure}
 
 \section{Discussion} \label{sec:V}
 
