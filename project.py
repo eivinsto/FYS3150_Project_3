@@ -373,6 +373,12 @@ class SolarSystem:
 bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
              "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
 beta = 2
+runflag = "start"
+betaflag = "n"
+center_on_sun = True
+axis = 'equal'
+num_bods_to_plot = None
+
 
 # asking for imput:
 print("""Write se for Sun-Earth simulation,
@@ -381,9 +387,8 @@ sm for Sun-Mercury,
 and ss for entire Solar System.
 Write test to run unit-tests,
 or b for benchmark.""")
-runflag = "start"
-betaflag = "n"
-center_on_sun = True
+
+
 while (runflag != "se" and runflag != "sej" and runflag != "sm" and
        runflag != "ss" and runflag != "test" and runflag != "b"):
 
@@ -429,6 +434,10 @@ elif runflag == "sm":  # initial data for sun_mercury run:
 elif runflag == "ss":  # initial data for entire SolarSystem run:
     center_on_sun = False
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
+
+    innerboddies = input("Only plot sun + 5 innermost planets? y/n: ")
+    if innerboddies == "y":
+        num_bods_to_plot = 6
 
 if (runflag != "test") and (runflag != "b"):  # setting up run:
     if limit_write == "y" and numTimesteps > 10000:
@@ -493,8 +502,10 @@ Choose integration method:
 
     if runflag != "sm" and betaflag != "y":
         # calling the various plot functions:
-        system.orbit3D(center_on_sun=center_on_sun)
-        system.orbit2D(axis=axis)
+        system.orbit3D(numberOfBodies=num_bods_to_plot,
+                       center_on_sun=center_on_sun)
+        system.orbit2D(numberOfBodies=num_bods_to_plot,
+                       axis=axis)
         system.plotEnergy()
         system.plotAngMomMagnitude()
 
