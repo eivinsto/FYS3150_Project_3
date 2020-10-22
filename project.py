@@ -407,8 +407,11 @@ if runflag == "se":  # initial data for sun_earth run:
     else:
         betaflag = input("Run sun earht with varying beta? y/n: ")
         if betaflag == "y":
-            # init_file2 = "sun-earth-peturbed.init"
             beta_array = np.linspace(2, 3, 4)
+
+            initflag = input("Use eliptical orbit? y/n: ")
+            if initflag == "y":
+                init_file = "sun-earth-peturbed.init"
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
