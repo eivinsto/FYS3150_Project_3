@@ -173,7 +173,7 @@ class SolarSystem:
             # self.energy is an Nx2-array containing the Kinetic energy for
             # each time step as the first column and potential energy
             # each time step as the second column.
-        print(self.bodyPos.shape)
+        # print(self.bodyPos.shape)
 
     def orbit2D(self, number_of_bodies=None, center_on_sun=False):
         """
@@ -387,6 +387,7 @@ if runflag == "se":  # initial data for sun_earth run:
     bodynames = [bodynames[0], bodynames[3]]
     betaflag = input("Run sun earht with varying beta? y/n: ")
     if betaflag == "y":
+        init_file2 = "sun-earth-peturbed.init"
         beta_array = np.linspace(2, 3, 4)
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
@@ -411,7 +412,7 @@ if (runflag != "test") and (runflag != "b"):  # setting up run:
 Choose integration method:
     Write fe for forward Euler,
     or vv for Velocity-Verlet:
-""")
+    """)
 
     # setting up algorithm and output filenames:
     if integration_method == "vv":
@@ -430,7 +431,7 @@ Choose integration method:
                 dt,
                 write_limit,
                 integration_method,
-                init_file,
+                init_file2,
                 posfile,
                 momenfile,
                 bodynames,
