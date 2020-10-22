@@ -18,6 +18,7 @@ TEST_CASE("Test energy conservation with VelocityVerlet") {
   solarSystem.createCelestialBody( earthposinit, earthvelinit, 3e-6 );
 
   solar_integrator integrator(dt, "VelocityVerlet");
+  solarSystem.moveToCOFMFrame();
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
@@ -42,6 +43,7 @@ TEST_CASE("Test Angular momentum conservation with VelocityVerlet") {
   solarSystem.createCelestialBody( earthposinit, earthvelinit, 3e-6 );
 
   solar_integrator integrator(dt, "VelocityVerlet");
+  solarSystem.moveToCOFMFrame();
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
@@ -86,6 +88,7 @@ TEST_CASE("Test energy conservation with Euler") {
   solarSystem.createCelestialBody( earthposinit, earthvelinit, 3e-6 );
 
   solar_integrator integrator(dt, "Euler");
+  solarSystem.moveToCOFMFrame();
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);
@@ -110,6 +113,7 @@ TEST_CASE("Test Angular momentum conservation with Euler") {
   solarSystem.createCelestialBody( earthposinit, earthvelinit, 3e-6 );
 
   solar_integrator integrator(dt, "Euler");
+  solarSystem.moveToCOFMFrame();
 
   for(int i=0; i<numTimesteps; i++) {
     integrator.integrateOneStep(solarSystem);

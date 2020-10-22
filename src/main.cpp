@@ -17,6 +17,7 @@ int main(int numArguments, char **arguments) {
   string positions_file = "../data/positions.xyz";  // Which file to store output positions in
   string energies_file = "../data/energies.dat";    // Which file to store energies and angular momentum output in
   string correction = "nonrel";
+  double beta = 2.0;
 
   // Reading variables from command line
   if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
@@ -27,9 +28,10 @@ int main(int numArguments, char **arguments) {
   if(numArguments >= 7) positions_file = arguments[6];
   if(numArguments >= 8) energies_file = arguments[7];
   if(numArguments >= 9) correction = arguments[8];
+  if(numArguments >= 10) beta = atof(arguments[9]);
 
   // Reading initial state from file
-  SolarSystem solarSystem(init_file);
+  SolarSystem solarSystem(init_file, beta);
 
   // Initiate integrator
   solar_integrator integrator(dt, integration_method);

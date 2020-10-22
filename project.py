@@ -172,7 +172,7 @@ class SolarSystem:
             # each time step as the first column and potential energy
             # each time step as the second column.
 
-    def orbit2D(self, number_of_bodies=None):
+    def orbit2D(self, number_of_bodies=None, center_on_sun=False):
         """
         Method for creating 2D plot of orbits,
         by plotting the x and y coordinates of the bodies' positions.
@@ -184,6 +184,8 @@ class SolarSystem:
             self.generateSystem()
         if number_of_bodies is None:
             number_of_bodies = self.numBods
+        if center_on_sun:
+            self.moveToSunFrame()
 
         plt.figure()  # creates figure
 
@@ -212,7 +214,7 @@ class SolarSystem:
         plt.grid()
         plt.axis('equal')
 
-    def orbit3D(self, number_of_bodies=None):
+    def orbit3D(self, number_of_bodies=None, center_on_sun=False):
         """
         Create 3D plot of orbits.
         Args:
@@ -223,6 +225,8 @@ class SolarSystem:
             self.generateSystem()
         if number_of_bodies is None:
             number_of_bodies = self.numBods
+        if center_on_sun:
+            self.moveToSunFrame()
 
         fig = plt.figure()  # creates figure
         ax = Axes3D(fig)  # create 3D subplot
@@ -318,12 +322,12 @@ class SolarSystem:
         if not self.isgenerated:
             self.generateSystem()
 
-        for i in range(1, self.numBods):
+        for i in range(self.numBods):
             self.bodyPos[:, 3*i:3*i+3] = (self.bodyPos[:, 3*i:3*i+3] -
                                           self.bodyPos[:, :3])
-        self.bodyPos[:, :3] = np.zeros(
-            (self.numTimesteps//(self.everyNlines*self.write_limit), 3)
-        )
+        # self.bodyPos[:, :3] = np.zeros(
+        #     (self.numTimesteps//(self.everyNlines*self.write_limit), 3)
+        # )
 
     def perihelionAngle(self):
         """Method for calculating all perihelionAngles in array of body 1."""
@@ -333,19 +337,24 @@ class SolarSystem:
             self.moveToSunFrame()
 
         # finding perihelion:
-        rvec = self.bodyPos[:, 3:6]
-        r = np.sqrt((rvec[:, 0])**2 + (rvec[:, 1])**2 + (rvec[:, 2])**2)
-        mask = (np.r_[True, r[1:] < r[:-1]] & np.r_[r[:-1] < r[1:], True])
+        T = 0.2411
+        N = int(T/self.dt)
+        print(N-1)
+        print(self.bodyPos.shape)
+        rvec = self.bodyPos[N:, 3:]
+        print(rvec.shape)
+        r = np.sqrt(rvec[:, 0]**2 + rvec[:, 1]**2 + rvec[:, 2]**2)
+        a = np.argmin(r)
 
-        self.xp = self.bodyPos[mask, 3]
-        self.yp = self.bodyPos[mask, 4]
+        self.xp = self.bodyPos[N:, 3][a]
+        self.yp = self.bodyPos[N:, 4][a]
         self.thetaP = np.arctan(self.xp/self.yp)
 
 
 # name of bodies used in project:
 bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
              "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
-correction = "nonrel"
+
 
 # asking for imput:
 print("""Write se for Sun-Earth simulation,
@@ -415,7 +424,7 @@ Choose integration method:
         posfile,
         momenfile,
         bodynames,
-        correction
+        "nonrel"
     )
 
     if runflag != "sm":
@@ -434,15 +443,17 @@ Choose integration method:
                               bodynames, "rel")
         system.perihelionAngle()
         system2.perihelionAngle()
-        self.numTimesteps = numTimesteps
-        self.dt = dt
-        self.write_limit = write_limit
-        self.integration_method = integration_method
-        # adding path to filenames:
-        self.init_file = rootdir + "/data/" + init_file
+        system.orbit2D()
+        system2.orbit2D()
 
-        print(f"{system.thetaP[0]:e}", f"{system2.thetaP[0]:e}")
-        print(f"{system.thetaP[-1]:e}", f"{system2.thetaP[-1]:e}")
+        plt.show()
+
+        p0 = np.arctan(0.307491008)
+        pnonrel1 = system.thetaP
+        prel1 = system2.thetaP
+        print(f"{pnonrel1-p0:e}", f"{prel1-p0:e}")
+        # print(f"{system.thetaP[-1]:e}", f"{system2.thetaP[-1]:e}")
+
 
 elif runflag == "test":
     test_cpp()
