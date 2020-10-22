@@ -7,9 +7,9 @@
 #include <iostream>
 
 int main() {
-  int numTimesteps = 10000;  // number of time steps
-  double dt = 0.00248;  // size of time step
-  int numRuns = 500;  // number of simulations to run
+  int numTimesteps = 1000000;  // number of time steps
+  double dt = 0.000248;  // size of time step
+  int numRuns = 50;  // number of simulations to run
   arma::mat benchmark_times(numRuns, 2);  // array for saving timings
 
   // declaring clock_t objects for timing
