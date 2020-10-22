@@ -70,7 +70,7 @@ class SolarSystem:
     """
 
     def __init__(self, numTimesteps, dt, write_limit, integration_method,
-                 init_file, posfile, momenfile, bodynames, correction):
+                 init_file, posfile, momenfile, bodynames, correction, beta):
         """Class constructor.
         Args:
             numTimesteps: integer - number of time steps to take.
@@ -95,16 +95,17 @@ class SolarSystem:
         self.integration_method = integration_method
         # adding path to filenames:
         self.init_file = rootdir + "/data/" + init_file
-        self.posfile = rootdir + "/data/" + posfile
-        self.momenfile = rootdir + "/data/" + momenfile
+        self.posfile = rootdir + "/data/" + f"{beta*10:.0f}" + posfile
+        self.momenfile = rootdir + "/data/" + f"{beta*10:.0f}" + momenfile
 
         self.bodynames = bodynames
         self.correction = correction
+        self.beta = beta
 
         # ensuring that maximum 1000 lines of data are read from each file,
         # this is to limit memory use.
-        if (self.numTimesteps//write_limit > 1000):
-            self.everyNlines = self.numTimesteps // (write_limit*1000)
+        if (self.numTimesteps//write_limit > 10000):
+            self.everyNlines = self.numTimesteps // (write_limit*10000)
         else:
             self.everyNlines = 1
 
@@ -127,7 +128,8 @@ class SolarSystem:
                 self.init_file,
                 self.posfile,
                 self.momenfile,
-                self.correction
+                self.correction,
+                f"{self.beta}"
             ],
             cwd=src
         )
@@ -171,6 +173,7 @@ class SolarSystem:
             # self.energy is an Nx2-array containing the Kinetic energy for
             # each time step as the first column and potential energy
             # each time step as the second column.
+        print(self.bodyPos.shape)
 
     def orbit2D(self, number_of_bodies=None, center_on_sun=False):
         """
@@ -206,7 +209,7 @@ class SolarSystem:
         plt.title(
             f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
             + " " + integration_method +
-            f", Simulated time = {self.dt*self.numTimesteps} years"
+            f", Simulated time = {self.dt*self.numTimesteps:.2f} years\n"
         )
         plt.xlabel("x [AU]")
         plt.ylabel("y [AU]")
@@ -280,7 +283,7 @@ class SolarSystem:
         plt.title(
             f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
             + " " + integration_method +
-            f", Simulated time = {self.dt*self.numTimesteps} years"
+            f", Simulated time = {self.dt*self.numTimesteps:.2f} years\n"
         )
         plt.xlabel("N [number of time steps]")
         plt.ylabel("Energy $[E_{tot}/max(|E_{tot}|)]$")
@@ -310,7 +313,7 @@ class SolarSystem:
         plt.title(
             f"n = {self.numBods}, N = {self.numTimesteps:.1e}, dt = {self.dt},"
             + " " + integration_method +
-            f", Simulated time = {self.dt*self.numTimesteps} years"
+            f", Simulated time = {self.dt*self.numTimesteps:.2f} years\n"
         )
         plt.xlabel("N [number of time steps]")
         plt.ylabel("Angular momentum $[L_{tot}/max(|L_{tot}|)]$")
@@ -354,7 +357,7 @@ class SolarSystem:
 # name of bodies used in project:
 bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
              "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
-
+beta = 2
 
 # asking for imput:
 print("""Write se for Sun-Earth simulation,
@@ -364,6 +367,7 @@ and ss for entire Solar System.
 Write test to run unit-tests,
 or b for benchmark.""")
 runflag = "start"
+betaflag = "n"
 while (runflag != "se" and runflag != "sej" and runflag != "sm" and
        runflag != "ss" and runflag != "test" and runflag != "b"):
 
@@ -375,12 +379,15 @@ if (runflag != "test") and (runflag != "b"):
     numTimesteps = int(eval(input("\nNumber of time steps N = ")))
     dt = float(eval(input("Size of time step dt = ")))
     limit_write = input(
-        "\nOnly write the data from 1000 evenly spaced time steps? y/n: "
+        "\nOnly write the data from 10000 evenly spaced time steps? y/n: "
     )
 
 if runflag == "se":  # initial data for sun_earth run:
     init_file = "sun-earth.init"
     bodynames = [bodynames[0], bodynames[3]]
+    betaflag = input("Run sun earht with varying beta? y/n: ")
+    if betaflag == "y":
+        beta_array = np.linspace(2, 3, 4)
 
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
@@ -395,8 +402,8 @@ elif runflag == "ss":  # initial data for entire SolarSystem run:
     init_file = "sun-and-friends-2020-Oct-19-00:00:00.init"
 
 if (runflag != "test") and (runflag != "b"):  # setting up run:
-    if limit_write == "y" and numTimesteps > 1000:
-        write_limit = numTimesteps//1000
+    if limit_write == "y" and numTimesteps > 10000:
+        write_limit = numTimesteps//10000
     else:
         write_limit = 1
 
@@ -415,19 +422,47 @@ Choose integration method:
     posfile = runflag + "_" + integration_method + "_" + "positions.xyz"
     momenfile = runflag + "_" + integration_method + "_" + "energies.dat"
     # initalising instance of SolarSystem class with parameters:
-    system = SolarSystem(
-        numTimesteps,
-        dt,
-        write_limit,
-        integration_method,
-        init_file,
-        posfile,
-        momenfile,
-        bodynames,
-        "nonrel"
-    )
+    if runflag != "sm" and betaflag == "y":
+        posdict = {}
+        for beta in beta_array:
+            system = SolarSystem(
+                numTimesteps,
+                dt,
+                write_limit,
+                integration_method,
+                init_file,
+                posfile,
+                momenfile,
+                bodynames,
+                "nonrel",
+                beta
+            )
 
-    if runflag != "sm":
+            system.orbit3D(center_on_sun=True)
+            system.orbit2D()
+            system.plotEnergy()
+            system.plotAngMomMagnitude()
+            plt.show()
+            posdict[beta] = np.array([system.bodyPos[0, 3:],
+                                      system.bodyPos[-1, 3:]])
+
+        print(posdict[3] - posdict[2])
+
+    elif runflag != "sm" and betaflag != "y":
+        system = SolarSystem(
+            numTimesteps,
+            dt,
+            write_limit,
+            integration_method,
+            init_file,
+            posfile,
+            momenfile,
+            bodynames,
+            "nonrel",
+            beta
+        )
+
+    if runflag != "sm" and betaflag != "y":
         # calling the various plot functions:
         system.orbit3D()
         system.orbit2D()

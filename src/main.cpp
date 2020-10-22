@@ -29,7 +29,7 @@ int main(int numArguments, char **arguments) {
   if(numArguments >= 8) energies_file = arguments[7];
   if(numArguments >= 9) correction = arguments[8];
   if(numArguments >= 10) beta = atof(arguments[9]);
-
+  std::cout << "Current beta = " << beta << std::endl;
   // Reading initial state from file
   SolarSystem solarSystem(init_file, beta);
 
