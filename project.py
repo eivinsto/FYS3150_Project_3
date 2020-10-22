@@ -19,14 +19,15 @@ def build_cpp():
     run(["make", "all"], cwd=src)
 
 
-def init_file_maker(mat, filname):
+def init_file_maker(mat, filename):
     """
     Function writing init file from matrix containing initial conditions.
     Args:
-        - 
+        mat: numpy array of shape (n, 7) containing inital conditions
+             for n bodies in the form: x0 y0 z0 vx0 vy0 vz0 m
+        filename: string - name of file to create.
     """
-    init_file = "sun-earth-escvel.init"
-    with open(rootdir + "/data/" + init_file, "w") as outfile:
+    with open(rootdir + "/data/" + filename, "w") as outfile:
         for i in range(len(mat[:, 0])):
             for j in range(len(mat[0, :])):
                 outfile.write(f"{mat[i, j]}")
