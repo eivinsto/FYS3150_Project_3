@@ -322,10 +322,10 @@ This will be useful later. That the total energy $E$ is conserved can be written
 where we have used that the total energy is the sum of the total kinetic energy $K_\text{tot}$ and the total potential energy $U_\text{tot}$. We now assume that we are in an $n$-body system, where the potential energy is velocity independent. The potential energy is determined by the interaction between the bodies and a potential time dependent part. We define $\vec{r}_{ij} = \vec{r}_i - \vec{r}_j$ as the distance vector between the position of body $i$ ($\vec{r}_i$) and body $j$ ($\vec{r}_j$). This means that we can write the total potential energy as:
 
 \begin{align*}
-U_\text{tot} = \sum\limits_i \sum\limits_{j\neq i} U(\vec{r}_{ij},t) \, ,
+U_\text{tot} = \frac{1}{2}\sum\limits_i \sum\limits_{j\neq i} U(\vec{r}_{ij},t) \, ,
 \end{align*}
 
-where $U$ here is the potential energy experienced by body $i$ because of body $j$. This also means that we can write the force experienced by body $i$ from body $j$ as:
+where $U$ here is the potential energy experienced by body $i$ because of body $j$. The factor $1/2$ comes from the fact that we cannot sum up the potential energy between two objects twice. This also means that we can write the force experienced by body $i$ from body $j$ as:
 
 \begin{align*}
 \vec{F}_{ij} = - \gradient_{ij} U(\vec{r}_{ij}, t) \, ,
@@ -334,10 +334,10 @@ where $U$ here is the potential energy experienced by body $i$ because of body $
 where $\gradient_{ij}$ differentiates with respect to $\vec{r}_{ij}$. We can then write the time derivative of the potential energy as:
 
 \begin{align*}
-\frac{d}{dt}U_\text{tot} &= \sum\limits_{i} \sum\limits_{j\neq i} \frac{d}{dt} U (\vec{r}_{ij}, t ) \, , \\
-&= \sum\limits_{i} \sum\limits_{j\neq i} \bigg( \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} + \frac{\partial }{\partial t} U(\vec{r}_{ij}, t) \bigg) \\
-&= \frac{\partial}{\partial t} U_\text{tot} + \sum\limits_{i} \sum\limits_{j\neq i} \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} \\
-&= \frac{\partial}{\partial t} U_\text{tot} - \sum\limits_{i} \sum\limits_{j\neq i} \vec{F}_{ij} \cdot \frac{d\vec{r}_{ij}}{dt} \numberthis \label{eq:pot_en_der}
+\frac{d}{dt}U_\text{tot} &= \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \frac{d}{dt} U (\vec{r}_{ij}, t ) \, , \\
+&= \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \bigg( \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} + \frac{\partial }{\partial t} U(\vec{r}_{ij}, t) \bigg) \\
+&= \frac{\partial}{\partial t} U_\text{tot} + \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \gradient_{ij} U (\vec{r}_{ij}, t ) \cdot \frac{d\vec{r}_{ij}}{dt} \\
+&= \frac{\partial}{\partial t} U_\text{tot} - \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \vec{F}_{ij} \cdot \frac{d\vec{r}_{ij}}{dt} \numberthis \label{eq:pot_en_der}
 \end{align*}
 
 The total kinetic energy can be given as the sum of the kinetic energy of each body:
@@ -351,26 +351,59 @@ The time derivative of this is:
 \begin{align*}
 \frac{d}{dt} K_\text{tot} &= \sum\limits_i m \vec{v}_i \cdot \vec{a}_i \\
 &= \sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i \\
-&= \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \\
-&= \sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_{ij}}{dt} \cdot \vec{F}_{ij} \numberthis \label{eq:kin_en_der1}
+&= \frac{1}{2}\sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \frac{1}{2}\sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \\
+&= \frac{1}{2}\sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_{ij}}{dt} \cdot \vec{F}_{ij} \numberthis \label{eq:kin_en_der1}
 \end{align*}
 
 
-where $\vec{F}_i$ is the total force body $i$ experiences given as $\vec{F}_i = \sum\limits_{j\neq i} \vec{F}_{ij}$. The second to last equality is non-trivial, which means we need to prove it. We have that:
+where $\vec{F}_i$ is the total force body $i$ experiences given as $\vec{F}_i = \sum\limits_{j\neq i} \vec{F}_{ij}$ as long as there are no external forces. The second to last equality is non-trivial, which means we need to prove it. We have that:
 
 \begin{align*}
 \sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i &= \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} 
 \end{align*}
 
-The double sum on the right-hand side can be rewritten:
+We can also recognize by using Newton's third law ($\vec{F}_{ij} = - \vec{F}_{ji}$) that:
 
 \begin{align*}
-\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} &= -\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ji} \\
-&= - \sum\limits_j \sum\limits_{i \neq j} \frac{d\vec{r}_j}{dt} \vec{F}_{ij} \\
-&= - \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij}
+\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} &= -\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ji} 
 \end{align*}
 
-where we switched the indexation around in the second to last equality, and rewrote the summation in the last equality.
+By changing the index labels on the right-hand side we get:
+
+\begin{align*}
+\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} &= -\sum\limits_j \sum\limits_{i \neq j} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} 
+\end{align*}
+
+As the intention of the double summation is to sum over every combination of $i$ and $j$ where $i\neq j$ it is arbitrary in which order we sum over the variables, as long as the inequality is kept as part of the inner sum:
+
+\begin{align*}
+\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} &= -\sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} 
+\end{align*}
+
+Putting this all together, we can write:
+
+\begin{align*}
+\sum\limits_i \frac{d\vec{r}_i}{dt} \cdot \vec{F}_i &= \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} + \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} \\
+&= \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_i}{dt} \cdot \vec{F}_{ij} - \frac{1}{2} \sum\limits_i \sum\limits_{j \neq i} \frac{d\vec{r}_j}{dt} \cdot \vec{F}_{ij} \, ,
+\end{align*}
+
+which is the relation we wanted to show. Our requirement for the energy to be conserved was that:
+
+\begin{align*}
+\frac{d}{dt}(K_\text{tot} + U_\text{tot}) &= 0
+\end{align*}
+
+Using \eqref{eq:pot_en_der} and \eqref{eq:kin_en_der1} in this gives us:
+
+\begin{align*}
+\frac{1}{2}\sum\limits_i \sum\limits_{i\neq j} \frac{d\vec{r}_{ij}}{dt} \cdot \vec{F}_{ij} + \frac{\partial}{\partial t} U_\text{tot} - \frac{1}{2}\sum\limits_{i} \sum\limits_{j\neq i} \vec{F}_{ij} \cdot \frac{d\vec{r}_{ij}}{dt} &= 0 \\
+\frac{\partial}{\partial t} U_\text{tot} &= 0 \\
+\sum\limits_i \sum\limits_{j\neq i } \frac{\partial}{\partial t} U(\vec{r}_{ij},t) &= 0 \numberthis \label{eq:energy_cons}
+\end{align*}
+
+In other words for an $n$-body system to have conserved energy we need the potential energy to be independent of time. Another assumption made along the way was that there are no external forces, which means that this is only for a closed system. This proves that total energy is conserved both in $n$-body systems where the force interaction is given by \eqref{eq:gengrav} or \eqref{eq:beta_gengrav} as there are no external forces and the potential energies (\eqref{eq:tot_pot_en} and \eqref{eq:beta_tot_pot_en} respectively) are time independent.
+
 
 \subsection{Conservation of angular momentum} \label{sec:II:d}
 
