@@ -399,7 +399,7 @@ if runflag == "se":  # initial data for sun_earth run:
     init_file = "sun-earth.init"
     bodynames = [bodynames[0], bodynames[3]]
 
-    escvelflag = input("Run escape velocity test ? y/n: ")
+    escvelflag = input("Run escape velocity test? y/n: ")
     if escvelflag == "y":
         escvel = float(eval(input("Enter initial escape velocity: ")))
         init_file = escvelinit(escvel)
