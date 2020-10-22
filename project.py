@@ -36,9 +36,6 @@ def init_file_maker(mat, filename):
                 else:
                     outfile.write("\n")
 
-    print(f"v_0 = {escvel}")
-    return init_file
-
 
 def test_cpp():
     """Function for running unit-tests."""
@@ -441,6 +438,16 @@ if runflag == "se":  # initial data for sun_earth run:
 elif runflag == "sej":  # initial data for sun_earth_jupiter run:
     init_file = "sun-earth-jupiter-2020-Oct-19-00:00:00.init"
     bodynames = [bodynames[0], bodynames[3], bodynames[5]]
+    jup_m_fac = [10, 1000]
+    init_files = [init_file]
+
+    for i in jup_m_fac:
+        initconditions = np.genfromtxt(rootdir + "/data/" + init_file)
+        initconditions[2, 6] *= i
+        file = f"sej_{i}" + init_file
+        init_file_maker(initconditions, file)
+        init_files.append(file)
+
 
 elif runflag == "sm":  # initial data for sun_mercury run:
     init_file = "sun-mercury.init"
@@ -497,12 +504,8 @@ Choose integration method:
             system.plotEnergy()
             system.plotAngMomMagnitude()
             plt.show()
-            posdict[beta] = np.array([system.bodyPos[0, 3:],
-                                      system.bodyPos[-1, 3:]])
 
-        print(posdict[3] - posdict[2])
-
-    elif runflag != "sm" and betaflag != "y":
+    elif runflag != "sm" and runflag != "sej" and betaflag != "y":
         system = SolarSystem(
             numTimesteps,
             dt,
@@ -516,7 +519,30 @@ Choose integration method:
             beta
         )
 
-    if runflag != "sm" and betaflag != "y":
+    elif runflag == "sej":
+        for i in range(len(init_files)):
+            system = SolarSystem(
+                numTimesteps,
+                dt,
+                write_limit,
+                integration_method,
+                init_files[i],
+                posfile,
+                momenfile,
+                bodynames,
+                "nonrel",
+                beta
+            )
+            system.orbit3D(number_of_bodies=num_bods_to_plot,
+                           center_on_sun=center_on_sun)
+            system.orbit2D(number_of_bodies=num_bods_to_plot,
+                           axis=axis)
+            system.plotEnergy()
+            system.plotAngMomMagnitude()
+
+            plt.show()
+
+    if runflag != "sm" and runflag != "sej" and betaflag != "y":
         print(bodynames)
         # calling the various plot functions:
         system.orbit3D(number_of_bodies=num_bods_to_plot,
