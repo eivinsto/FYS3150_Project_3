@@ -21,8 +21,9 @@ def build_cpp():
 
 def init_file_maker(mat, filname):
     """
-    Function writing init file for sun earth escape velocity
-    simulations.
+    Function writing init file from matrix containing initial conditions.
+    Args:
+        - 
     """
     init_file = "sun-earth-escvel.init"
     with open(rootdir + "/data/" + init_file, "w") as outfile:
