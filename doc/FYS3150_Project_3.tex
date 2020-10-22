@@ -237,7 +237,7 @@ Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algo
 \vec{v}_{k+1} &= \vec{v}_k + \frac{1}{2}\Delta t \bigg( \vec{a}(t_{k+1},x_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg) \, . \numberthis \label{eq:VelocityVerlet}
 \end{align*}
 
-In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method. 
+In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method.
 
 \subsection{A generalized gravitational force}
 For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
@@ -364,7 +364,17 @@ where $K$ is the kinetic energy, $U$ the potential energy, $G$ the gravitational
 
 \begin{align*}
 v_e &= \sqrt{\frac{2GM}{r}} \numberthis \label{eq:esc_vel}
-\end{align*} 
+\end{align*}
+
+If we consider a planet at a distance of \(1\) AU from the Sun, we can calculate its escape velocity as
+\begin{align*}
+	v_{sun, 1} = \sqrt{\frac{2\cdot 4\pi^{2}\cdot 1}{1}} \text{ AU/year},
+\end{align*}
+using the Sun's mass as our unit mass, and \(G = 4\pi^{2}\). Thus we get
+\begin{align*}
+	v_{sun, 1} = 2\pi\sqrt{2}\text{ AU/year}, \numberthis \label{eq:esc_sun_1au}
+\end{align*}
+as the escape velocity of a planet startin at a distance of \(1\) AU from the Sun.
 
 \subsection{Perihelion precession of Mercury} \label{sec:II:e}
 
