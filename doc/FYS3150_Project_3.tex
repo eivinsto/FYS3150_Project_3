@@ -536,7 +536,7 @@ Given the first and last position of the perihelion $\theta_{p,1}$ and $\theta_{
 p &= \Delta \theta_p \numberthis \label{eq:precession}
 \end{align*}
 
-\subsection{Center of mass} \label{sec:II:f}
+\subsection{Center of mass} \label{sec:II:g}
 
 In an $n$-body system, where body $i$ has mass $m_i$, position $\vec{r}_i$, and velocity $\vec{v}_i$ we have that the position of the center of mass $\vec{R}$ is:
 
@@ -864,11 +864,13 @@ In order to see the effect changing the timestep has, we have ran three simulati
 
 As for the initial positions we start with the Sun in the origin and Earth at a distance 1 AU along the $x$-axis away from the Sun. The average distance between Earth and the Sun is 1 AU so this mimics real life. Earth makes a full orbit around the sun in a year, so in order for the orbit to circular we need the initial velocity to be tangential the position, and we need it to be such that it can make a full orbit in one year. The circumference of a circle with radius 1 is $2\pi$ so we need the velocity of the Earth to be $2\pi$ in the $y$-direction in order for the orbit to be circular. These are the initial conditions we have chosen. 
 
+The simulations were all ran in three dimensions, but there is no motion in the $z$-direction because of the choice of initial conditions, and thus we only show 2D plots of the orbits. They were also ran in the center of mass frame (see section \hyperref[sec:II:g]{II.G}) and transformed back to reference frame of the Sun when processing the data.
+
 \begin{figure}[H] 
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_fe_orbit2D.pdf}
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_orbit2D.pdf}
-\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation).}
+\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
 \label{fig:se-fe-orbits}
 \end{figure}
 
@@ -876,7 +878,7 @@ As for the initial positions we start with the Sun in the origin and Earth at a 
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_vv_orbit2D.pdf}
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_vv_orbit2D.pdf}
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_vv_orbit2D.pdf}
-\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the velocity Verlet method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation).}
+\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the velocity Verlet method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
 \label{fig:se-vv-orbits}
 \end{figure}
 
@@ -902,11 +904,48 @@ Timestep [years] & Forward Euler & Velocity Verlet \\
 \end{figure}
 
 
-\subsection{Simulations of the Earth and the Sun with another kind of force} \label{sec:IV:c}
+\subsection{Simulations of Earth and the Sun with another kind of force} \label{sec:IV:c}
 
-We ran simulations of the system with Earth and the Sun with the force given \eqref{eq:beta_gengrav}, for different choices of the parameter $\beta$. These simulations were all performed with the velocity Verlet algorithm.
+We ran simulations of the system with Earth and the Sun with the force given \eqref{eq:beta_gengrav}, for different choices of the parameter $\beta$. These simulations were all performed with the velocity Verlet algorithm, the timestep set to $\Delta t = \num{1e-06}$ and the amount of timesteps $N = \num{1e+07}$. First we ran simulations with the same initial conditions as in section. In this case all the plots of the orbits remained roughly the same for any choice of $\beta$ between $2$ and $3$ and thus we oonly include a plot of the orbit with $\beta=2.667$ which can be seen along with a plot showing potential, kinetic, and total energy in figure \ref{fig:beta-se-orbit-energy}.
 
 
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_energy.pdf}
+\caption{Figure containing two plots. The first plot shows the orbit of Earth around the Sun with the force interaction given by \eqref{eq:beta_gengrav}, where the parameter $\beta = 2.667$. The second plot shows potential, kinetic, and total energy in the same simulation.} 
+\label{fig:beta-se-orbit-energy}
+\end{figure}
+
+We also ran simulations with the same initial conditions, except that we set the initial velocity of the earth to be 5 AU/year instead of $2\pi$ AU/year. With a regular gravitational interaction this corresponds to elliptical orbits. We ran these simulations with $\beta = 2$, $\beta = 2.333$, $\beta = 2.667$ and $\beta = 3$. Setting $\beta=2$ is the same as a regular gravitational interaction. We show plots of the orbit and the energy in this case in figure \ref{fig:beta2_peturbed}. The angular momentum remains a constant and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.333$ are shown in figure \ref{fig:beta233_peturbed}. The angular momentum remained a constant here as well and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.667$ are shown in figure \ref{fig:beta2667_peturbed}. The angular momentum remained constant here as well. Plots of the orbits, energies, and angular momentum in the case where $\beta = 3$ are shown in figure \ref{fig:beta3_peturbed}. The plot of the energies was zoomed in around the relevant portion of the plot. 
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun, and a plot showing potential, kinetic, and total energy for the system. The initial velocity has been altered (from the Earths initial velocity) so that the orbit is more elliptical. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta2_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.333$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta233_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.667$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta2667_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_energy_zoomed.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_angmom.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 3$), a plot of the potential, kinetic, and total energy, and a plot of the norm of the total angular momentum of this system. Note that the plot of the energies is zoomed in around a relevant part, as the rest of the plot would be unreadable. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta3_peturbed}
+\end{figure}
 
 \section{Discussion} \label{sec:V}
 
