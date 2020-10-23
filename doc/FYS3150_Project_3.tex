@@ -19,10 +19,6 @@
 \usepackage{cprotect}
 \usepackage{float}
 
-% svg package import and specification
-\usepackage{svg}
-\svgpath{{../data/figures/sun-earth-3c/}}
-
 
 % defines the color of hyperref objects
 % Blending two colors:  blue!80!black  =  80% blue and 20% black
@@ -197,7 +193,7 @@ When split into first order differential equations like this we can easily solve
 
 %Instead of using $\vec{v}_k$ to calculate $\vec{x}_{k+1}$ we use the next step $\vec{v}_{k+1}$. This improves the accuracy of the numerical solution. 
 
-Another method used to solve the system of equations in \eqref{eq:sodiff_split} is the Velocity Verlet algorithm. We will now derive this algorithm. First we Taylor expand $\vec{x}(t + \Delta t)$:
+Another method used to solve the system of equations in \eqref{eq:sodiff_split} is the velocity Verlet algorithm. We will now derive this algorithm. First we Taylor expand $\vec{x}(t + \Delta t)$:
 
 \begin{align*}
 \vec{x}(t + \Delta t) &= \vec{x}(t) + \Delta t \vec{v}(t) + \frac{\Delta t^2}{2} \vec{a}(t) + \mathcal{O}(\Delta t^3) \numberthis \label{eq:so_taylorx}
@@ -235,7 +231,7 @@ Discretizing this gives:
 \vec{v}_{k+1} &\approx \vec{v}_k + \frac{\Delta t}{2} \bigg( \vec{a}(t_{k+1}, \vec{x}_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg)
 \end{align*}
 
-Combining this with \eqref{eq:so_taylorx_disc} gives us the Velocity Verlet algorithm:
+Combining this with \eqref{eq:so_taylorx_disc} gives us the velocity Verlet algorithm:
 
 \begin{align*}
 \vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_k + \frac{1}{2} \Delta t^2 \vec{a}(t_k,\vec{x}_k) \\
@@ -526,7 +522,7 @@ where $M_\text{Mercury}$ is the mass of Mercury, $M_\text{Sun}$ the mass of the 
 
 If we simulate the orbit of the Mercury around the Sun as an isolated system, using \eqref{eq:grav_rel} as the force that the sun exerts on Mercury, we can use the resulting data to find the perihelion precession of Mercury. This can be compared with the measured precession due to relativistic effects listed earlier to test the accuracy of our numerical solution in this case. 
 
-To measure the precession of Mercury's perihelion we can use the following process. First we initialize a system with only Mercury and the Sun. We choose the reference frame of the Sun with Mercury orbiting in the $xy$-plane, as this means we only have to calculate the force that the Sun exerts on Mercury and reduces the problem from a three-dimensional one to a two-dimensional one. In order to simplify some calculations earlier we also initialize Mercury along the $x$-axis in its perihelion, and with initial velocity in positive orientation. Secondly we simulate the system for an amount of timesteps such that Mercury reaches perihelion a few times. Thirdly we process the data and identify the positions of the perihelion. Now we can calculate the change in the angular position of Mercury's perihelion with each revolution around the Sun, which gives us the precession. Since our system is generally in cartesian coordinates, we can find the angular position as:
+To measure the precession of Mercury's perihelion we can use the following process. First we initialize a system with only Mercury and the Sun. We choose the reference frame of the Sun with Mercury orbiting in the $xy$-plane, as this means we only have to calculate the force that the Sun exerts on Mercury and reduces the problem from a three-dimensional one to a two-dimensional one. In order to simplify some calculations earlier we also initialize Mercury along the $x$-axis in its perihelion, and with initial velocity in positive orientation. Secondly we simulate the system for a century (simulation time). Thirdly we process the data and identify the first and last positions of the perihelion. Now we can calculate the precession of Mercury's perihelion. Since our system is generally in cartesian coordinates, we can find the angular position as:
 
 \begin{align*}
 \theta_p &= \arctan(\frac{x_p}{y_p}) \, ,\numberthis \label{eq:prec_ang_pos}
@@ -534,15 +530,13 @@ To measure the precession of Mercury's perihelion we can use the following proce
 
 where $\theta_p$ is the angular position of the perihelion, and $x_p$ and $y_p$ are the cartesian coordinates of the position of the perihelion.
 
-Given two subsequent angular positions of the perihelion $\theta_{p,1}$ and $\theta_{p,2}$ with the second coming after the first, we define the change in the angular position as $\Delta \theta_p = \theta_{p,2} - \theta_{p,1}$. The change in the angular position per unit time is the precession of the perihelion:
+Given the first and last position of the perihelion $\theta_{p,1}$ and $\theta_{p,2}$ with the second coming after the first, we define the change in the angular position as $\Delta \theta_p = \theta_{p,2} - \theta_{p,1}$. The precession per century is approximately equal to this quantity, as we have simulated for a century. In other words the precession $p$ is:
 
 \begin{align*}
-p &= \frac{\Delta \theta_p}{T} \, , \numberthis \label{eq:precession}
+p &= \Delta \theta_p \numberthis \label{eq:precession}
 \end{align*}
 
-where $p$ is the precession per unit time, and $T$ is the time it takes Mercury to reach the second position of the perihelion ($\theta_{p,2}$) after leaving the first ($\theta_{p,1}$).
-
-\subsection{Center of mass} \label{sec:II:f}
+\subsection{Center of mass} \label{sec:II:g}
 
 In an $n$-body system, where body $i$ has mass $m_i$, position $\vec{r}_i$, and velocity $\vec{v}_i$ we have that the position of the center of mass $\vec{R}$ is:
 
@@ -630,7 +624,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 
       // Potential energy between body1 and body2
       double potential_energy = m_G*body1.mass*body2.mass
-      							/std::pow(dr,m_beta-1);
+      							/std::pow(dr,m_beta_1);
 
       // Force vector between the bodies (sign adjusted when 
       // adding to the bodies)
@@ -639,7 +633,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       body2.force -= gravforce;
 
       // Adding potential energy to total
-      m_potential_energy -= potential_energy;
+      m_potential_energy -= potential_energy/m_beta_1;
     }
 
     // Adding kinetic energy of body1 to total
@@ -653,7 +647,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 }
 \end{cpp}
 
-The method uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to. 
+The method uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The variable \verb+m_beta_1+ is the parameter $\beta$ (from \eqref{eq:beta_gengrav}) minus 1, and is set upon instantiating the class, which we will get back to. 
 
 The second method is \verb+calculateForcesWithRelativisticCorrection()+:
 
@@ -716,9 +710,9 @@ The \verb+writeEnergyToFile()+ method takes no arguments, but any time it is cal
 
 \subsubsection{A class used to integrate the system} \label{sec:III:a:3}
 
-The next class we need to talk about is the \verb+solar_integrator+ class. When instantiating this class two arguments are required, a double containing the timestep to be used for the simulation, and a string specifying which integration method should be used. Currently there are two methods of integration method, the forward Euler method \eqref{eq:forwardEuler} and the Velocity Verlet algorithm \eqref{eq:VelocityVerlet}. We will get back to how these are implmented once we have outlined the general structure of the class. 
+The next class we need to talk about is the \verb+solar_integrator+ class. When instantiating this class two arguments are required, a double containing the timestep to be used for the simulation, and a string specifying which integration method should be used. Currently there are two methods of integration method, the forward Euler method \eqref{eq:forwardEuler} and the velocity Verlet algorithm \eqref{eq:VelocityVerlet}. We will get back to how these are implmented once we have outlined the general structure of the class. 
 
-The main method of the class is the \verb+integrateOneStep()+ method. This takes a \verb+SolarSystem+ object as an argument and moves the system one timestep forward. Depending on what was specified when instantiating the class, this uses either the forward Euler method or the Velocity Verlet algorithm. The method is also overloaded so that it may take a string as an argument as well. In this case the string is a flag that tells the integrator to use either \verb+calculateForcesAndEnergy()+ or \verb+calculateForcesWithRelativisticCorrection()+ to get the forces each body in the system is experiencing. 
+The main method of the class is the \verb+integrateOneStep()+ method. This takes a \verb+SolarSystem+ object as an argument and moves the system one timestep forward. Depending on what was specified when instantiating the class, this uses either the forward Euler method or the velocity Verlet algorithm. The method is also overloaded so that it may take a string as an argument as well. In this case the string is a flag that tells the integrator to use either \verb+calculateForcesAndEnergy()+ or \verb+calculateForcesWithRelativisticCorrection()+ to get the forces each body in the system is experiencing. 
 
 The forward Euler method is implemented as follows:
 \begin{cpp}
@@ -741,7 +735,7 @@ void solar_integrator::Euler(SolarSystem& system,
 
 The string \verb+relOrNonRel+ is the flag that tells which method the integrator should use to calculate the forces.    The main part of the implmentation is in the for loop. We loop over all the bodies stored in the class, and update their positions and velocities using \eqref{eq:forwardEuler} on the two differential equations outlined in \eqref{eq:gendv} and \eqref{eq:gendr}. This is done in a vectorized fashion, as Armadillo \citep{Armadillo} vectors supports these kinds of mathematical operations on vectors.
 
-The Velocity Verlet algorithm is implemented as follows:
+The velocity Verlet algorithm is implemented as follows:
 
 \begin{cpp}
 void solar_integrator::VelocityVerlet(SolarSystem& system,
@@ -832,17 +826,17 @@ Relativistic & $(15k + 44)N$ & $(27k + 88)N$ \\
 
 The sources of errors in these simulations are quite simple to get a grasp of as there are only two major ones, aside from potential errors in the implementation. These are the errors made from approximation when deriving the numerical methods of integration used, and machine precision. 
 
-When using the forward Euler method there is an error $\mathcal{O}(\Delta t^2)$ (where $\Delta t$ is the timestep) from the approximation made when deriving the method, and when using the Velocity Verlet algorithm there is an error $\mathcal{O}(\Delta t^3)$. Thus we expect the forward Euler method to be less precise than the Velocity Verlet algorithm. 
+When using the forward Euler method there is an error $\mathcal{O}(\Delta t^2)$ (where $\Delta t$ is the timestep) from the approximation made when deriving the method, and when using the velocity Verlet algorithm there is an error $\mathcal{O}(\Delta t^3)$. Thus we expect the forward Euler method to be less precise than the velocity Verlet algorithm. 
 
-It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the Velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that will not see when using the Velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the Velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the Velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
+It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that will not see when using the velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
 
-The total angular momentum is also a conserved quantity (see section \hyperref[sec:II:c]{II.C}) in theory. While there are errors for this as well from the same sources as for the energy, this gives another easy criterion that we can use to determine whether our implementation works as it should, as there should be little to no drift with the Velocity Verlet algorithm and only a small drift with the forward Euler method.  
+The total angular momentum is also a conserved quantity (see section \hyperref[sec:II:c]{II.C}) in theory. While there are errors for this as well from the same sources as for the energy, this gives another easy criterion that we can use to determine whether our implementation works as it should, as there should be little to no drift with the velocity Verlet algorithm and only a small drift with the forward Euler method.  
 
 \subsection{Unit-tests} \label{sec:III:d}
-To test our implementations of the forward Euler and Velocity Verlet methods, we implemented 4 unit-tests in \verb+test_functions.cpp+ (\hyperref[A.7]{A.7}) using the CATCH2 unit-test framework. The tests are specifically written to test the energy conservation and angular momentum conservation of both the Velocity Verlet and forward Euler methods respectivly. The tests do this by setting up the SolarSystem and solar\_integrator classes for an approximated Sun-Earth system, where the Sun is set to the origin with no initial velocity, and the Earth is set to \(\vec{r}_{0} = (1, 0, 0)\) and \(\vec{v}_{0} = (0, 2\pi, 0)\) as initial position and velocity (units AU and AU/year). The Earth is assumed to have a mass of \(\num{3e-06}M_\text{Sun}\). All the tests then integrate the given system for \(N=\num{1e+04}\) time steps, with a step length of \(dt = \SI{1e-03}{\text{years}}\). The energy conservation tests stores the total energy of the system at the first and last time step, then compares the two energies. Similarly, the angular momentum tests integrates with the same number of time steps and step length as the energy tests. The angular momentum tests then compare both the magnitude of the angular momentum for the first and final time step, and the individual components of the angular momentum. We expect these tests to pass for the Velocity Verlet method, but not the forward Euler method.
+To test our implementations of the forward Euler and velocity Verlet methods, we implemented 4 unit-tests in \verb+test_functions.cpp+ (\hyperref[A.7]{A.7}) using the CATCH2 unit-test framework. The tests are specifically written to test the energy conservation and angular momentum conservation of both the velocity Verlet and forward Euler methods respectivly. The tests do this by setting up the SolarSystem and solar\_integrator classes for an approximated Sun-Earth system, where the Sun is set to the origin with no initial velocity, and the Earth is set to \(\vec{r}_{0} = (1, 0, 0)\) and \(\vec{v}_{0} = (0, 2\pi, 0)\) as initial position and velocity (units AU and AU/year). The Earth is assumed to have a mass of \(\num{3e-06}M_\text{Sun}\). All the tests then integrate the given system for \(N=\num{1e+04}\) time steps, with a step length of \(dt = \SI{1e-03}{\text{years}}\). The energy conservation tests stores the total energy of the system at the first and last time step, then compares the two energies. Similarly, the angular momentum tests integrates with the same number of time steps and step length as the energy tests. The angular momentum tests then compare both the magnitude of the angular momentum for the first and final time step, and the individual components of the angular momentum. We expect these tests to pass for the velocity Verlet method, but not the forward Euler method.
 
 \subsection{Benchmark} \label{sec:III:e}
-To time our implementations of the forward Euler and Velocity Verlet methods. The source code for the benchmark can be found in \verb+benchmark.cpp+ (\hyperref[A.8]{A.8}). The benchmark sets up the SolarSystem and solar\_integrator classes for the file containing initial conditions for the Sun, all eight planets and Pluto. The benchmark integrates the given system for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\second}\). The integration is timed, and performed \(50\) times for both the Velocity Verlet and forward Euler methods. The benchmark writes the results to file. Running \verb+project.py+ (\hyperref[A.1]{A.1}) with the benchmark keyword will write the mean result, with standard deviation, to a file \verb+benchmark_sun_and_friends.dat+ in the data directory.
+To time our implementations of the forward Euler and velocity Verlet methods. The source code for the benchmark can be found in \verb+benchmark.cpp+ (\hyperref[A.8]{A.8}). The benchmark sets up the SolarSystem and solar\_integrator classes for the file containing initial conditions for the Sun, all eight planets and Pluto. The benchmark integrates the given system for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\second}\). The integration is timed, and performed \(50\) times for both the velocity Verlet and forward Euler methods. The benchmark writes the results to file. Running \verb+project.py+ (\hyperref[A.1]{A.1}) with the benchmark keyword will write the mean result, with standard deviation, to a file \verb+benchmark_sun_and_friends.dat+ in the data directory.
 
 The benchmark only measures time spent on integration. Time spent on writing position data to file is not accounted for, but is expected to significantly slow down the integration loops, as storage media is significantly slower than RAM. We choose to omitt timing storage operations, since there method of storing position data is dependent on the implementation of the integration-loop.
 
@@ -850,28 +844,111 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 
 \subsection{Benchmark results} \label{sec:IV:a}
 
-We ran 500 simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and Velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:IV:a]{III}.
+We ran $50$ simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
 
-\begin{table}[H] \label{table:IV:a}
-\caption{Table showing the mean time and standard deviation of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and Velocity Verlet methods (se \hyperref[sec:III:e]{III.E} for more details).}
+\begin{table}[H] \label{table:benchmark}
+\caption{Table showing the mean time and standard deviation of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and velocity Verlet methods (se \hyperref[sec:III:e]{III.E} for more details).}
 \begin{tabular}{|c|c|c|}
 \hline
 Method & Mean time [seconds] & standard deviation [seconds] \\
 \hline 
-forward Euler & \(\SI{1.8331e+00}{\second}\) & \(\SI{4.2967e-03}{\second}\) \\
+Forward Euler & \(\SI{1.8331e+00}{\second}\) & \(\SI{4.2967e-03}{\second}\) \\
 Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 \hline
 \end{tabular}
 \end{table} 
 
-\subsection{Simulation of the earth and the sun for a few selected timesteps}
+\subsection{Simulations of Earth and the Sun for a few selected timesteps} \label{sec:IV:b}
 
-In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method.
+In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. The amount of timesteps was chosen so that the simulations span 1 year in simulation time. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the velocity Verlet method are shown in figure \ref{fig:se-vv-orbits}. We also measured the standard deviation of the total energy in these simulations and they are listed as percentages of the mean total energy in table \ref{table:se-3c-energydeviation}. We also include plots of the norm of the total angular momentum in the simulations with timestep $\Delta t = \num{1e-05}$ in figure \ref{fig:se-3c-angmom}.
 
-\begin{figure}
-%\includesvg{se_dt1e-3_fe_orbit2D}
-\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation).}
+As for the initial positions we start with the Sun in the origin and Earth at a distance 1 AU along the $x$-axis away from the Sun. The average distance between Earth and the Sun is 1 AU so this mimics real life. Earth makes a full orbit around the sun in a year, so in order for the orbit to circular we need the initial velocity to be tangential the position, and we need it to be such that it can make a full orbit in one year. The circumference of a circle with radius 1 is $2\pi$ so we need the velocity of the Earth to be $2\pi$ in the $y$-direction in order for the orbit to be circular. These are the initial conditions we have chosen. 
+
+The simulations were all ran in three dimensions, but there is no motion in the $z$-direction because of the choice of initial conditions, and thus we only show 2D plots of the orbits. They were also ran in the center of mass frame (see section \hyperref[sec:II:g]{II.G}) and transformed back to reference frame of the Sun when processing the data.
+
+\begin{figure}[H] 
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_fe_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_orbit2D.pdf}
+\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
+\label{fig:se-fe-orbits}
 \end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_vv_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_vv_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_vv_orbit2D.pdf}
+\caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the velocity Verlet method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
+\label{fig:se-vv-orbits}
+\end{figure}
+
+\begin{table}
+\caption{Table containing standard deviation of the total energy as a percentage of the mean total energy in the simulations described in section \hyperref[sec:IV:b]{IV.B}. The column labeled "Forward Euler" corresponds to the simulations performed with the forward Euler algorithm, and the column labeled "Velocity Verlet" corresponds to the simulationgs performed with the velocity Verlet algorithm.}
+\begin{tabular}{|c|c|c|}
+\hline
+Timestep [years] & Forward Euler & Velocity Verlet \\
+\hline
+\num{1e-03} & 1.97 \% & \num{4.28e-04} \% \\
+\num{1e-04} & 0.224 \% & \num{5.18e-04} \% \\
+\num{1e-05} & \num{2.28e-02} \% & \num{5.10e-04} \% \\
+\hline
+\end{tabular}
+\label{table:se-3c-energydeviation}
+\end{table}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_angmom.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_vv_angmom.pdf}
+\caption{This figure contains two plots showing the norm of the total angular momentum $L$, scaled so that it's maximum value is 1, as it develops during two simulations with Earth and the Sun. Both simulations were ran with a timestep $\Delta t = \num{1e-05}$, but one of them used the forward Euler algorithm, and the other the velocity Verlet algorithm (as indicated in the plot). The mean and standard deviation of $L$ is listed in the legend text.   }
+\label{fig:se-3c-angmom}
+\end{figure}
+
+
+\subsection{Simulations of Earth and the Sun with another kind of force} \label{sec:IV:c}
+
+We ran simulations of the system with Earth and the Sun with the force given \eqref{eq:beta_gengrav}, for different choices of the parameter $\beta$. These simulations were all performed with the velocity Verlet algorithm, the timestep set to $\Delta t = \num{1e-06}$ and the amount of timesteps $N = \num{1e+07}$. First we ran simulations with the same initial conditions as in section. In this case all the plots of the orbits remained roughly the same for any choice of $\beta$ between $2$ and $3$ and thus we oonly include a plot of the orbit with $\beta=2.667$ which can be seen along with a plot showing potential, kinetic, and total energy in figure \ref{fig:beta-se-orbit-energy}.
+
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_energy.pdf}
+\caption{Figure containing two plots. The first plot shows the orbit of Earth around the Sun with the force interaction given by \eqref{eq:beta_gengrav}, where the parameter $\beta = 2.667$. The second plot shows potential, kinetic, and total energy in the same simulation.} 
+\label{fig:beta-se-orbit-energy}
+\end{figure}
+
+We also ran simulations with the same initial conditions, except that we set the initial velocity of the earth to be 5 AU/year instead of $2\pi$ AU/year. With a regular gravitational interaction this corresponds to elliptical orbits. We ran these simulations with $\beta = 2$, $\beta = 2.333$, $\beta = 2.667$ and $\beta = 3$. Setting $\beta=2$ is the same as a regular gravitational interaction. We show plots of the orbit and the energy in this case in figure \ref{fig:beta2_peturbed}. The angular momentum remains a constant and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.333$ are shown in figure \ref{fig:beta233_peturbed}. The angular momentum remained a constant here as well and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.667$ are shown in figure \ref{fig:beta2667_peturbed}. The angular momentum remained constant here as well. Plots of the orbits, energies, and angular momentum in the case where $\beta = 3$ are shown in figure \ref{fig:beta3_peturbed}. The plot of the energies was zoomed in around the relevant portion of the plot. 
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun, and a plot showing potential, kinetic, and total energy for the system. The initial velocity has been altered (from the Earths initial velocity) so that the orbit is more elliptical. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta2_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.333$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta233_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_energy.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.667$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta2667_peturbed}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_orbits2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_energy_zoomed.pdf}
+\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_angmom.pdf}
+\caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 3$), a plot of the potential, kinetic, and total energy, and a plot of the norm of the total angular momentum of this system. Note that the plot of the energies is zoomed in around a relevant part, as the rest of the plot would be unreadable. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
+\label{fig:beta3_peturbed}
+\end{figure}
+
+
+\subsection{Simulations with velocity close to escape velocity} \label{sec:IV:d}
 
 \section{Discussion} \label{sec:V}
 
