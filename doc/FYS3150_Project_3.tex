@@ -19,10 +19,6 @@
 \usepackage{cprotect}
 \usepackage{float}
 
-% svg package import and specification
-\usepackage{svg}
-\svgpath{{../data/figures/sun-earth-3c/}}
-
 
 % defines the color of hyperref objects
 % Blending two colors:  blue!80!black  =  80% blue and 20% black
@@ -850,9 +846,9 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 
 \subsection{Benchmark results} \label{sec:IV:a}
 
-We ran 500 simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and Velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:IV:a]{III}.
+We ran $50$ simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and Velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
 
-\begin{table}[H] \label{table:IV:a}
+\begin{table}[H] \label{table:benchmark}
 \caption{Table showing the mean time and standard deviation of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and Velocity Verlet methods (se \hyperref[sec:III:e]{III.E} for more details).}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -866,11 +862,14 @@ Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 
 \subsection{Simulation of the earth and the sun for a few selected timesteps}
 
-In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method.
+In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}.
 
-\begin{figure}
-%\includesvg{se_dt1e-3_fe_orbit2D}
+\begin{figure}[H] 
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_fe_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_orbit2D.pdf}
 \caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation).}
+\label{fig:se-fe-orbits}
 \end{figure}
 
 \section{Discussion} \label{sec:V}
