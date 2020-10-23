@@ -64,8 +64,8 @@ def benchmark_cpp():
     verlet_std = np.std(benchmark_times[:, 1])
 
     # printing results to terminal:
-    header1 = "Time spent solving Solar system averaged over 500 runs."
-    header2 = "N = 10000, dt = 0.00248"
+    header1 = "Time spent solving Solar system averaged over 50 runs."
+    header2 = "N = 1000000, dt = 0.000248"
     eulerstr = f"Euler: {euler_mean:.4e} s \u00B1 {euler_std:.4e} s"
     verletstr = f"Verlet: {verlet_mean:.4e} s \u00B1 {verlet_std:.4e} s"
     print(header1)
