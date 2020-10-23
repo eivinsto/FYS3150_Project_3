@@ -840,6 +840,8 @@ To time our implementations of the forward Euler and velocity Verlet methods. Th
 
 The benchmark only measures time spent on integration. Time spent on writing position data to file is not accounted for, but is expected to significantly slow down the integration loops, as storage media is significantly slower than RAM. We choose to omitt timing storage operations, since there method of storing position data is dependent on the implementation of the integration-loop.
 
+\newpage
+
 \section{Results} \label{sec:IV}
 
 \subsection{Benchmark results} \label{sec:IV:a}
@@ -950,9 +952,49 @@ We also ran simulations with the same initial conditions, except that we set the
 
 \subsection{Simulations with velocity close to escape velocity} \label{sec:IV:d}
 
+We ran simulations with Earth and the Sun, where we set Earths velocity to values close to the escape velocity in the Suns gravitational field. The escape velocity of Earth in this case was found in section \hyperref[sec:II:e]{II.E} and the escape velocity itself is listed in \eqref{eq:esc_sun_1au}. All the simulations were ran with $N = \num{1e+07}$ timesteps and timestep $\Delta t = \num{2.48e-05}$. We needed to simulate for a sufficient amoount of time so that we could verify that the Earth would or would not escape the gravitational field of the Sun, and we chose then a set of parameters such that the simulation time is approximately equal to the time it takes Pluto to complete a full orbit around the Sun, as that makes sense in terms of objects in our solar system. We chose this as a baseline set of parameters in our simulations. We used the velocity Verlet algorithm as the method of numerical integration in these simulations.
+
+The Sun is set to the origin of the system, and Earth starts $1$ AU away from the Sun along the $x$-axis, and a varying velocity in the $y$-direction. We showcase three simulations here where the velocity was chosen such that it was just below, exactly at, or just above the escape velocity. We ran a simulation with the initial velocity set to $v = 8.8$ AU/year, one with $v = 2\pi \sqrt{2} \approx 8.886$, and the last with $v = 9$ AU/year. Plots showing the orbit and energies in these simulations can be found in figures \ref{fig:escvel_88}, \ref{fig:escvel_exact} and \ref{fig:escvel_9} respectively.
+
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_8-8_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_8-8_energy.pdf}
+\caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
+\label{fig:escvel_88}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_exact_orbit2D.pdf}
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_exact_energy.pdf}
+\caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
+\label{fig:escvel_exact}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_9_orbit2D_zoomed.pdf}
+\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_9_energy.pdf}
+\caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
+\label{fig:escvel_9}
+\end{figure}
+
+
+
+\subsection{Simulations of Earth, Jupiter and the Sun} \label{sec:IV:e}
+
+
+
 \section{Discussion} \label{sec:V}
 
+
+
+
 \section{Conclusion} \label{sec:VI}
+
+
+
+
+
 \onecolumngrid
 \bibliography{kilder.bib}{}
 \newpage
