@@ -88,7 +88,7 @@ class SolarSystem:
     """
 
     def __init__(self, numTimesteps, dt, write_limit, integration_method,
-                 init_file, posfile, momenfile, bodynames, correction, beta):
+                 init_file, posfile, momenfile, bodynames, correction, beta=2):
         """Class constructor.
         Args:
             numTimesteps: integer - number of time steps to take.
