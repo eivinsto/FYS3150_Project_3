@@ -1,4 +1,4 @@
 Time spent solving Solar system averaged over 500 runs.
 N = 10000, dt = 0.00248
-Euler: 2.9882e-02 s ± 5.8580e-03 s
-Verlet: 2.6939e-02 s ± 8.9105e-03 s
+Euler: 1.8331e+00 s ± 4.2967e-03 s
+Verlet: 3.6346e+00 s ± 1.5126e-02 s

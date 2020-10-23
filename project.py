@@ -57,11 +57,11 @@ def benchmark_cpp():
                                     "/data/benchmarkdata.dat", skip_header=2)
 
     # taking mean and standard deviation:
-    euler_mean = np.mean(benchmark_times[0])
-    euler_std = np.std(benchmark_times[0])
+    euler_mean = np.mean(benchmark_times[:, 0])
+    euler_std = np.std(benchmark_times[:, 0])
 
-    verlet_mean = np.mean(benchmark_times[1])
-    verlet_std = np.std(benchmark_times[1])
+    verlet_mean = np.mean(benchmark_times[:, 1])
+    verlet_std = np.std(benchmark_times[:, 1])
 
     # printing results to terminal:
     header1 = "Time spent solving Solar system averaged over 500 runs."
