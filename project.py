@@ -119,6 +119,7 @@ class SolarSystem:
         self.bodynames = bodynames
         self.correction = correction
         self.beta = beta
+        self.runflag = "normal"
 
         # ensuring that maximum 1000 lines of data are read from each file,
         # this is to limit memory use.
@@ -147,7 +148,8 @@ class SolarSystem:
                 self.posfile,
                 self.momenfile,
                 self.correction,
-                f"{self.beta}"
+                f"{self.beta}",
+                self.runflag
             ],
             cwd=src
         )
@@ -174,24 +176,24 @@ class SolarSystem:
             # x_0 y_0 z_0 x_1 y_1 z_1 ... x_n-1 y_n-1 z_n-1
             # where n is the number of bodies.
 
-        # reading angular momentum from file:
-        with open(self.momenfile, "r") as infile:
-            self.angmom = np.genfromtxt(itertools.islice(
-                infile, 1, self.numTimesteps+1, self.everyNlines),
-                usecols=[2, 3, 4])
-            # self.angmom is an Nx3-array containing the components of the
-            # angular momentum of the System. Each row is a single moment
-            # in time, and the coulumns are x y z.
+        if self.runflag != "sm":
+            # reading angular momentum from file:
+            with open(self.momenfile, "r") as infile:
+                self.angmom = np.genfromtxt(itertools.islice(
+                    infile, 1, self.numTimesteps+1, self.everyNlines),
+                    usecols=[2, 3, 4])
+                # self.angmom is an Nx3-array containing the components of the
+                # angular momentum of the System. Each row is a single moment
+                # in time, and the coulumns are x y z.
 
-        # reading Kinetic and Potential energy from file:
-        with open(self.momenfile, "r") as infile:
-            self.energy = np.genfromtxt(itertools.islice(
-                infile, 1, self.numTimesteps+1, self.everyNlines),
-                usecols=[0, 1])
-            # self.energy is an Nx2-array containing the Kinetic energy for
-            # each time step as the first column and potential energy
-            # each time step as the second column.
-        # print(self.bodyPos.shape)
+                # reading Kinetic and Potential energy from file:
+                with open(self.momenfile, "r") as infile:
+                    self.energy = np.genfromtxt(itertools.islice(
+                        infile, 1, self.numTimesteps+1, self.everyNlines),
+                        usecols=[0, 1])
+                    # self.energy is an Nx2-array containing the Kinetic energy
+                    # each time step as the first column and potential energy
+                    # each time step as the second column.
 
     def orbit2D(self, number_of_bodies=None, center_on_sun=False,
                 axis='equal'):
@@ -353,24 +355,28 @@ class SolarSystem:
 
     def perihelionAngle(self):
         """Method for calculating all perihelionAngles in array of body 1."""
+        self.everyNlines = 1
+        self.write_limit = 1
+        self.runflag = "sm"
         if not self.isgenerated:
             self.generateSystem()
         if self.correction == "nonrel":
             self.moveToSunFrame()
 
         # finding perihelion:
-        T = 0.2411
-        N = int(T/self.dt)
-        print(N-1)
-        print(self.bodyPos.shape)
-        rvec = self.bodyPos[N:, 3:]
-        print(rvec.shape)
-        r = np.sqrt(rvec[:, 0]**2 + rvec[:, 1]**2 + rvec[:, 2]**2)
-        a = np.argmin(r)
+        # T = 0.2411
+        # N = (self.numTimesteps - int(T/self.dt))//(self.everyNlines *
+        #                                            self.write_limit)
+        # print(N-1)
+        # print(self.bodyPos.shape)
+        # rvec = self.bodyPos[N:, 3:]
+        # print(rvec.shape)
+        # r = np.sqrt(rvec[:, 0]**2 + rvec[:, 1]**2 + rvec[:, 2]**2)
+        # self.a = np.argmin(r)
 
-        self.xp = self.bodyPos[N:, 3][a]
-        self.yp = self.bodyPos[N:, 4][a]
-        self.thetaP = np.arctan(self.xp/self.yp)
+        self.xp = self.bodyPos[:, 3]
+        self.yp = self.bodyPos[:, 4]
+        self.thetaP = np.arctan2(self.yp, self.xp)*206264.806
 
 
 # name of bodies used in project:
@@ -379,6 +385,7 @@ bodynames = ["Sun", "Mercury", "Venus", "Earth", "Mars",
 beta = 2
 runflag = "start"
 betaflag = "n"
+write_limit = 1
 center_on_sun = True
 axis = 'equal'
 num_bods_to_plot = None
@@ -399,13 +406,16 @@ while (runflag != "se" and runflag != "sej" and runflag != "sm" and
     runflag = input("Choose run: ")
 
 
-if (runflag != "test") and (runflag != "b"):
+if runflag != "test" and runflag != "b":
     # asking for imput parameters from user:
     numTimesteps = int(eval(input("\nNumber of time steps N = ")))
     dt = float(eval(input("Size of time step dt = ")))
-    limit_write = input(
-        "\nOnly write the data from 10000 evenly spaced time steps? y/n: "
-    )
+    if runflag != "sm":
+        limit_write = input(
+            "\nOnly write the data from 10000 evenly spaced time steps? y/n: "
+        )
+        if limit_write == "y" and numTimesteps > 10000:
+            write_limit = numTimesteps//10000
 
 if runflag == "se":  # initial data for sun_earth run:
     init_file = "sun-earth.init"
@@ -464,10 +474,6 @@ elif runflag == "ss":  # initial data for entire SolarSystem run:
         num_bods_to_plot = 6
 
 if (runflag != "test") and (runflag != "b"):  # setting up run:
-    if limit_write == "y" and numTimesteps > 10000:
-        write_limit = numTimesteps//10000
-    else:
-        write_limit = 1
 
     integration_method = input("""
 Choose integration method:
@@ -556,21 +562,35 @@ Choose integration method:
         plt.show()
 
     elif runflag == "sm":
+        system = SolarSystem(
+            numTimesteps,
+            dt,
+            write_limit,
+            integration_method,
+            init_file,
+            posfile,
+            momenfile,
+            bodynames,
+            "nonrel",
+            beta
+        )
+
         system2 = SolarSystem(numTimesteps, dt, write_limit,
                               integration_method, init_file,
                               "rel_" + posfile, "rel_" + momenfile,
                               bodynames, "rel")
         system.perihelionAngle()
         system2.perihelionAngle()
-        system.orbit2D()
-        system2.orbit2D()
+        # system.orbit2D()
+        # system2.orbit2D()
 
         plt.show()
 
-        p0 = np.arctan(0.307491008)
-        pnonrel1 = system.thetaP
-        prel1 = system2.thetaP
-        print(f"{pnonrel1-p0:e}", f"{prel1-p0:e}")
+        thetaPnonrel = system.thetaP[-1]
+        thetaPrel = system2.thetaP[-1]
+
+        print(f"ThetaP without correction = {thetaPnonrel:g}''")
+        print(f"ThetaP with  correction = {thetaPrel:g}''")
         # print(f"{system.thetaP[-1]:e}", f"{system2.thetaP[-1]:e}")
 
 

@@ -18,6 +18,7 @@ int main(int numArguments, char **arguments) {
   string energies_file = "../data/energies.dat";    // Which file to store energies and angular momentum output in
   string correction = "nonrel";
   double beta = 2.0;
+  string runflag = "se";
 
   // Reading variables from command line
   if(numArguments >= 2) numTimesteps = atoi(arguments[1]);
@@ -29,6 +30,7 @@ int main(int numArguments, char **arguments) {
   if(numArguments >= 8) energies_file = arguments[7];
   if(numArguments >= 9) correction = arguments[8];
   if(numArguments >= 10) beta = atof(arguments[9]);
+  if(numArguments >= 11) runflag = arguments[10];
   std::cout << "Current beta = " << beta << std::endl;
   // Reading initial state from file
   SolarSystem solarSystem(init_file, beta);
@@ -38,13 +40,43 @@ int main(int numArguments, char **arguments) {
   solarSystem.initiateDataFile(positions_file, energies_file);
 
   if (correction == "nonrel") solarSystem.moveToCOFMFrame();
+  if (correction == "rel") solarSystem.calAngMom();
 
-  for(int timestep=0; timestep<numTimesteps; timestep++) {
-    integrator.integrateOneStep(solarSystem, correction);
+  if (runflag == "sm") {
+    double rmin;
+    double r;
+    arma::vec perihelion;
+    CelestialBody *mercury = &(solarSystem.bodies()[1]);
 
-    if (timestep%write_limit == 0){
-      solarSystem.writeToFile();
-      solarSystem.writeEnergyToFile();
+    solarSystem.writeToFile();
+    rmin = arma::norm(mercury->position);
+
+
+    for(int timestep=0; timestep<numTimesteps - numTimesteps/100; timestep++) {
+      integrator.integrateOneStep(solarSystem, correction);
+      r = arma::norm(mercury->position);
+    }
+    rmin = r;
+
+    for(int timestep=0; timestep<numTimesteps/100; timestep++) {
+      integrator.integrateOneStep(solarSystem, correction);
+      r = arma::norm(mercury->position);
+
+      if (r < rmin) {
+        perihelion = mercury->position;
+      }
+    }
+    mercury->position = perihelion;
+    solarSystem.writeToFile();
+
+  } else {
+    for(int timestep=0; timestep<numTimesteps; timestep++) {
+      integrator.integrateOneStep(solarSystem, correction);
+
+      if (timestep%write_limit == 0){
+        solarSystem.writeToFile();
+        solarSystem.writeEnergyToFile();
+      }
     }
   }
   return 0;

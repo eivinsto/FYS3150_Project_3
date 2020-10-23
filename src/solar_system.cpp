@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include <iterator>
 
 
@@ -159,6 +160,16 @@ void SolarSystem::calculateForcesAndEnergy() {
   }
 }
 
+void SolarSystem::calAngMom() {
+  // Load Mercury (body2)
+  CelestialBody &body2 = m_bodies[1];
+
+  // Calculate angular momentum vector, size and squared size
+  l_vec = arma::cross(body2.position, body2.velocity);
+  l = arma::norm(l_vec);
+  l2 = l*l;
+}
+
 /**
 * Function that calculates kinetic and potential energy, angular momentum,
 * and the force that the bodies exert on each other with a relativistic correction.
@@ -169,17 +180,8 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
     body.force.zeros();
   }
 
-  // Load Sun (body1)
-  CelestialBody &body1 = m_bodies[0];
-
   // Load Mercury (body2)
   CelestialBody &body2 = m_bodies[1];
-
-  // Calculate angular momentum vector, size and squared size
-  arma::vec l_vec = arma::cross(body2.position, body2.velocity);
-  double l = arma::norm(l_vec);
-  double l2 = l*l;
-
 
   // Distance vector
   arma::vec dr_vec = body2.position;
@@ -189,7 +191,7 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
   double dr2 = dr*dr;
 
   // Potential energy between body1 and body2
-  double potential_energy = m_G*body1.mass*body2.mass/dr;
+  double potential_energy = m_G*body2.mass/dr;
 
   // Calculate force vector with relativistic correction factor (sign adjusted when adding to the bodies)
   arma::vec gravforce = dr_vec*(potential_energy/dr2) * (1 + m_rel_constant*l2/dr2 );
@@ -287,6 +289,7 @@ void SolarSystem::initiateDataFile(std::string positions_filename, std::string e
 */
 void SolarSystem::writeToFile() {
   // Check whether file is still working as it should
+
   if(!m_file.good()) {
     m_file.open(m_positions_filename.c_str(), std::ofstream::out);
     if(!m_file.good()) {
@@ -297,7 +300,7 @@ void SolarSystem::writeToFile() {
 
   // Write positions to file
   for(CelestialBody &body : m_bodies) {
-    m_file << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
+    m_file << std::fixed << std::setprecision(17)  << body.position(0) << " " << body.position(1) << " " << body.position(2) << " ";
   }
 
   // Change line

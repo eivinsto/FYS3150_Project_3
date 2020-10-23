@@ -70,14 +70,14 @@ void solar_integrator::Euler(SolarSystem& system, std::string relOrNonRel) {
   }
 }
 
-/**
-* Function calling Euler with no relativistic correction.
-*
-* @system SolarSystem object to be integrated.
-*/
-void solar_integrator::Euler(SolarSystem& system) {
-  solar_integrator::Euler(system, "nonrel");
-}
+// /**
+// * Function calling Euler with no relativistic correction.
+// *
+// * @system SolarSystem object to be integrated.
+// */
+// void solar_integrator::Euler(SolarSystem& system) {
+//   solar_integrator::Euler(system, "nonrel");
+// }
 
 /**
 * Function that integrates one step with the velocity verlet method. This
@@ -88,6 +88,7 @@ void solar_integrator::Euler(SolarSystem& system) {
 */
 void solar_integrator::VelocityVerlet(SolarSystem& system, std::string relOrNonRel) {
   // Calculate forces and energy
+  CelestialBody body1 = system.bodies()[1];
   if (relOrNonRel == "rel") {
     system.calculateForcesWithRelativisticCorrection();
   } else if (relOrNonRel == "nonrel") {
@@ -120,11 +121,11 @@ void solar_integrator::VelocityVerlet(SolarSystem& system, std::string relOrNonR
   }
 }
 
-/**
-* Function calling VelocityVerlet with no relativistic correction.
-*
-* @system SolarSystem object to be integrated.
-*/
-void solar_integrator::VelocityVerlet(SolarSystem& system) {
-  solar_integrator::VelocityVerlet(system, "nonrel");
-}
+// /**
+// * Function calling VelocityVerlet with no relativistic correction.
+// *
+// * @system SolarSystem object to be integrated.
+// */
+// void solar_integrator::VelocityVerlet(SolarSystem& system) {
+//   solar_integrator::VelocityVerlet(system, "nonrel");
+// }
