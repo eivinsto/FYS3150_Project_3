@@ -522,7 +522,7 @@ where $M_\text{Mercury}$ is the mass of Mercury, $M_\text{Sun}$ the mass of the 
 
 If we simulate the orbit of the Mercury around the Sun as an isolated system, using \eqref{eq:grav_rel} as the force that the sun exerts on Mercury, we can use the resulting data to find the perihelion precession of Mercury. This can be compared with the measured precession due to relativistic effects listed earlier to test the accuracy of our numerical solution in this case. 
 
-To measure the precession of Mercury's perihelion we can use the following process. First we initialize a system with only Mercury and the Sun. We choose the reference frame of the Sun with Mercury orbiting in the $xy$-plane, as this means we only have to calculate the force that the Sun exerts on Mercury and reduces the problem from a three-dimensional one to a two-dimensional one. In order to simplify some calculations earlier we also initialize Mercury along the $x$-axis in its perihelion, and with initial velocity in positive orientation. Secondly we simulate the system for an amount of timesteps such that Mercury reaches perihelion a few times. Thirdly we process the data and identify the positions of the perihelion. Now we can calculate the change in the angular position of Mercury's perihelion with each revolution around the Sun, which gives us the precession. Since our system is generally in cartesian coordinates, we can find the angular position as:
+To measure the precession of Mercury's perihelion we can use the following process. First we initialize a system with only Mercury and the Sun. We choose the reference frame of the Sun with Mercury orbiting in the $xy$-plane, as this means we only have to calculate the force that the Sun exerts on Mercury and reduces the problem from a three-dimensional one to a two-dimensional one. In order to simplify some calculations earlier we also initialize Mercury along the $x$-axis in its perihelion, and with initial velocity in positive orientation. Secondly we simulate the system for a century (simulation time). Thirdly we process the data and identify the first and last positions of the perihelion. Now we can calculate the precession of Mercury's perihelion. Since our system is generally in cartesian coordinates, we can find the angular position as:
 
 \begin{align*}
 \theta_p &= \arctan(\frac{x_p}{y_p}) \, ,\numberthis \label{eq:prec_ang_pos}
@@ -530,13 +530,11 @@ To measure the precession of Mercury's perihelion we can use the following proce
 
 where $\theta_p$ is the angular position of the perihelion, and $x_p$ and $y_p$ are the cartesian coordinates of the position of the perihelion.
 
-Given two subsequent angular positions of the perihelion $\theta_{p,1}$ and $\theta_{p,2}$ with the second coming after the first, we define the change in the angular position as $\Delta \theta_p = \theta_{p,2} - \theta_{p,1}$. The change in the angular position per unit time is the precession of the perihelion:
+Given the first and last position of the perihelion $\theta_{p,1}$ and $\theta_{p,2}$ with the second coming after the first, we define the change in the angular position as $\Delta \theta_p = \theta_{p,2} - \theta_{p,1}$. The precession per century is approximately equal to this quantity, as we have simulated for a century. In other words the precession $p$ is:
 
 \begin{align*}
-p &= \frac{\Delta \theta_p}{T} \, , \numberthis \label{eq:precession}
+p &= \Delta \theta_p \numberthis \label{eq:precession}
 \end{align*}
-
-where $p$ is the precession per unit time, and $T$ is the time it takes Mercury to reach the second position of the perihelion ($\theta_{p,2}$) after leaving the first ($\theta_{p,1}$).
 
 \subsection{Center of mass} \label{sec:II:f}
 
@@ -626,7 +624,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 
       // Potential energy between body1 and body2
       double potential_energy = m_G*body1.mass*body2.mass
-      							/std::pow(dr,m_beta-1);
+      							/std::pow(dr,m_beta_1);
 
       // Force vector between the bodies (sign adjusted when 
       // adding to the bodies)
@@ -635,7 +633,7 @@ void SolarSystem::calculateForcesAndEnergy() {
       body2.force -= gravforce;
 
       // Adding potential energy to total
-      m_potential_energy -= potential_energy;
+      m_potential_energy -= potential_energy/m_beta_1;
     }
 
     // Adding kinetic energy of body1 to total
@@ -649,7 +647,7 @@ void SolarSystem::calculateForcesAndEnergy() {
 }
 \end{cpp}
 
-The method uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The parameter $\beta$ is decided upon instantiating the class, which we will get back to. 
+The method uses \eqref{eq:beta_gengrav} to calculate the force an object experiences, \eqref{eq:beta_tot_pot_en} to calculate the total potential energy, \eqref{eq:tot_kin_en} to calculate total kinetic energy, and \eqref{eq:tot_ang_mom} to calculate the total angular momentum. All are stored in internal variables in the class, and can be retrieved using methods built into the class. The variable \verb+m_beta_1+ is the parameter $\beta$ (from \eqref{eq:beta_gengrav}) minus 1, and is set upon instantiating the class, which we will get back to. 
 
 The second method is \verb+calculateForcesWithRelativisticCorrection()+:
 
@@ -862,7 +860,7 @@ Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 
 \subsection{Simulation of the earth and the sun for a few selected timesteps}
 
-In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}.
+In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the Velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the Velocity Verlet method are shown in figure
 
 \begin{figure}[H] 
 \includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
