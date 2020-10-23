@@ -42,7 +42,7 @@ private:
   double m_beta_1;                           // The previous exponent minus 1
   const double m_G = 4*M_PI*M_PI;            // Gravitational constant (AU^3 y^-2 [mass of the sun]^-1)
   const double m_c = 63239.7263;             // Speed of light (AU y^-1)
-  const double m_rel_constant = 3/(m_c*m_c); // For use in calculateForcesAndEnergyWithRelativisticCorrection (y^2 AU^-2)
+  const double m_rel_constant = 3/(m_c*m_c); // For use in calculateForcesWithRelativisticCorrection (y^2 AU^-2)
 };
 
 #endif
