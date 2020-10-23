@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import itertools
+import sys
 
 
 # retriveing working directories:
@@ -562,6 +563,11 @@ Choose integration method:
         plt.show()
 
     elif runflag == "sm":
+        if numTimesteps*dt < 100:
+            print("Please choose N and dt,")
+            print(f"such that N*dt = {numTimesteps*dt} >= 100 years")
+            sys.exit(1)
+
         system = SolarSystem(
             numTimesteps,
             dt,
