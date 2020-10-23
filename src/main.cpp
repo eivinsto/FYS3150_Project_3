@@ -64,6 +64,7 @@ int main(int numArguments, char **arguments) {
 
       if (r < rmin) {
         perihelion = mercury->position;
+        rmin = r;
       }
     }
     mercury->position = perihelion;
