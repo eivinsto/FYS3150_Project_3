@@ -492,7 +492,7 @@ if runflag == "se":  # initial data for sun_earth run:
             beta_array = np.linspace(2, 3, 4)
 
             # simulates varying beta with eliptical orbit.
-            initflag = input("Use eliptical orbit? y/n: ")
+            initflag = input("Use elliptical orbit? y/n: ")
             if initflag == "y":
                 init_file = "sun-earth-peturbed.init"
 
@@ -659,7 +659,7 @@ Choose integration method:
 
         # printing results:
         print(f"ThetaP without correction = {thetaPnonrel:g}''")
-        print(f"ThetaP with  correction = {thetaPrel:g}''")
+        print(f"ThetaP with correction = {thetaPrel:g}''")
 
 # running unit tests:
 elif runflag == "test":
