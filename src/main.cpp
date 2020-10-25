@@ -56,6 +56,7 @@ int main(int numArguments, char **arguments) {
 
     solarSystem.writeToFile();
     rmin = arma::norm(mercury->position);
+    r = rmin;
 
     // integrates orbit for first 99 years of simulation (assuming numTimesteps*dt = 100 years):
     for(int timestep=0; timestep<numTimesteps - numTimesteps/100; timestep++) {
