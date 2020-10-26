@@ -658,17 +658,8 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
     body.force.zeros();
   }
 
-  // Load Sun (body1)
-  CelestialBody &body1 = m_bodies[0];
-
   // Load Mercury (body2)
   CelestialBody &body2 = m_bodies[1];
-
-  // Calculate angular momentum vector, size and squared size
-  arma::vec l_vec = arma::cross(body2.position, body2.velocity);
-  double l = arma::norm(l_vec);
-  double l2 = l*l;
-
 
   // Distance vector
   arma::vec dr_vec = body2.position;
@@ -678,17 +669,17 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
   double dr2 = dr*dr;
 
   // Potential energy between body1 and body2
-  double potential_energy = m_G*body1.mass*body2.mass/dr;
+  double potential_energy = m_G*body2.mass/dr;
 
   // Calculate force vector with relativistic correction factor
   // (sign adjusted when adding to the bodies)
   arma::vec gravforce = dr_vec*(potential_energy/dr2)
-  					    * (1 + m_rel_constant*l2/dr2 );
+  						* (1 + m_rel_constant*l2/dr2 );
   body2.force -= gravforce;
 }
 \end{cpp}
 
-This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these methods these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This method is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:f]{II.F}.
+This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. The magnitude of the angular momentum per unit mass is used as a constant in the relativistic correction term for the gravitational force, and needs to be precalculated by manually calling the \verb+calcAngMom()+ method of the \verb+SolarSystem+ class. Both this method and \verb+calculateForcesWithRelativisticCorrection()+ are mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:f]{II.F}.
 
 There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. \newline
 
@@ -797,15 +788,15 @@ The eigth command line argument is also taken to be a string. This string is a f
 
 \subsubsection{A Python script automating some simulations} \label{sec:III:a:5}
 
-Now we have outlined the main structure of the C++ parts of our implementation. We admit that there may be more information than necessary given here, but we want to be precise in our discussion of the implementation as this will allow others to reuse our code with more ease. For some specific simulation systems we have written a Python script, \verb+project.py+, which runs all this in a way that is more easy to interface with. All the program files and files containing initial conditions can be found in the GitHub repository linked to in appendix \hyperref[A]{A}. When running \verb+project.py+ in a terminal it will prompt the user for several inputs, outlining what they may be (we will not outline all the options specifically here). There are some systems that we have created files with initial conditions for and these are listed as options when running the Python script. If these files themselves are of interest they can be found in the data folder in the GitHub repository. We have also implemented a secondary program used to benchmark the algorithms, which we cover in a separate section. All the simulations shown later on in this report can be performed using this Python script. 
+Now we have outlined the main structure of the C++ parts of our implementation. We admit that there may be more information than necessary given here, but we want to be precise in our discussion of the implementation as this will allow others to reuse our code with more ease. We have written a Python script, \verb+project.py+, which can be used to run all the simulations used in this report in a way that is easier to interface with. All the program files and files containing initial conditions can be found in the GitHub repository linked to in appendix \hyperref[A]{A}. When running \verb+project.py+ in a terminal it will prompt the user for several inputs, outlining what they may be (we will not outline all the options specifically here, se the README.md file in the repository for specifics). There are some systems that we have created files with initial conditions for and these are listed as options when running the Python script. If these files themselves are of interest they can be found in the data folder in the GitHub repository. We have also implemented a secondary program used to benchmark the algorithms, which we cover in section \hyperref[sec:III:e]{III.E}.
 
 \subsection{Floating point operations} \label{sec:III:b}
 
-It is of interest to count the amount of FLOPs (floating point operations) needed to perform the algorithm. We denote the amount of timesteps in the simulations $N$, and the amount of bodies in the system $k$. There are several options that we may choose from which impacts the total amount of FLOPs. When using the \verb+calculateForcesAndEnergy()+ method to find the forces we need $31((k-1)!) + 18k$ FLOPs. Some of these will likely be culled by the compiler when compiled with optimization flags. We do not round this off immediately as we don't use very large $k$ in our simulations. This means that the $18k$ term is not necessarily dominated by the $31((k-1)!)$ term. When using the \verb+calculateForcesWithRelativisticCorrection()+ method to find the forces we need 44 FLOPs. This is independent of $k$ as this method assumes a specific system (the system with only the Sun and Mercury). 
+It is of interest to count the amount of FLOPs (floating point operations) needed to perform the algorithm. We denote the amount of timesteps in the simulations $N$, and the amount of bodies in the system $k$. There are several options that we may choose from which impacts the total amount of FLOPs. When using the \verb+calculateForcesAndEnergy()+ method to find the forces we need $31((k-1)!) + 18k$ FLOPs. Some of these will likely be culled by the compiler when compiled with optimization flags. We do not round this off immediately as we don't use very large $k$ in our simulations. This means that the $18k$ term is not necessarily dominated by the $31((k-1)!)$ term. When using the \verb+calculateForcesWithRelativisticCorrection()+ method to find the forces we need \(30\) FLOPs. This is independent of $k$ as this method assumes a specific system (the system with only the Sun and Mercury). 
 
-When using the forward Euler method we can see that there are $15k$ FLOPs in the loop. When \verb+calculateForcesAndEnergy()+ is also called, this adds another $31((k-1)!) + 18k$ FLOPs for a total of $31((k-1)!) + 33k$ FLOPs per iteration. To complete a full simulation with these options we would need $(31((k-1)!) + 33k)N$ FLOPs. When the \verb+calculateForcesWithRelativisticCorrection()+ method is called this adds another $44$ FLOPs so that the total amount of FLOPs needed are $15k + 44$ per iteration. To complete a full simulation with these options we would need $(15k + 44)N$ FLOPs.  
+When using the forward Euler method we can see that there are $15k$ FLOPs in the loop. When \verb+calculateForcesAndEnergy()+ is also called, this adds another $31((k-1)!) + 18k$ FLOPs for a total of $31((k-1)!) + 33k$ FLOPs per iteration. To complete a full simulation with these options we would need $(31((k-1)!) + 33k)N$ FLOPs. When the \verb+calculateForcesWithRelativisticCorrection()+ method is called this adds another $30$ FLOPs so that the total amount of FLOPs needed are $15k + 30$ per iteration. To complete a full simulation with these options we would need $(15k + 30)N$ FLOPs.  
 
-When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed in this method itself. It also calls either of the force calculation methods twice. If \verb+calculateForcesAndEnergy()+ is used this adds another $62((k-1)!) + 36k$ FLOPs for a total of $62((k-1)!) + 63k$ FLOPs per iteration. To complete a full simulation with these options we would need $(62((k-1)!) + 63k)N$ FLOPs. When \verb+calculateForcesWithRelativisticCorrection()+ is used this adds another $88$ FLOPs for a total of $27k + 88$ FLOPs per iteration. To complete a full simulation with these options we would need $(27k + 88)N$ FLOPs.
+When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed in this method itself. It also calls either of the force calculation methods twice. If \verb+calculateForcesAndEnergy()+ is used this adds another $62((k-1)!) + 36k$ FLOPs for a total of $62((k-1)!) + 63k$ FLOPs per iteration. To complete a full simulation with these options we would need $(62((k-1)!) + 63k)N$ FLOPs. When \verb+calculateForcesWithRelativisticCorrection()+ is used this adds another $60$ FLOPs for a total of $27k + 60$ FLOPs per iteration. To complete a full simulation with these options we would need $(27k + 60)N$ FLOPs.
 
 All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of access. \newline
 
@@ -816,7 +807,7 @@ All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of
  & Forward Euler & Velocity Verlet \\
 \hline 
 Non-relativistic & $(31((k-1)!) + 33k)N$ & $(62((k-1)!) + 63k)N$ \\
-Relativistic & $(15k + 44)N$ & $(27k + 88)N$ \\
+Relativistic & $(15k + 30)N$ & $(27k + 60)N$ \\
 \hline
 \end{tabular}
 \end{table} 
@@ -828,7 +819,7 @@ The sources of errors in these simulations are quite simple to get a grasp of as
 
 When using the forward Euler method there is an error $\mathcal{O}(\Delta t^2)$ (where $\Delta t$ is the timestep) from the approximation made when deriving the method, and when using the velocity Verlet algorithm there is an error $\mathcal{O}(\Delta t^3)$. Thus we expect the forward Euler method to be less precise than the velocity Verlet algorithm. 
 
-It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that will not see when using the velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
+It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that we will not see when using the velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
 
 The total angular momentum is also a conserved quantity (see section \hyperref[sec:II:c]{II.C}) in theory. While there are errors for this as well from the same sources as for the energy, this gives another easy criterion that we can use to determine whether our implementation works as it should, as there should be little to no drift with the velocity Verlet algorithm and only a small drift with the forward Euler method.  
 
@@ -862,24 +853,28 @@ Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 
 \subsection{Simulations of Earth and the Sun for a few selected timesteps} \label{sec:IV:b}
 
+<<<<<<< HEAD
 In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = 10^{-3}$, $\Delta t_2 = 10^{-4}$ and $\Delta t_3 = 10^{-5}$. The amount of timesteps was chosen so that the simulations span 1 year in simulation time. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the velocity Verlet method are shown in figure \ref{fig:se-vv-orbits}. We also measured the standard deviation of the total energy in these simulations and they are listed as percentages of the mean total energy in table \ref{table:se-3c-energydeviation}. We also include plots of the norm of the total angular momentum in the simulations with timestep $\Delta t = 10^{-5}$ in figure \ref{fig:se-3c-angmom}.
+=======
+In order to see the effect changing the timestep has, we ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. The amount of timesteps was chosen so that the simulations span 1 year in simulation time. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the velocity Verlet method are shown in figure \ref{fig:se-vv-orbits}. We also measured the standard deviation of the total energy in these simulations and they are listed as percentages of the mean total energy in table \ref{table:se-3c-energydeviation}. We also include plots of the norm of the total angular momentum in the simulations with timestep $\Delta t = \num{1e-05}$ in figure \ref{fig:se-3c-angmom}.
+>>>>>>> 45b549044dd4f18a6dac82549fd30b8d21bcec94
 
 As for the initial positions we start with the Sun in the origin and Earth at a distance 1 AU along the $x$-axis away from the Sun. The average distance between Earth and the Sun is 1 AU so this mimics real life. Earth makes a full orbit around the sun in a year, so in order for the orbit to circular we need the initial velocity to be tangential the position, and we need it to be such that it can make a full orbit in one year. The circumference of a circle with radius 1 is $2\pi$ so we need the velocity of the Earth to be $2\pi$ in the $y$-direction in order for the orbit to be circular. These are the initial conditions we have chosen. 
 
 The simulations were all ran in three dimensions, but there is no motion in the $z$-direction because of the choice of initial conditions, and thus we only show 2D plots of the orbits. They were also ran in the center of mass frame (see section \hyperref[sec:II:g]{II.G}) and transformed back to reference frame of the Sun when processing the data.
 
 \begin{figure}[H] 
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_fe_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-3_fe_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-4_fe_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-5_fe_orbit2D.pdf}
 \caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the forward Euler method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
 \label{fig:se-fe-orbits}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-3_vv_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-4_vv_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_vv_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-3_vv_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-4_vv_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-5_vv_orbit2D.pdf}
 \caption{This figure contains plots of simulated orbits of the Earth around the sun for three different timesteps (denoted dt in the plots). These three simulations used the velocity Verlet method of integration (see section \hyperref[sec:II]{II} for details on the method and section \hyperref[sec:III]{III} for details on the simulation). In the title of the plot some variables are listed: n is the number of bodies, N the number of timesteps, dt the timestep, and the rest is self-explanatory.}
 \label{fig:se-vv-orbits}
 \end{figure}
@@ -899,8 +894,8 @@ $10^{-5}$ & \num{2.28e-02} \% & \num{5.10e-04} \% \\
 \end{table}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_fe_angmom.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-3c/se_dt1e-5_vv_angmom.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-5_fe_angmom.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-3c/se_dt1e-5_vv_angmom.pdf}
 \caption{This figure contains two plots showing the norm of the total angular momentum $L$, scaled so that it's maximum value is 1, as it develops during two simulations with Earth and the Sun. Both simulations were ran with a timestep $\Delta t = \num{1e-05}$, but one of them used the forward Euler algorithm, and the other the velocity Verlet algorithm (as indicated in the plot). The mean and standard deviation of $L$ is listed in the legend text.   }
 \label{fig:se-3c-angmom}
 \end{figure}
@@ -908,12 +903,12 @@ $10^{-5}$ & \num{2.28e-02} \% & \num{5.10e-04} \% \\
 
 \subsection{Simulations of Earth and the Sun with another kind of force} \label{sec:IV:c}
 
-We ran simulations of the system with Earth and the Sun with the force given \eqref{eq:beta_gengrav}, for different choices of the parameter $\beta$. These simulations were all performed with the velocity Verlet algorithm, the timestep set to $\Delta t = \num{1e-06}$ and the amount of timesteps $N = \num{1e+07}$. First we ran simulations with the same initial conditions as in section. In this case all the plots of the orbits remained roughly the same for any choice of $\beta$ between $2$ and $3$ and thus we oonly include a plot of the orbit with $\beta=2.667$ which can be seen along with a plot showing potential, kinetic, and total energy in figure \ref{fig:beta-se-orbit-energy}.
+We ran simulations of the system with Earth and the Sun with the force given \eqref{eq:beta_gengrav}, for different choices of the parameter $\beta$. These simulations were all performed with the velocity Verlet algorithm, the timestep set to $\Delta t = \num{1e-06}$ and the amount of timesteps $N = \num{1e+07}$. First we ran simulations with the same initial conditions as in section. In this case all the plots of the orbits remained roughly the same for any choice of $\beta$ between $2$ and $3$ and thus we only include a plot of the orbit with $\beta=2.667$ which can be seen along with a plot showing potential, kinetic, and total energy in figure \ref{fig:beta-se-orbit-energy}.
 
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_orbits2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_beta2667_vv_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_beta2667_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_beta2667_vv_energy.pdf}
 \caption{Figure containing two plots. The first plot shows the orbit of Earth around the Sun with the force interaction given by \eqref{eq:beta_gengrav}, where the parameter $\beta = 2.667$. The second plot shows potential, kinetic, and total energy in the same simulation.} 
 \label{fig:beta-se-orbit-energy}
 \end{figure}
@@ -921,30 +916,30 @@ We ran simulations of the system with Earth and the Sun with the force given \eq
 We also ran simulations with the same initial conditions, except that we set the initial velocity of the earth to be 5 AU/year instead of $2\pi$ AU/year. With a regular gravitational interaction this corresponds to elliptical orbits. We ran these simulations with $\beta = 2$, $\beta = 2.333$, $\beta = 2.667$ and $\beta = 3$. Setting $\beta=2$ is the same as a regular gravitational interaction. We show plots of the orbit and the energy in this case in figure \ref{fig:beta2_peturbed}. The angular momentum remains a constant and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.333$ are shown in figure \ref{fig:beta233_peturbed}. The angular momentum remained a constant here as well and is thus not shown. Plots of the orbit and energies in the case where $\beta = 2.667$ are shown in figure \ref{fig:beta2667_peturbed}. The angular momentum remained constant here as well. Plots of the orbits, energies, and angular momentum in the case where $\beta = 3$ are shown in figure \ref{fig:beta3_peturbed}. The plot of the energies was zoomed in around the relevant portion of the plot. 
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_orbits2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2_vv_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta2_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta2_vv_energy.pdf}
 \caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun, and a plot showing potential, kinetic, and total energy for the system. The initial velocity has been altered (from the Earths initial velocity) so that the orbit is more elliptical. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
 \label{fig:beta2_peturbed}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_orbits2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta233_vv_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta233_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta233_vv_energy.pdf}
 \caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.333$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
 \label{fig:beta233_peturbed}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_orbits2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta2667_vv_energy.pdf}
 \caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 2.667$), and a plot of the potential, kinetic, and total energy for this system. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
 \label{fig:beta2667_peturbed}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_orbits2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_energy_zoomed.pdf}
-\includegraphics[scale=0.5]{../data/figures/varyingbeta/se_peturbed_beta3_vv_angmom.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta3_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta3_vv_energy_zoomed.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/varyingbeta/se_peturbed_beta3_vv_angmom.pdf}
 \caption{Figure contains a plot showing the simulated orbit of an Earth-like object orbiting around the Sun with a modified gravitational interaction (\eqref{eq:beta_gengrav} with $\beta = 3$), a plot of the potential, kinetic, and total energy, and a plot of the norm of the total angular momentum of this system. Note that the plot of the energies is zoomed in around a relevant part, as the rest of the plot would be unreadable. The initial velocity has been altered from the Earths initial velocity. N is the amount of timesteps, dt is the timestep, and n is the number of bodies in the simulation.}
 \label{fig:beta3_peturbed}
 \end{figure}
@@ -958,22 +953,22 @@ The Sun is set to the origin of the system, and Earth starts $1$ AU away from th
 
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_8-8_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_8-8_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_8-8_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_8-8_energy.pdf}
 \caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
 \label{fig:escvel_88}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_exact_orbit2D.pdf}
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_exact_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_exact_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_exact_energy.pdf}
 \caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
 \label{fig:escvel_exact}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_9_orbit2D_zoomed.pdf}
-\includegraphics[scale=0.5]{../data/figures/escapevelocity/se_esc_9_energy.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_9_orbit2D_zoomed.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/escapevelocity/se_esc_9_energy.pdf}
 \caption{This figure contains plots of the path the Earth took in a simulation with Earth and the Sun and the energy in this system. The initial conditions used are listed in section \hyperref[sec:IV:d]{IV.D}. N is the number of timesteps, dt the timestep, and n the number of bodies in the system.}
 \label{fig:escvel_9}
 \end{figure}
@@ -985,20 +980,20 @@ The Sun is set to the origin of the system, and Earth starts $1$ AU away from th
 We ran simulations with Earth, Jupiter and the Sun. The initial conditions were obtained using \citep{NASASolarInit}. Three simulations were performed with this system, one with the standard initial conditions, one with the mass of Jupiter being a factor 10 larger, and the last one with it being a factor $10^3$ larger. All the simulations were ran with $N=10^7$ timesteps, with steplength $\Delta t = \num{1.2e-06}$. This set of parameters was chosen so that Jupiter would complete a full orbit around the sun. Plots of the resulting orbits can be found in figures \ref{fig:sej-standard}, \ref{fig:sej-10} and \ref{fig:sej-1000}. Which plots are shown is determined by readability. All of the plots in these figures are in the reference system of the sun. The simulations were ran in the center of mass frame, and then transformed to the reference frame of the sun when processing the data. In most cases the 3D plots are the best, as the simulations were all ran in three dimensions, but in some other cases the plots in the $xy$-plane are much easier to read, and give a better overview of the results. The angular momentum and total energy remained constant in all of these simulations, and thus plots of these were not included. 
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit3D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit3D.pdf}
 \caption{This figure contains a 3D plot of the simulated orbits of Earth and Jupiter around the sun. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years. Note that the axes in the plot are not equal, so the orbit of Jupiter is not as tilted as it may seem to be at first glance.}
 \label{fig:sej-standard}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun-earth-jupiter/sej_10xM_vv_orbit3D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun-earth-jupiter/sej_10xM_vv_orbit2D_zoomed.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_10xM_vv_orbit3D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_10xM_vv_orbit2D_zoomed.pdf}
 \caption{This figure contains a 3D plot of the simulated orbits of Earth and Jupiter (with Jupiters mass being set to be 10 times larger than it actually is) around the sun, and another plot of the same simulation but zoomed in to better show Earths orbit in the $xy$-plane. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years. Note that the axes in the plot are not equal, so the orbit of Jupiter is not as tilted as it may seem to be at first glance.}
 \label{fig:sej-10}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun-earth-jupiter/sej_1000xM_vv_orbit2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1000xM_vv_orbit2D.pdf}
 \caption{This figure contains a plot of the simulated orbits of Earth and Jupiter (with Jupiters mass being set to be $10^3$ times larger than it actually is) around the sun in the $xy$-plane. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years.}
 \label{fig:sej-1000}
 \end{figure}
@@ -1010,8 +1005,8 @@ We ran simulations with Earth, Jupiter and the Sun. The initial conditions were 
 We ran a simulation of the planets of the solar system, the Sun and Pluto. Hereby we refer to this system as just "the solar system", even though we have not included all objects that are in the actual solar system. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. This set of parameters was chosen so that Pluto would complete a full revolution around the sun. Plots of the resulting orbits is shown in figure \ref{fig:ss}. The initial conditions for this system was generated using \citep{NASASolarInit}.
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{../data/figures/sun_and_friends/ss_248_vv_orbits3D.pdf}
-\includegraphics[scale=0.5]{../data/figures/sun_and_friends/ss_248_vv_orbits2D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun_and_friends/ss_248_vv_orbits3D.pdf}
+\includegraphics[width=\columnwidth]{../data/figures/sun_and_friends/ss_248_vv_orbits2D.pdf}
 \caption{This figure contains a 3D plot of the simulated orbits of the planets (and Pluto) in the solar system around the Sun. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. Note that the axes are not equal. The figure also contains a plot of the orbits in the $xy$-plane.}
 \label{fig:ss}
 \end{figure}
@@ -1020,7 +1015,7 @@ We ran a simulation of the planets of the solar system, the Sun and Pluto. Hereb
 
 \subsection{Calculating the perihelion precession of Mercury} \label{sec:IV:g}
 
-We ran a simulation with Mercury and the Sun with the modified gravitational interaction given in \eqref{eq:grav_rel}. The simulation was ran with several sets of timestep and amount of timesteps, all chosen such that the simulation time would reach 100 years. An easy relation to use here is that we need the amount of timesteps to be $N = 10^{a+2}$ when the timestep is $\Delta t =  10^{-a}$. Mercury was initialized in its perihelion, and the force was calculated only on Mercury so that the sun would remain at rest during the simulation. We then calculated the position of Mercury's perihelion in the final revolution around the Sun in the simulation. The precession per century of Mercurys perihelion is then directly equal to the angular coordinate of this position. We also ran simulations with the same set of timestep and amount of timesteps with a normal gravitational interaction (as given in \eqref{eq:gengrav}). In this case the simulation was performed as normal, in the center of mass frame, with the results being transformed into the reference fram of the Sun when processing data. The precession of Mercurys perihelion was calculated in this case as well, so we could find the difference between the calculated values with the modified force in \eqref{eq:grav_rel} and the regular gravitational interaction shown in \eqref{eq:gengrav}. We also calculated the relative error in this value compared to the expected result of 43''. These results are all shown in table \ref{table:precession}.
+We ran a simulation with Mercury and the Sun with the modified gravitational interaction given in \eqref{eq:grav_rel}. The simulation was ran with several sets of timestep and amount of timesteps, all chosen such that the simulation time would reach 100 years. An easy relation to use here is that we need the amount of timesteps to be $N = 10^{a+2}$ when the timestep is $\Delta t =  10^{-a}$. Mercury was initialized in its perihelion of \(x_{0}=0.307491008\) AU \citep{NASASolarInit} with a linear velocity of \(v_{y,0} = 12.433287\) AU/year. The force was calculated only on Mercury so that the sun would remain at rest during the simulation. We then calculated the position of Mercury's perihelion in the final revolution around the Sun in the simulation. The precession per century of Mercurys perihelion is then directly equal to the angular coordinate of this position. We also ran simulations with the same set of timestep and amount of timesteps with a normal gravitational interaction (as given in \eqref{eq:gengrav}). In this case the simulation was performed as normal, in the center of mass frame, with the results being transformed into the reference fram of the Sun when processing data. The precession of Mercurys perihelion was calculated in this case as well, so we could find the difference between the calculated values with the modified force in \eqref{eq:grav_rel} and the regular gravitational interaction shown in \eqref{eq:gengrav}. We also calculated the relative error in this value compared to the expected result of 43''. These results are all shown in table \ref{table:precession}.
 
 
 \begin{table}[H]
