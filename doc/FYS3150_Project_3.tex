@@ -987,7 +987,7 @@ The Sun is set to the origin of the system, and Earth starts $1$ AU away from th
 
 \subsection{Simulations of Earth, Jupiter and the Sun} \label{sec:IV:e}
 
-We ran simulations with Earth, Jupiter and the Sun. The initial conditions were obtained using \citep{NASASolarInit}. Three simulations were performed with this system, one with the standard initial conditions, one with the mass of Jupiter being a factor 10 larger, and the last one with it being a factor $10^3$ larger. All the simulations were ran with $N=10^7$ timesteps, with steplength $\Delta t = \num{1.2e-06}$. This set of parameters was chosen so that Jupiter would complete a full orbit around the Sun. Plots of the resulting orbits can be found in figures \ref{fig:sej-standard}, \ref{fig:sej-10} and \ref{fig:sej-1000}. Which plots are shown is determined by readability. All of the plots in these figures are in the reference system of the Sun. The simulations were ran in the center of mass frame, and then transformed to the reference frame of the Sun when processing the data. In most cases the 3D plots are the best, as the simulations were all ran in three dimensions, but in some other cases the plots in the $xy$-plane are much easier to read, and give a better overview of the results. The angular momentum and total energy remained constant in all of these simulations, and thus plots of these were not included. 
+We ran simulations with Earth, Jupiter and the Sun. The initial conditions were obtained using \citep{NASASolarInit}. Three simulations were performed with this system, one with the standard initial conditions, one with the mass of Jupiter being a factor 10 larger, and the last one with it being a factor $10^3$ larger. All the simulations were ran with $N=10^7$ timesteps, with steplength $\Delta t = \num{1.2e-06}$. This set of parameters was chosen so that Jupiter would complete a full orbit around the Sun. Plots of the resulting orbits can be found in figures \ref{fig:sej-standard}, \ref{fig:sej-10} and \ref{fig:sej-1000}. Which plots are shown is determined by readability. All of the plots in these figures are in the reference system of the Sun. The simulations were ran in the center of mass frame, and then transformed to the reference frame of the Sun when processing the data. In most cases the 3D plots are the best, as the simulations were all ran in three dimensions, but in some other cases the plots in the $xy$-plane are much easier to read, and give a better overview of the results. The angular momentum and total energy remained constant in all of these simulations, and thus plots of these were not included. For the plots \ref{fig:sej-standard-COM}, \ref{fig:sej-standard-COM-sun} and \ref{fig:sej-1000-COM}, the orbits are plotted in the reference frame of the center of mass of the system.
 
 \begin{figure}[H]
 \includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit3D.pdf}
@@ -1008,6 +1008,23 @@ We ran simulations with Earth, Jupiter and the Sun. The initial conditions were 
 \label{fig:sej-1000}
 \end{figure}
 
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit3D_COM.pdf}
+\caption{This figure contains a 3D plot of the simulated orbits of Earth, Jupiter and Sun around the center of mass (origin of the plot). The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years without transforming to the Sun's frame of reference. Note that the axes in the plot are not equal, so the orbit of Jupiter is not as tilted as it may seem to be at first glance.}
+\label{fig:sej-standard-COM}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit2D_COM_zoomed.pdf}
+\caption{This figure contains a 2D plot of the simulated orbit of the Sun around the center of mass (origin of the plane), for the Sun-Earth-Jupiter system with. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years.}
+\label{fig:sej-standard-COM-sun}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1000xM_vv_orbit2D_COM.pdf}
+\caption{This figure contains a plot of the simulated orbits of Earth, Jupiter (with Jupiters mass being set to be $10^3$ times larger than it actually is) and Sun the center of mass (origin of the plane) in the $xy$-plane. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years.}
+\label{fig:sej-1000-COM}
+\end{figure}
 
 
 \subsection{Simulation of the Solar System} \label{sec:IV:f}
