@@ -1088,8 +1088,16 @@ Now that we found that circular orbits are a special case that simplify the solu
 
 
 \subsection{Simulations of many-body systems} \label{sec:V:c}
+We ran several simulations of systems with \(n\geq3\) number of bodies. The results of which is shown in sections \hyperref[sec:IV:e]{IV.E} for the Sun-Earth-Jupiter system, and \hyperref[sec:IV:f]{IV.F} for the entire Solar System.
 
 \subsubsection{Simulations of Earth, Jupiter and the Sun} \label{sec:V:c:i}
+Firstly, \ref{fig:sej-standard} shows that there is no meaningful perturbation of Earth's orbit caused by the presence of Jupiter, which is as expected given the relatively short simulation time of \(12\) years.
+
+Furthermore, \ref{fig:sej-10} shows that increasing Jupiter's mass by a factor of \(10\), causes visible perturbations in Earth's orbit, but does not cause major instabilities over a \(12\) year time frame. This is perhaps to be expected given that the minimum distance between Jupiter and the Earth is \(3.934\) AU \citep{NASA2014}, which is further than the \(1\) AU distance between the Earth and the Sun. Even at its closest approach, the gravitational force of Jupiter on the Earth, with \(10\)x Jupiter's mass, is still expected to be four orders of magnitude weaker than the average force of the Sun on the Earth at \(1\) AU distance.
+
+Finally, \ref{fig:sej-1000} shows a significant alteration in the Earth's orbit, resulting in a potential ejection from the system. Such change in the Earth's orbit is expected, as Jupiter with \(1000\)x its normal mass, would have \(\sim 95\%\) the mass of the Sun.
+
+As mentioned in \hyperref[sec:IV:e]{IV.E}, the total angular momentum and energy was conserved in all three simulations. However, there might arise error in the simulation for significantly close approaches between Jupiter and the Earth. This is because the Earth could potentially accelerate to velocities at which our temporal resolution is insufficient for approximating motion with non-uniform acceleration. The time step used of \(\num{1.2e-06}\) years, corresponds to \(\sim 37.84\) seconds. Given that energy and angular momentum remained conserved, we assume our temporal resolution to be sufficient.
 
 \subsubsection{Simulations of the solar system} \label{sec:V:c:ii}
 
