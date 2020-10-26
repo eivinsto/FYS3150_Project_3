@@ -70,15 +70,6 @@ void solar_integrator::Euler(SolarSystem& system, std::string relOrNonRel) {
   }
 }
 
-// /**
-// * Function calling Euler with no relativistic correction.
-// *
-// * @system SolarSystem object to be integrated.
-// */
-// void solar_integrator::Euler(SolarSystem& system) {
-//   solar_integrator::Euler(system, "nonrel");
-// }
-
 /**
 * Function that integrates one step with the velocity verlet method. This
 * function is by the integrateOneStep() function internally if the method to be
@@ -120,12 +111,3 @@ void solar_integrator::VelocityVerlet(SolarSystem& system, std::string relOrNonR
     ++i;
   }
 }
-
-// /**
-// * Function calling VelocityVerlet with no relativistic correction.
-// *
-// * @system SolarSystem object to be integrated.
-// */
-// void solar_integrator::VelocityVerlet(SolarSystem& system) {
-//   solar_integrator::VelocityVerlet(system, "nonrel");
-// }
