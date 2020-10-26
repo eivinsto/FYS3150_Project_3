@@ -658,17 +658,8 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
     body.force.zeros();
   }
 
-  // Load Sun (body1)
-  CelestialBody &body1 = m_bodies[0];
-
   // Load Mercury (body2)
   CelestialBody &body2 = m_bodies[1];
-
-  // Calculate angular momentum vector, size and squared size
-  arma::vec l_vec = arma::cross(body2.position, body2.velocity);
-  double l = arma::norm(l_vec);
-  double l2 = l*l;
-
 
   // Distance vector
   arma::vec dr_vec = body2.position;
@@ -678,17 +669,17 @@ void SolarSystem::calculateForcesWithRelativisticCorrection() {
   double dr2 = dr*dr;
 
   // Potential energy between body1 and body2
-  double potential_energy = m_G*body1.mass*body2.mass/dr;
+  double potential_energy = m_G*body2.mass/dr;
 
   // Calculate force vector with relativistic correction factor
   // (sign adjusted when adding to the bodies)
   arma::vec gravforce = dr_vec*(potential_energy/dr2)
-  					    * (1 + m_rel_constant*l2/dr2 );
+  						* (1 + m_rel_constant*l2/dr2 );
   body2.force -= gravforce;
 }
 \end{cpp}
 
-This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. We also have no expectation of how angular momentum and kinetic energy will behave, so we have omitted calculation of these quantities aswell. In other words, when calling these methods these quantities remain as they are instantiated, as zero or the zero-vector in the case of the angular momentum. This method is mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:f]{II.F}.
+This is a specialized method, and should only be used in a two-body system where one of the bodies is the Sun. The force from the Sun onto the second body is calculated using \eqref{eq:grav_rel}, and we assume the reference frame to be chosen such that the Sun is at rest. As we have no expression for what the potential energy is in this case we have chosen to omit all calculation of potential energy. The magnitude of the angular momentum per unit mass is used as a constant in the relativistic correction term for the gravitational force, and needs to be precalculated by manually calling the \verb+calcAngMom()+ method of the \verb+SolarSystem+ class. Both this method and \verb+calculateForcesWithRelativisticCorrection()+ are mainly used in estimating the perihelion precession of Mercury, as outlined in section \hyperref[sec:II:f]{II.F}.
 
 There are four ways to instantiate the \verb+SolarSystem+ class. The first constructor takes no arguments. In this case the internal variables for potential and kinetic energy are set to 0, the angular momentum set to the zero-vector, and \verb+m_beta+ (the internal variable for $\beta$ in \eqref{eq:beta_grav}) is set to 2. The second constructor takes one double as an argument. \verb+m_beta+ is set to be equal to this double, and otherwise this functions similarly to the first constructor. When instantiated in both these ways the \verb+CelestialBody+ objects that make up the system must be instantiated manually using the \verb+createCelestialBody()+ method. This method takes two Armadillo \citep{Armadillo} three-component vectors and a double as input (in that order). The first vector should contain the initial position of the object instantiated, the second should contain the velocity, and the double should be the mass of the object. The base units of these quantities should be as in Table \hyperref[table:III:a:i]{1}. \newline
 
@@ -797,15 +788,15 @@ The eigth command line argument is also taken to be a string. This string is a f
 
 \subsubsection{A Python script automating some simulations} \label{sec:III:a:5}
 
-Now we have outlined the main structure of the C++ parts of our implementation. We admit that there may be more information than necessary given here, but we want to be precise in our discussion of the implementation as this will allow others to reuse our code with more ease. For some specific simulation systems we have written a Python script, \verb+project.py+, which runs all this in a way that is more easy to interface with. All the program files and files containing initial conditions can be found in the GitHub repository linked to in appendix \hyperref[A]{A}. When running \verb+project.py+ in a terminal it will prompt the user for several inputs, outlining what they may be (we will not outline all the options specifically here). There are some systems that we have created files with initial conditions for and these are listed as options when running the Python script. If these files themselves are of interest they can be found in the data folder in the GitHub repository. We have also implemented a secondary program used to benchmark the algorithms, which we cover in a separate section. All the simulations shown later on in this report can be performed using this Python script. 
+Now we have outlined the main structure of the C++ parts of our implementation. We admit that there may be more information than necessary given here, but we want to be precise in our discussion of the implementation as this will allow others to reuse our code with more ease. We have written a Python script, \verb+project.py+, which can be used to run all the simulations used in this report in a way that is easier to interface with. All the program files and files containing initial conditions can be found in the GitHub repository linked to in appendix \hyperref[A]{A}. When running \verb+project.py+ in a terminal it will prompt the user for several inputs, outlining what they may be (we will not outline all the options specifically here, se the README.md file in the repository for specifics). There are some systems that we have created files with initial conditions for and these are listed as options when running the Python script. If these files themselves are of interest they can be found in the data folder in the GitHub repository. We have also implemented a secondary program used to benchmark the algorithms, which we cover in section \hyperref[sec:III:e]{III.E}.
 
 \subsection{Floating point operations} \label{sec:III:b}
 
-It is of interest to count the amount of FLOPs (floating point operations) needed to perform the algorithm. We denote the amount of timesteps in the simulations $N$, and the amount of bodies in the system $k$. There are several options that we may choose from which impacts the total amount of FLOPs. When using the \verb+calculateForcesAndEnergy()+ method to find the forces we need $31((k-1)!) + 18k$ FLOPs. Some of these will likely be culled by the compiler when compiled with optimization flags. We do not round this off immediately as we don't use very large $k$ in our simulations. This means that the $18k$ term is not necessarily dominated by the $31((k-1)!)$ term. When using the \verb+calculateForcesWithRelativisticCorrection()+ method to find the forces we need 44 FLOPs. This is independent of $k$ as this method assumes a specific system (the system with only the Sun and Mercury). 
+It is of interest to count the amount of FLOPs (floating point operations) needed to perform the algorithm. We denote the amount of timesteps in the simulations $N$, and the amount of bodies in the system $k$. There are several options that we may choose from which impacts the total amount of FLOPs. When using the \verb+calculateForcesAndEnergy()+ method to find the forces we need $31((k-1)!) + 18k$ FLOPs. Some of these will likely be culled by the compiler when compiled with optimization flags. We do not round this off immediately as we don't use very large $k$ in our simulations. This means that the $18k$ term is not necessarily dominated by the $31((k-1)!)$ term. When using the \verb+calculateForcesWithRelativisticCorrection()+ method to find the forces we need \(30\) FLOPs. This is independent of $k$ as this method assumes a specific system (the system with only the Sun and Mercury). 
 
-When using the forward Euler method we can see that there are $15k$ FLOPs in the loop. When \verb+calculateForcesAndEnergy()+ is also called, this adds another $31((k-1)!) + 18k$ FLOPs for a total of $31((k-1)!) + 33k$ FLOPs per iteration. To complete a full simulation with these options we would need $(31((k-1)!) + 33k)N$ FLOPs. When the \verb+calculateForcesWithRelativisticCorrection()+ method is called this adds another $44$ FLOPs so that the total amount of FLOPs needed are $15k + 44$ per iteration. To complete a full simulation with these options we would need $(15k + 44)N$ FLOPs.  
+When using the forward Euler method we can see that there are $15k$ FLOPs in the loop. When \verb+calculateForcesAndEnergy()+ is also called, this adds another $31((k-1)!) + 18k$ FLOPs for a total of $31((k-1)!) + 33k$ FLOPs per iteration. To complete a full simulation with these options we would need $(31((k-1)!) + 33k)N$ FLOPs. When the \verb+calculateForcesWithRelativisticCorrection()+ method is called this adds another $30$ FLOPs so that the total amount of FLOPs needed are $15k + 30$ per iteration. To complete a full simulation with these options we would need $(15k + 30)N$ FLOPs.  
 
-When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed in this method itself. It also calls either of the force calculation methods twice. If \verb+calculateForcesAndEnergy()+ is used this adds another $62((k-1)!) + 36k$ FLOPs for a total of $62((k-1)!) + 63k$ FLOPs per iteration. To complete a full simulation with these options we would need $(62((k-1)!) + 63k)N$ FLOPs. When \verb+calculateForcesWithRelativisticCorrection()+ is used this adds another $88$ FLOPs for a total of $27k + 88$ FLOPs per iteration. To complete a full simulation with these options we would need $(27k + 88)N$ FLOPs.
+When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed in this method itself. It also calls either of the force calculation methods twice. If \verb+calculateForcesAndEnergy()+ is used this adds another $62((k-1)!) + 36k$ FLOPs for a total of $62((k-1)!) + 63k$ FLOPs per iteration. To complete a full simulation with these options we would need $(62((k-1)!) + 63k)N$ FLOPs. When \verb+calculateForcesWithRelativisticCorrection()+ is used this adds another $60$ FLOPs for a total of $27k + 60$ FLOPs per iteration. To complete a full simulation with these options we would need $(27k + 60)N$ FLOPs.
 
 All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of access. \newline
 
@@ -816,7 +807,7 @@ All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of
  & Forward Euler & Velocity Verlet \\
 \hline 
 Non-relativistic & $(31((k-1)!) + 33k)N$ & $(62((k-1)!) + 63k)N$ \\
-Relativistic & $(15k + 44)N$ & $(27k + 88)N$ \\
+Relativistic & $(15k + 30)N$ & $(27k + 60)N$ \\
 \hline
 \end{tabular}
 \end{table} 
@@ -828,7 +819,7 @@ The sources of errors in these simulations are quite simple to get a grasp of as
 
 When using the forward Euler method there is an error $\mathcal{O}(\Delta t^2)$ (where $\Delta t$ is the timestep) from the approximation made when deriving the method, and when using the velocity Verlet algorithm there is an error $\mathcal{O}(\Delta t^3)$. Thus we expect the forward Euler method to be less precise than the velocity Verlet algorithm. 
 
-It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that will not see when using the velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
+It is also important to note that, analytically, the total energy of the system should be a conserved quantity. The forward Euler method does not conserve energy, but the velocity Verlet algorithm does (in theory). This means that we should see a small drift in the total energy when using the Euler method that we will not see when using the velocity Verlet algorithm. This is a simple criterion that we can use the verify that our implementation of the velocity Verlet algorithm works as intended. While this is true in theory it is not always true in practice, as machine precision also plays a part. Due to this we will also probably see a drift (or more likely an oscillation) in the total energy when using the velocity Verlet algorithm. The size of this drift or oscillation can be used to tell us whether or not the chosen timestep is a good one, as it tells us something about the machine error. 
 
 The total angular momentum is also a conserved quantity (see section \hyperref[sec:II:c]{II.C}) in theory. While there are errors for this as well from the same sources as for the energy, this gives another easy criterion that we can use to determine whether our implementation works as it should, as there should be little to no drift with the velocity Verlet algorithm and only a small drift with the forward Euler method.  
 
