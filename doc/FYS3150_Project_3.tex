@@ -1077,7 +1077,27 @@ We also measured the total angular momentum of the system in the center of mass 
 All in all, our results indicate that for this kind of problem the velocity Verlet method works better than the forward Euler method as the method of numerical integration. In all the simulations that followed these ones, we chose to use the velocity Verlet method because of these results. As some of these results used here (conservation of energy and angular momentum) are easy to verify numerically, these were also implemented as unit-tests (see section \hyperref[sec:III:d]{III.D}).
 
 
-\subsubsection{Modified force}
+\subsubsection{Modified force} \label{sec:V:b:iii}
+
+We used the modified force given in \eqref{eq:beta_gengrav} during some simulations of Earth and the Sun. First we ran these simulations with initial conditions corresponding to a circular orbit with $\beta = 2$ for different choices of $\beta$ (always between $2$ and $3$) as well. The orbit of Earth around the sun stayed circular for all of these simulations, and so we only included a plot of the orbit and the energy of the system with $\beta = 2.667$ in figure \ref{fig:beta-se-orbit-energy}. We showed in section \hyperref[sec:II:c]{II.C} that the total energy is supposed to be conserved, and this is the case in this simulation, and all the others that we did not explicitly include plots of. The orbit however is of more interest, as it is circular for any choice $\beta$. In the case of the system with Earth and the Sun however, it is quite easy to see that this is the case. As the distance between the two objects is initialized as $1$ AU, it is clear that $r^\beta = 1^\beta = 1$ is the same independent of what $\beta$ is as long as the distance remains a constant. This means that the force is independent of $\beta$ in this case. In general a change of units should not affect the system, and the only thing that is truly special in this case is that the initial conditions corresponds to circular orbits when $\beta = 2$. This means that this is the case for any circular orbit. In other words, as long as the orbit is circular when $\beta = 2$, it remains circular for any other choice of $\beta$ as well.  
+
+Now that we found that circular orbits are a special case that simplify the solutions, we also decided to run simulations with initial conditions corresponding to an elliptical orbit. In order to do this, we simply altered the velocity of Earth in the previous set of initial conditions, so that it was less than what it used to be. 
+
+
+\subsubsection{Escape velocity} \label{sec:V:b:iv}
+
+
+\subsection{Simulations of many-body systems} \label{sec:V:c}
+
+\subsubsection{Simulations of Earth, Jupiter and the Sun} \label{sec:V:c:i}
+
+\subsubsection{Simulations of the solar system} \label{sec:V:c:ii}
+
+\subsection{Precession of Mercurys perihelion} \label{sec:V:d}
+
+
+
+
 
 
 \section{Conclusion} \label{sec:VI}
