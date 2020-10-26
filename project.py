@@ -386,9 +386,10 @@ class SolarSystem:
 
         # making each body's position vector the difference vector between
         # the Sun and the current body:
-        for i in range(self.numBods):
+        for i in range(1, self.numBods):
             self.bodyPos[:, 3*i:3*i+3] = (self.bodyPos[:, 3*i:3*i+3] -
                                           self.bodyPos[:, :3])
+        self.bodyPos[:, :3] = np.zeros(self.bodyPos[:, :3].shape)
 
     def perihelionAngle(self):
         """Method for calculating last perihelion angle thetaP of body 1."""
