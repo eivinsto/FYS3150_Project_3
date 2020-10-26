@@ -123,7 +123,7 @@
 
 
 \begin{document}
-\title{On the simulation of gravitational interaction in an n-body system using the forward Euler and Velocity-Verlet methods of numerical integration}   % self-explanatory
+\title{Project 3}   % self-explanatory
 \author{Eivind Støland, Anders P. Åsbø}               % self-explanatory
 \date{\today}                             % self-explanatory
 \noaffiliation                            % ignore this
@@ -862,7 +862,7 @@ Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 
 \subsection{Simulations of Earth and the Sun for a few selected timesteps} \label{sec:IV:b}
 
-In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = \num{1e-03}$, $\Delta t_2 = \num{1e-04}$ and $\Delta t_3 = \num{1e-05}$. The amount of timesteps was chosen so that the simulations span 1 year in simulation time. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the velocity Verlet method are shown in figure \ref{fig:se-vv-orbits}. We also measured the standard deviation of the total energy in these simulations and they are listed as percentages of the mean total energy in table \ref{table:se-3c-energydeviation}. We also include plots of the norm of the total angular momentum in the simulations with timestep $\Delta t = \num{1e-05}$ in figure \ref{fig:se-3c-angmom}.
+In order to see the effect changing the timestep has, we have ran three simulations of the earth and the sun with timesteps $\Delta t_1 = 10^{-3}$, $\Delta t_2 = 10^{-4}$ and $\Delta t_3 = 10^{-5}$. The amount of timesteps was chosen so that the simulations span 1 year in simulation time. These simulations were all ran twice, one using the forward Euler method of integration, and the other using the velocity Verlet method. Plots of the orbit in 2D for the forward Euler method are shown in figure \ref{fig:se-fe-orbits}. Plots of the orbit in 2D for the velocity Verlet method are shown in figure \ref{fig:se-vv-orbits}. We also measured the standard deviation of the total energy in these simulations and they are listed as percentages of the mean total energy in table \ref{table:se-3c-energydeviation}. We also include plots of the norm of the total angular momentum in the simulations with timestep $\Delta t = 10^{-5}$ in figure \ref{fig:se-3c-angmom}.
 
 As for the initial positions we start with the Sun in the origin and Earth at a distance 1 AU along the $x$-axis away from the Sun. The average distance between Earth and the Sun is 1 AU so this mimics real life. Earth makes a full orbit around the sun in a year, so in order for the orbit to circular we need the initial velocity to be tangential the position, and we need it to be such that it can make a full orbit in one year. The circumference of a circle with radius 1 is $2\pi$ so we need the velocity of the Earth to be $2\pi$ in the $y$-direction in order for the orbit to be circular. These are the initial conditions we have chosen. 
 
@@ -890,9 +890,9 @@ The simulations were all ran in three dimensions, but there is no motion in the 
 \hline
 Timestep [years] & Forward Euler & Velocity Verlet \\
 \hline
-\num{1e-03} & 1.97 \% & \num{4.28e-04} \% \\
-\num{1e-04} & 0.224 \% & \num{5.18e-04} \% \\
-\num{1e-05} & \num{2.28e-02} \% & \num{5.10e-04} \% \\
+$10^{-3}$ & 1.97 \% & \num{4.28e-04} \% \\
+$10^{-4}$ & 0.224 \% & \num{5.18e-04} \% \\
+$10^{-5}$ & \num{2.28e-02} \% & \num{5.10e-04} \% \\
 \hline
 \end{tabular}
 \label{table:se-3c-energydeviation}
@@ -1039,7 +1039,7 @@ $a$ & Classical & Relativistic & Difference & Relative error \\
 \end{table}
 
 
-
+\newpage
 
 
 
@@ -1050,6 +1050,25 @@ $a$ & Classical & Relativistic & Difference & Relative error \\
 \section{Discussion} \label{sec:V}
 
 
+\subsection{Simulations of Earth and the Sun} \label{sev:V:a}
+
+We ran several simulations of Earth and the Sun, with the results of these being shown in sections \hyperref[sec:IV:a]{IV.A}, \hyperref[sec:IV:b]{IV.B}, \hyperref[sec:IV:c]{IV.C} and \hyperref[sec:IV:d]{IV.D}.
+
+
+\subsubsection{Benchmarks of the numerical methods} \label{sec:V:a:i}
+
+The benchmarks we performed on simulating this system using the forward Euler method \eqref{eq:forwardEuler} and the velocity Verlet method \eqref{eq:VelocityVerlet} can be found in table \ref{table:benchmark}. We also counted the amount of FLOPs needed in \ref{table:III:b:i}, and from this we can see that the algorithms perform as expected. The velocity Verlet algorithm is slower than the forward Euler, which is generally a compromise made for the improved accuracy of the former. As these time measurements were averaged over several runs, we were also able to calculate the standard deviation in the time measured. From these we can see that the velocity Verlet method is slighly more unstable in terms of the time it takes to run the simulation. While the mean time spent by the methods differ by about a factor 2, the standard deviation differs by larger factor of about $3.5$. This is generally of no consequence, but it is an interesting fact to take note of.
+
+
+\subsubsection{Simulations with different choices of timesteps} \label{sec:V:a:ii}
+
+Simulations using both the forward Euler and velocity Verlet methods of integration were done for different choices of timesteps. This was done so as to compare the accuracy of the methods, and to see which choices of timestep gave the most stable results. The sets of step length and amounts of timesteps were all chosen so that the simulation time would reach 1 year, so that we expect Earth to have completed a full revolution around the Sun. The initial conditions was chosen such that we expect the orbit of Earth around the Sun to be circular, and that one revolution would take 1 year. 
+
+The resulting orbits from the simulations using the forward Euler method can be seen in figure \ref{fig:se-fe-orbits}. In general we see that the results improve the smaller the timestep is. Importantly we note that Earth isn't able to complete a full orbit with timesteps $\Delta t_1 = 10^{-3}$ years and $\Delta t_2 = 10^{-4}$ years even though the simulation time is a year. Although the simulations didn't last long enough to clearly show this, we can also see from the trajectory of the Earth that the orbit is not stable in these two simulation. After a full orbit it is clearly not returning to the original starting point. The simulation with $\Delta t_3 = 10^{-5}$ years has no visible error in the orbits, but from what we've seen so far it is not unreasonable to expect that after running the simulation for a sufficient amount of time we would see the orbit diverge from the expected result of a stable circular orbit. As the timestep gets smaller, we expect to eventually encounter problems with machine precision, but we obviously do not encounter this as an issue in these simulations. 
+
+The resulting orbits from using the velocity Verlet method with the same sets of steplength and amount of timesteps can be seen in figure \ref{fig:se-vv-orbits}. There is no visual difference in the orbit of Earth around the Sun in this case for any of the choices of timestep. This seems to indicate that the velocity Verlet method is better suited for this kind of simulation. 
+
+The total energy was also measured, and the standard deviation of the total energy from the mean in these simulations can be seen in table \ref{table:se-3c-energydeviation}. We can see that the calculated energy is generally not as stable with the forward Euler
 
 
 \section{Conclusion} \label{sec:VI}
