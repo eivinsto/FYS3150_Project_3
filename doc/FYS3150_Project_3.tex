@@ -849,10 +849,10 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 We ran $50$ simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
 
 \begin{table}[H] \label{table:benchmark}
-\caption{Table showing the mean time and standard deviation of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and velocity Verlet methods (se \hyperref[sec:III:e]{III.E} for more details).}
+\caption{Table showing the mean time and standard deviation ($\sigma$) of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and velocity Verlet methods (see \hyperref[sec:III:e]{III.E} for more details).}
 \begin{tabular}{|c|c|c|}
 \hline
-Method & Mean time [seconds] & standard deviation [seconds] \\
+Method & Mean time [seconds] & $\sigma$ [seconds] \\
 \hline 
 Forward Euler & \(\SI{1.8331e+00}{\second}\) & \(\SI{4.2967e-03}{\second}\) \\
 Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
