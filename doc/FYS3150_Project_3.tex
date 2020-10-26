@@ -134,6 +134,17 @@
 \tableofcontents
 
 \section{Introduction} \label{sec:I}
+Differential equations are the mathematical description of continuous change, and thus one of the most important cornerstones of physics since their invention. In spite of how often they appear in physics, few differential equations have analytic solutions, and as such it is vital to be able to approximate a solution numerically.
+
+In this report, we will derive two different methods of numerical integration, namely the forward Euler method and the velocity Verlet method. To test important properties of the methods, such as conservation of energy, conservation of angular momentum and numerical stability, we will apply the methods to solve the differential equations that arise in celestial mechanics when simulating the motion of objects in our Solar System.
+
+We firstly apply both methods to solve the Sun-Earth two-body system with only gravitational interaction. The simulations are performed with varying precision to ascertain the stability and convergence of each method.
+
+Furthermore, we use the velocity Verlet method to simulate orbits of an Earth-like object with initial velocity close to the Sun’s escape velocity at a \(1\) AU distance. We also simulate the Sun-Earth system for both circular and non-circular orbits, using variations of Newtonian gravity that are not pure inverse-square laws. To test our implementation's ability to solve a system with no analytic solution, we apply the velocity Verlet method to simulate a \(3\)-body system consisting of the Sun, Earth and Jupiter, with different masses for Jupiter per simulation.
+
+To test the generality of our implementation, we apply the velocity Verlet method to simulate an \(n\)-body system consisting of the Sun with eight planets and Pluto.
+
+Finally, we apply the velocity Verlet method together with a relativistic correction of Newton's law of gravitation to simulate the perihelion precession of Mercury's orbit. A simulation with no relativistic correction is also done for comparison.
 
 \section{Formalism} \label{sec:II}
 
@@ -837,7 +848,7 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 
 \subsection{Benchmark results} \label{sec:IV:a}
 
-We ran $50$ simulations of the solar system (more specifically the Sun, the planets and Pluto) using both the forward Euler method and velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
+We ran $50$ simulations of the Solar System (more specifically the Sun, the planets and Pluto) using both the forward Euler method and velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
 
 \begin{table}[H] \label{table:benchmark}
 \caption{Table showing the mean time and standard deviation ($\sigma$) of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and velocity Verlet methods (see \hyperref[sec:III:e]{III.E} for more details).}
@@ -943,7 +954,7 @@ We also ran simulations with the same initial conditions, except that we set the
 
 \subsection{Simulations with velocity close to escape velocity} \label{sec:IV:d}
 
-We ran simulations with Earth and the Sun, where we set Earths velocity to values close to the escape velocity in the Sun's gravitational field. The escape velocity of Earth in this case was found in section \hyperref[sec:II:e]{II.E} and the escape velocity itself is listed in \eqref{eq:esc_sun_1au}. All the simulations were ran with $N = \num{1e+07}$ timesteps and timestep $\Delta t = \num{2.48e-05}$. We needed to simulate for a sufficient amoount of time so that we could verify that the Earth would or would not escape the gravitational field of the Sun, and we chose then a set of parameters such that the simulation time is approximately equal to the time it takes Pluto to complete a full orbit around the Sun, as that makes sense in terms of objects in our solar system. We chose this as a baseline set of parameters in our simulations. We used the velocity Verlet algorithm as the method of numerical integration in these simulations.
+We ran simulations with Earth and the Sun, where we set Earths velocity to values close to the escape velocity in the Sun's gravitational field. The escape velocity of Earth in this case was found in section \hyperref[sec:II:e]{II.E} and the escape velocity itself is listed in \eqref{eq:esc_sun_1au}. All the simulations were ran with $N = \num{1e+07}$ timesteps and timestep $\Delta t = \num{2.48e-05}$. We needed to simulate for a sufficient amoount of time so that we could verify that the Earth would or would not escape the gravitational field of the Sun, and we chose then a set of parameters such that the simulation time is approximately equal to the time it takes Pluto to complete a full orbit around the Sun, as that makes sense in terms of objects in our Solar System. We chose this as a baseline set of parameters in our simulations. We used the velocity Verlet algorithm as the method of numerical integration in these simulations.
 
 The Sun is set to the origin of the system, and Earth starts $1$ AU away from the Sun along the $x$-axis, and a varying velocity in the $y$-direction. We showcase three simulations here where the velocity was chosen such that it was just below, exactly at, or just above the escape velocity. We ran a simulation with the initial velocity set to $v = 8.8$ AU/year, one with $v = 2\pi \sqrt{2} \approx 8.886$, and the last with $v = 9$ AU/year. Plots showing the orbit and energies in these simulations can be found in figures \ref{fig:escvel_88}, \ref{fig:escvel_exact} and \ref{fig:escvel_9} respectively.
 
@@ -996,14 +1007,14 @@ We ran simulations with Earth, Jupiter and the Sun. The initial conditions were 
 
 
 
-\subsection{Simulation of the solar system} \label{sec:IV:f}
+\subsection{Simulation of the Solar System} \label{sec:IV:f}
 
-We ran a simulation of the planets of the solar system, the Sun and Pluto. Hereby we refer to this system as just "the solar system", even though we have not included all objects that are in the actual solar system. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. This set of parameters was chosen so that Pluto would complete a full revolution around the Sun. Plots of the resulting orbits is shown in figure \ref{fig:ss}. The initial conditions for this system was generated using \citep{NASASolarInit}.
+We ran a simulation of the planets of the Solar System, the Sun and Pluto. Hereby we refer to this system as just "the Solar System", even though we have not included all objects that are in the actual Solar System. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. This set of parameters was chosen so that Pluto would complete a full revolution around the Sun. Plots of the resulting orbits is shown in figure \ref{fig:ss}. The initial conditions for this system was generated using \citep{NASASolarInit}.
 
 \begin{figure}[H]
 \includegraphics[width=\columnwidth]{../data/figures/sun_and_friends/ss_248_vv_orbits3D.pdf}
 \includegraphics[width=\columnwidth]{../data/figures/sun_and_friends/ss_248_vv_orbits2D.pdf}
-\caption{This figure contains a 3D plot of the simulated orbits of the planets (and Pluto) in the solar system around the Sun. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. Note that the axes are not equal. The figure also contains a plot of the orbits in the $xy$-plane.}
+\caption{This figure contains a 3D plot of the simulated orbits of the planets (and Pluto) in the Solar System around the Sun. The simulation had $N = 10^7$ timesteps and steplength $\Delta t = \num{2.48e-05}$. Note that the axes are not equal. The figure also contains a plot of the orbits in the $xy$-plane.}
 \label{fig:ss}
 \end{figure}
 
