@@ -1095,7 +1095,13 @@ The magnitude of the angular momentum does not really tell us anything very usef
 
 All in all, the results discussed in this section are as expected, with the only outlier being the simulation where $\beta = 3$ and we had initial conditions corresponding to an elliptical orbit when $\beta = 2$. We chose to include this simulation anyway, as it highlights key difficulties when running simulations such as these. This shows that while we only change $\beta$, if we are not careful we can still get large numerical errors if we don't change the step length as well. The pattern in how the motion changes was apparent from only looking at the cases where $\beta = 2.333$ and $\beta = 2.667$, we thought it more relevant to highlight where these simulations can go wrong rather than rerunning the simulation with a better choice of step length.
 
-\subsubsection{Escape velocity} \label{sec:V:b:iv}
+
+
+\subsubsection{Escape velocity} \label{sec:V:b:iii}
+
+We ran simulations in the system with Earth and the Sun, where we set the velocity of the earth to something close to, or exactly equal to the escape velocity of Earth. The escape velocity of earth was calculated in section \hyperref[sec:II:e]{II.E}, and we found it to be $v_e = 2 \pi \sqrt{2} \approx 8.886$ AU/year.  Thus we ran three simulations, one with the velocity set just below the escape velocity ($v = 8.8$ AU/year), one with the velocity to the escape velocity, and one just above it ($v = 9$ AU/year). These are shown in figures \ref{fig:escvel_88}, \ref{fig:escvel_exact} and \ref{fig:escvel_9} respectively.
+
+
 
 
 \subsection{Simulations of many-body systems} \label{sec:V:c}
