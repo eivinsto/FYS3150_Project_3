@@ -587,7 +587,7 @@ This only works in the classical limit, as when we are considering relativistic 
 
 In this section we will discuss the layout of the code and what each part does. As there is a lot of code we will only be including some snippets of code directly, and in some instances we will make references to functions and variables not shown in the code snippets. In these cases the reader should look to the source code if he or she wishes to know more. Links to the source code can be found in appendix \hyperref[A]{A}. The units chosen can be found Table \hyperref[table:III:a:i]{1}.
 
-\begin{table}[h!] \label{table:III:a:i}
+\begin{table}[h!] 
 \caption{Table containing the units used in the programs. See section \hyperref[sec:III:a]{III.A} for more details on these programs.}
 \begin{tabular}{|c|c|}
 \hline
@@ -598,6 +598,7 @@ Time & Year \\
 Mass & Mass of the Sun \\
 \hline
 \end{tabular}
+\label{table:III:a:i}
 \end{table}
 
 We have written a set of object oriented programs in C++ that together simulate a set of point objects with a gravitational interaction. We use these programs to simulate the solar systems. In order to better interface with these programs we have automated running them using a Python script, which we will get back to once we have explained the general layout and implementation of the algorithms. 
@@ -811,7 +812,7 @@ When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed 
 
 All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of access. \newline
 
-\begin{table}[h!] \label{table:III:b:i}
+\begin{table}[h!] 
 \caption{Table showing the amount of floating point operations needed to complete a simulation with $k$ bodies and $N$ steps for four sets of options. "Non-relativistic" and "relativistic" refers to the calculation of the forces in the system. What these options are is detailed in section \hyperref[sec:III:a]{III.A}.}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -821,6 +822,7 @@ Non-relativistic & $(31((k-1)!) + 33k)N$ & $(62((k-1)!) + 63k)N$ \\
 Relativistic & $(15k + 30)N$ & $(27k + 60)N$ \\
 \hline
 \end{tabular}
+\label{table:III:b:i}
 \end{table} 
 
 
@@ -850,7 +852,7 @@ The benchmark only measures time spent on integration. Time spent on writing pos
 
 We ran $50$ simulations of the Solar System (more specifically the Sun, the planets and Pluto) using both the forward Euler method and velocity Verlet method as methods of integration. In these runs we measured the amount of time the simulations took, which will allow us to compare the performance of the two methods. The mean time spent for both, and the standard deviation in these measurements are listed in Table \hyperref[table:benchmark]{III}.
 
-\begin{table}[H] \label{table:benchmark}
+\begin{table}[H] 
 \caption{Table showing the mean time and standard deviation ($\sigma$) of \(50\) runs integrating our Solar System for \(N = \num{1e+06}\) time steps and a step length of \(dt = \SI{2.48e-04}{\text{years}}\) using the forward Euler and velocity Verlet methods (see \hyperref[sec:III:e]{III.E} for more details).}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -860,6 +862,7 @@ Forward Euler & \(\SI{1.8331e+00}{\second}\) & \(\SI{4.2967e-03}{\second}\) \\
 Velocity Verlet &  \(\SI{3.6346e+00}{\second}\) & \(\SI{1.5126e-02}{\second}\)\\
 \hline
 \end{tabular}
+\label{table:benchmark}
 \end{table} 
 
 \subsection{Simulations of Earth and the Sun for a few selected timesteps} \label{sec:IV:b}
@@ -1051,18 +1054,17 @@ $a$ & Classical & Relativistic & Difference & Relative error \\
 
 \section{Discussion} \label{sec:V}
 
+\subsection{Benchmarks of the numerical methods} \label{sec:V:a}
 
-\subsection{Simulations of Earth and the Sun} \label{sev:V:a}
+We benchmarked the two numerical methods of integration we have presented. In order to do this we ran simulations of the solar system using the forward Euler method \eqref{eq:forwardEuler} and the velocity Verlet method \eqref{eq:VelocityVerlet}. The benchmark results can be found in table \ref{table:benchmark}. We also counted the amount of FLOPs needed (shown in table \ref{table:III:b:i}), and from this we can see that the algorithms perform as expected. The velocity Verlet algorithm is slower than the forward Euler, which is generally a compromise made for the improved accuracy of the former. As these time measurements were averaged over several runs, we were also able to calculate the standard deviation in the time measured. From these we can see that the velocity Verlet method is slighly more unstable in terms of the time it takes to run the simulation. While the mean time spent by the methods differ by about a factor 2, the standard deviation differs by larger factor of about $3.5$. This is generally of no consequence, but it is an interesting fact to take note of.
+
+
+\subsection{Simulations of Earth and the Sun} \label{sev:V:b}
 
 We ran several simulations of Earth and the Sun, with the results of these being shown in sections \hyperref[sec:IV:a]{IV.A}, \hyperref[sec:IV:b]{IV.B}, \hyperref[sec:IV:c]{IV.C} and \hyperref[sec:IV:d]{IV.D}.
 
 
-\subsubsection{Benchmarks of the numerical methods} \label{sec:V:a:i}
-
-The benchmarks we performed on simulating this system using the forward Euler method \eqref{eq:forwardEuler} and the velocity Verlet method \eqref{eq:VelocityVerlet} can be found in table \ref{table:benchmark}. We also counted the amount of FLOPs needed in \ref{table:III:b:i}, and from this we can see that the algorithms perform as expected. The velocity Verlet algorithm is slower than the forward Euler, which is generally a compromise made for the improved accuracy of the former. As these time measurements were averaged over several runs, we were also able to calculate the standard deviation in the time measured. From these we can see that the velocity Verlet method is slighly more unstable in terms of the time it takes to run the simulation. While the mean time spent by the methods differ by about a factor 2, the standard deviation differs by larger factor of about $3.5$. This is generally of no consequence, but it is an interesting fact to take note of.
-
-
-\subsubsection{Simulations with different choices of timesteps} \label{sec:V:a:ii}
+\subsubsection{Simulations with different choices of timesteps} \label{sec:V:b:i}
 
 Simulations using both the forward Euler and velocity Verlet methods of integration were done for different choices of timesteps. This was done so as to compare the accuracy of the methods, and to see which choices of timestep gave the most stable results. The sets of step length and amounts of timesteps were all chosen so that the simulation time would reach 1 year, so that we expect Earth to have completed a full revolution around the Sun. The initial conditions was chosen such that we expect the orbit of Earth around the Sun to be circular, and that one revolution would take 1 year. 
 
@@ -1077,11 +1079,11 @@ We also measured the total angular momentum of the system in the center of mass 
 All in all, our results indicate that for this kind of problem the velocity Verlet method works better than the forward Euler method as the method of numerical integration. In all the simulations that followed these ones, we chose to use the velocity Verlet method because of these results. As some of these results used here (conservation of energy and angular momentum) are easy to verify numerically, these were also implemented as unit-tests (see section \hyperref[sec:III:d]{III.D}).
 
 
-\subsubsection{Modified force} \label{sec:V:b:iii}
+\subsubsection{Modified force} \label{sec:V:b:ii}
 
 We used the modified force given in \eqref{eq:beta_gengrav} during some simulations of Earth and the Sun. First we ran these simulations with initial conditions corresponding to a circular orbit with $\beta = 2$ for different choices of $\beta$ (always between $2$ and $3$) as well. The orbit of Earth around the sun stayed circular for all of these simulations, and so we only included a plot of the orbit and the energy of the system with $\beta = 2.667$ in figure \ref{fig:beta-se-orbit-energy}. We showed in section \hyperref[sec:II:c]{II.C} that the total energy is supposed to be conserved, and this is the case in this simulation, and all the others that we did not explicitly include plots of. The orbit however is of more interest, as it is circular for any choice $\beta$. In the case of the system with Earth and the Sun however, it is quite easy to see that this is the case. As the distance between the two objects is initialized as $1$ AU, it is clear that $r^\beta = 1^\beta = 1$ is the same independent of what $\beta$ is as long as the distance remains a constant. This means that the force is independent of $\beta$ in this case. In general a change of units should not affect the system, and the only thing that is truly special in this case is that the initial conditions corresponds to circular orbits when $\beta = 2$. This means that this is the case for any circular orbit. In other words, as long as the orbit is circular when $\beta = 2$, it remains circular for any other choice of $\beta$ as well.  
 
-Now that we found that circular orbits are a special case that simplify the solutions, we also decided to run simulations with initial conditions corresponding to an elliptical orbit. In order to do this, we simply altered the velocity of Earth in the previous set of initial conditions, so that it was less than what it used to be. 
+Now that we found that circular orbits are a special case that simplify the solutions, we also decided to run simulations with initial conditions corresponding to an elliptical orbit. In order to do this, we simply altered the velocity of Earth in the previous set of initial conditions, so that it was less than what it used to be. We ran the simulations 
 
 
 \subsubsection{Escape velocity} \label{sec:V:b:iv}
