@@ -128,6 +128,10 @@
 \date{\today}                             % self-explanatory
 \noaffiliation                            % ignore this
 
+\begin{abstract}
+Derp
+\end{abstract}
+
 \maketitle                                % creates the title, author, date
 
 
@@ -587,7 +591,7 @@ This only works in the classical limit, as when we are considering relativistic 
 
 In this section we will discuss the layout of the code and what each part does. As there is a lot of code we will only be including some snippets of code directly, and in some instances we will make references to functions and variables not shown in the code snippets. In these cases the reader should look to the source code if he or she wishes to know more. Links to the source code can be found in appendix \hyperref[A]{A}. The units chosen can be found Table \hyperref[table:III:a:i]{1}.
 
-\begin{table}[h!]
+\begin{table}[H]
 \caption{Table containing the units used in the programs. See section \hyperref[sec:III:a]{III.A} for more details on these programs.}
 \begin{tabular}{|c|c|}
 \hline
@@ -812,7 +816,7 @@ When using the \verb+VelocityVerlet()+ method a total of $27k$ FLOPs are needed 
 
 All of these values are listed in table \hyperref[table:III:b:i]{II} for ease of access. \newline
 
-\begin{table}[h!]
+\begin{table}[H]
 \caption{Table showing the amount of floating point operations needed to complete a simulation with $k$ bodies and $N$ steps for four sets of options. "Non-relativistic" and "relativistic" refers to the calculation of the forces in the system. What these options are is detailed in section \hyperref[sec:III:a]{III.A}.}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -1248,9 +1252,11 @@ Here is a folder of selected results from running our code.
 
 \url{https://github.com/eivinsto/FYS3150_Project_3/tree/master/data}
 
+~
 \newpage
 \section{System specifications} \label{C}
 All results included in this report were achieved by running the implementation on the following system:
+
 \begin{itemize}
 	\item CPU: AMD Ryzen \(9\) \(3900\)X
 	\item RAM: \(2\times\SI{8}{\giga\byte}\) Corsair Vengeance LPX DDR\(4\) \(\SI{3200}{\mega\hertz}\)
