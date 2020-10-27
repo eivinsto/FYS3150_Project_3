@@ -1016,7 +1016,7 @@ We ran simulations with Earth, Jupiter and the Sun. The initial conditions were 
 
 \begin{figure}[H]
 \includegraphics[width=\columnwidth]{../data/figures/sun-earth-jupiter/sej_1xM_vv_orbit2D_COM_zoomed.pdf}
-\caption{This figure contains a 2D plot of the simulated orbit of the Sun around the center of mass (origin of the plane), for the Sun-Earth-Jupiter system with. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years.}
+\caption{This figure contains a 2D plot of the simulated orbit of the Sun around the center of mass (origin of the plane), for the Sun-Earth-Jupiter system. The simulation was ran with $N=10^7$ timesteps and steplength $\Delta t = \num{1.2e-06}$ years.}
 \label{fig:sej-standard-COM-sun}
 \end{figure}
 
@@ -1150,9 +1150,10 @@ All in all this systems behaves as expected, and it shows that our solver is cap
 
 
 \subsection{Precession of Mercurys perihelion} \label{sec:V:d}
-For the simulation of relativistic and non-relativistic, we see from table \ref{table:precession} that the simulated precession caused by the relativistic correction of gravity approaches the observed value of \(43''\) per century. We also see that our most accurate result is \(42.9659''\) per century with a relative error of only \(0.483\%\), achieved with a time step of \(10^{-7}\) years. This suggests that the perihelion precession of Mercury can be reliably explained by General Relativity. By comparison, the simulated precession with Newtonian gravity is only \(0.173463''\) for the same time step.
+For the simulation of relativistic and non-relativistic orbits of Mercury around the Sun, we see from table \ref{table:precession} that the simulated precession caused by the relativistic correction of gravity approaches the observed value of \(43''\) per century. We also see that our most accurate result is \(42.7924''\) per century with a relative error of only \(0.483\%\), achieved with a time step of \(10^{-7}\) years. This suggests that the perihelion precession of Mercury can be reliably explained by General Relativity. While we obtained our result as the difference between the precession from the relativistic and classical calculations, we can also see that the classical result approaches zero while the relativistic result approaches 43'' faster than the difference between these two as the timestep gets shorter. This might mean that it would be better to look at the value from the relativistic simulation directly instead of the difference between the values from the relativistic and classical simulations as we did. 
+%By comparison, the simulated precession with Newtonian gravity is only \(0.173463''\) for the same time step.
 
-Idealy the non-relativistic precession should be zero, since a pure inverse-square law such as Newtonian gravity should give closed elliptical orbits \citep[p.~5]{Hjorth-Jensen2020}, but we expect some precession due to the accumulation of numerical errors during integration. Furthermore, we see from table \ref{table:precession} the Newtonian precession approach zero as the time step decreases. This, combined with the relativistc precession approaching the observed value, suggests that our implementation of the velocity Verlet method is behaving as expected.
+Idealy the non-relativistic precession should be zero, since a pure inverse-square law such as Newtonian gravity should give closed elliptical orbits \citep[p.~5]{Hjorth-Jensen2020}, but we expect some precession due to the accumulation of numerical errors during integration. Furthermore, we see from table \ref{table:precession} the Newtonian precession approach zero as the time step decreases. This, combined with the relativistc precession approaching the observed value, suggests that our implementation of the velocity Verlet method is behaving as expected. There is also a large jump in the error when the timestep is $10^{-4}$ years, compared to the other simulations. This indicates that simulations using this system require a timestep of order $10^{-5}$ years to function properly, which is a result we also used in the previous section (\hyperref[sec:V:c:ii]{V.C.2}).
 
 
 
