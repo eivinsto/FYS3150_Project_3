@@ -129,7 +129,9 @@
 \noaffiliation                            % ignore this
 
 \begin{abstract}
-Derp
+We derived and implemented the forward Euler and velocity Verlet methods of numerical integration as C++ classes. Firstly, we applied our implementations to simulate variations of a Sun-Earth \(2\)-body system, and found that the velocity Verlet method, while slower, converged faster than forward Euler. Velocity Verlet, was found to be symplectic, as expected. For the simulations of gravity \(\propto 1/r^{\beta}\), we found that \(\beta\) must be close to \(2\) to avoid significant precession of non-circular orbits. For simulations of the Sun's escape velocity at 1 AU, the analytic value of \(2\pi\sqrt{2}\) AU/year gave a net energy \(E_{net}/E_{max} = \num{-3.33e-02} < 0\) likely due to truncation error.
+
+We simulated variations of a Sun-Earth-Jupiter \(3\)-body system, finding that the Sun's apoapis was approximatly \(1.1\) solar radii from the center of mass. Increasing Jupiter's mass by a factor \(10^{3}\) led significant orbital motion of the Sun. We also simulated a system with the Sun, all eight planets, and Pluto, whith stable orbits over \(248\) years, with timestep \(\num{2.48e-5}\) years. Finally we simulated the perihelion precession of Mercury with and without a relativistic correction of Newtonian gravity, over \(100\) years with timestep \(10^{-7}\). This gave a precession per century of \(42.9659''\) with a relative error \(0.483 \%\) from the observed \(43''\). The non-newtonian precession approached \(0''\) as expected for a \(2\)-body system.
 \end{abstract}
 
 \maketitle                                % creates the title, author, date
