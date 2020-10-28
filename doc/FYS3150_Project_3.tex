@@ -142,7 +142,7 @@ We simulated variations of a Sun-Earth-Jupiter \(3\)-body system, finding that t
 \section{Introduction} \label{sec:I}
 Differential equations are the mathematical description of continuous change, and thus one of the most important cornerstones of physics since their invention. In spite of how often they appear in physics, few differential equations have analytic solutions, and as such it is vital to be able to approximate a solution numerically.
 
-In this report, we will derive two different methods of numerical integration, namely the forward Euler method and the velocity Verlet method. To test important properties of the methods, such as conservation of energy, conservation of angular momentum and numerical stability, we will apply the methods to solve the differential equations that arise in celestial mechanics when simulating the motion of objects in our Solar System.
+In this report, we will derive two different methods of numerical integration, namely the forward Euler method and the velocity Verlet method. We will implement these methods in C++ and perform several tests of the validity of the implementations. To test important properties of the methods, such as conservation of energy, conservation of angular momentum and numerical stability, we will apply the methods to solve the differential equations that arise in celestial mechanics when simulating the motion of objects in our Solar System. Some of these tests will be performed automatically as unit-tests, but results pertaining to these tests will be presented as well. In order to test the efficiency of the methods we will also perform benchmarks, and compare the results to an expected amount of floating point operations needed to perform the algorithms.   
 
 We firstly apply both methods to solve the Sun-Earth two-body system with only gravitational interaction. The simulations are performed with varying precision to ascertain the stability and convergence of each method.
 
@@ -155,26 +155,33 @@ Finally, we apply the velocity Verlet method together with a relativistic correc
 \section{Formalism} \label{sec:II}
 
 \subsection{Two methods for numerical integration} \label{sec:II:a}
-To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the generic function \(f\) that depends on a variable \(t\) such that
+To solve our equations of motion we require methods for numerical integration. To derive our first method, we consider the generic, unknown function \(f\) that depends on a variable \(t\), and a known function $g$ that depends on $t$ and $f$ such that:
 \begin{align*}
 	\frac{d}{dt}f(t) = g(t, f(t)). \numberthis \label{eq:fofg}
 \end{align*}
-Given an arbitrary point \(f(t_{0})\), we wish to approximate the point \(f(t_{1})\). Thus we can integrate each side of \eqref{eq:fofg}, such that
+
+Given an arbitrary point \(f(t_{0})\), we wish to approximate the point \(f(t_{1})\). Thus we can integrate each side of \eqref{eq:fofg}, such that:
+
 \begin{align*}
 	\int_{t_{0}}^{t_{1}} \frac{d}{dt} f(t) dt = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt.
 \end{align*}
-Applying the fundemental theorem of calculus, we get that
+
+Applying the fundemental theorem of calculus, we get that:
+
 \begin{align*}
 	f(t_{1}) - f(t_{0}) = \int_{t_{0}}^{t_{1}} g(t, f(t)) dt, \\
 	f(t_{1}) = f(t_{0}) + \int_{t_{0}}^{t_{1}} g(t, f(t)) dt. \numberthis \label{eq:foft1}
 \end{align*}
-To complete the approximation, we define a step-length \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0})\) and \(g(t_{1}, f(t_{1}))\) as the area of a rectangle whith height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields
+
+To complete the approximation, we define a step-length \(\Delta t = t_{1}-t_{0}\), and approximate the area under the curve of \(g(t, f(t))\) between \(g(t_{0}, f(t_{0}))\) and \(g(t_{1}, f(t_{1}))\) as the area of a rectangle with height \(g(t_{0}, f(t_{0}))\). Inserting the rectangle approximation into \eqref{eq:foft1} yields:
+
 \begin{align*}
 	f(t_{0} + \Delta t) \approx f(t_{0}) + \Delta t g(t_{0}, f(t_{0})).
 \end{align*}
 
 As we neglect all terms of second order or higher in this approximation we have that the error goes as $\mathcal{O}(\Delta t^2)$.
-If we want to approximate a value \(f(t_{k+1})\), we can simply start with a known value at a \(t_{k} < t_{k+1}\) and take a step with our approximation such that
+If we want to approximate a value \(f(t_{k+1})\), we can simply start with a known value at a \(t_{k} < t_{k+1}\) and take a step with our approximation such that:
+
 \begin{align*}
 	f(t_{k+1}) \approx f(t_{k}) + \Delta t g(t_{k}, f(t_{k})).
 \end{align*}
@@ -182,9 +189,10 @@ Finally we can simplify the notation by setting \(f_{k+1} = f(t_{k})\) resulting
 \begin{align*}
 	f_{k+1} = f_{k} + \Delta t g(t_{k}, f_{k}). \numberthis \label{eq:forwardEuler}
 \end{align*}
+
 This method of numerical integration is known as Euler's method, henceforth referred to as the forward Euler method.
 
-Since we are approximating the integral between each pair of \(g(t, f_{k})\) and \(g(t, f_{k+1})\)  as a single rectangle with width \(\Delta t\), our approximation will be more accurate for smaller values of \(\Delta t\). Thus to approximate the curve of the function \(f\), we create a set of \(f_{k}\) values for a given \(f_{0}\) and \(\Delta t\) by repeatedly taking steps using the forward Euler method.
+Since we are approximating the integral between each pair of \(g(t_k, f_{k})\) and \(g(t_{k+1}, f_{k+1})\)  as a single rectangle with width \(\Delta t\), our approximation will be more accurate for smaller values of \(\Delta t\). Thus to approximate the curve of the function \(f\), we create a set of \(f_{k}\) values for a given \(f_{0}\) and \(\Delta t\) by repeatedly taking steps using the forward Euler method.
 
 Many physical problems can be represented by a second order differential equation:
 
@@ -252,16 +260,18 @@ Combining this with \eqref{eq:so_taylorx_disc} gives us the velocity Verlet algo
 
 \begin{align*}
 \vec{x}_{k+1} &= \vec{x}_k + \Delta t \vec{v}_k + \frac{1}{2} \Delta t^2 \vec{a}(t_k,\vec{x}_k) \\
-\vec{v}_{k+1} &= \vec{v}_k + \frac{1}{2}\Delta t \bigg( \vec{a}(t_{k+1},x_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg) \, . \numberthis \label{eq:VelocityVerlet}
+\vec{v}_{k+1} &= \vec{v}_k + \frac{1}{2}\Delta t \bigg( \vec{a}(t_{k+1},\vec{x}_{k+1}) + \vec{a}(t_k, \vec{x}_k) \bigg) \, . \numberthis \label{eq:VelocityVerlet}
 \end{align*}
 
-In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is approximately symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is little to no energy drift. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method.
+In this algorithm we first move the position one step, and then use this when calculating $\vec{v}$ in the next step. This algorithm has two advantages over the forward Euler method. Firstly it is symplectic, meaning that if it is used to solve a set of equations given by Newton's second law there is no energy drift coming from the algorithm itself. Secondly the error of the approximation goes as $\mathcal{O}(\Delta t^3)$ compared to $\mathcal{O}(\Delta t^2)$ for the forward Euler method.
 
 \subsection{A generalized gravitational force} \label{sec:II:b}
-For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is
+For any two bodies \(a\) and \(b\), the gravitational force acting on body \(a\) from body \(b\) is:
+
 \begin{align*}
 	\vec{F}_{a} = -G\frac{m_{a}m_{b}}{|\vec{r}_{a}-\vec{r}_{b}|^{3}}\left(\vec{r}_{a}-\vec{r}_{b}\right), \numberthis \label{eq:grav} \\
 \end{align*}
+
 where \(m_{a}\) and \(m_{b}\) are the masses of \(a\) and \(b\) respectivly, \(\vec{r}_{a}\) and \(\vec{r}_{b}\) are the position vectors of \(a\) and \(b\) respectivly, and \(G\) is the gravitational constant. The potential energy and the force are connected by the relation $\vec{F} = - \gradient U$. This gives us that the potential energy has to be:
 
 \begin{align*}
@@ -270,20 +280,26 @@ U &= - G \frac{m_a m_b}{|\vec{r}_a - \vec{r}_b|} \numberthis \label{eq:pot_en}
 
 For a circular motion of body $a$ around $b$ this should remain constant as the distance between the objects is always the same. The total energy in such a two-body system is also conserved, and this means that the kinetic energy also has to be conserved, as the total energy is the sum of the kinetic and potential energy. At this point this is just an assumption, but we will prove it in the next section. In an elliptical motion however, only the total energy is conserved, and we will see oscillations in the kinetic and potential energy.
 
-If we consider a body in a \(n\)-body system where the only interaction is gravitational, the net force on any body \(i\) becomes the sum of all the forces on body \(i\) from every other body in the system. Using \eqref{eq:grav} and summing over all bodies \(j\), where \(j\neq i\), we get
+If we consider a body in a \(n\)-body system where the only interaction is gravitational, the net force on any body \(i\) becomes the sum of all the forces on body \(i\) from every other body in the system. Using \eqref{eq:grav} and summing over all bodies \(j\), where \(j\neq i\), we get:
+
 \begin{align*}
 	\vec{F}_{i} = -Gm_{i}\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}-\vec{r}_{j}}{|\vec{r}_{i}-\vec{r}_{j}|^{3}}. \numberthis \label{eq:gengrav}
 \end{align*}
 
-We then find the acceleration of body \(i\) at time \(t\) by dividing the net force by \(m_{a}\) resulting in
+We then find the acceleration of body \(i\) at time \(t\) by dividing the net force by \(m_{a}\) resulting in:
+
 \begin{align*}
 	\vec{a}_{i}(t) = \frac{\vec{F}_{i}(t)}{m_{i}} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}}, \numberthis \label{eq:accel}
 \end{align*}
-which can be written as the differential equation
+
+which can be written as the differential equation:
+
 \begin{align*}
  	\frac{d\vec{v}_{i}(t)}{dt} = -G\sum_{j\neq i}m_{j}\frac{\vec{r}_{i}(t)-\vec{r}_{j}(t)}{|\vec{r}_{i}(t)-\vec{r}_{j}(t)|^{3}}. \numberthis \label{eq:gendv}
 \end{align*}
-In addition we have the differential equation
+
+In addition we have the differential equation:
+
 \begin{align*}
 	\frac{d\vec{r}_{i}(t)}{dt} = \vec{v}(t) \numberthis \label{eq:gendr}.
 \end{align*}
@@ -291,7 +307,7 @@ In addition we have the differential equation
 Solving \eqref{eq:gendv} and \eqref{eq:gendr} for every body \(i=1, ..., n\), allows us to find the internal motion of a given n-body system with only gravitational interaction. In this system we can also define total potential energy:
 
 \begin{align*}
-U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|} \, , \numberthis \label{eq:tot_pot_en}
+U_\text{tot} &= \sum\limits_i - G m_i \sum\limits_{j > i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|} \, , \numberthis \label{eq:tot_pot_en}
 \end{align*}
 
 and the total kinetic energy:
@@ -317,10 +333,10 @@ where $\beta \in [2,3]$ is a real constant. Choosing $\beta = 2$ corresponds to 
 We can also write down the total potential energy in this case:
 
 \begin{align*}
-U_\text{tot} &= \sum\limits_i - \frac{G m_i}{\beta - 1} \sum\limits_{j\neq i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|^{\beta-1}} . \numberthis \label{eq:beta_tot_pot_en}
+U_\text{tot} &= \sum\limits_i - \frac{G m_i}{\beta - 1} \sum\limits_{j > i} \frac{m_j}{|\vec{r}_i - \vec{r}_j|^{\beta-1}} \, , \numberthis \label{eq:beta_tot_pot_en}
 \end{align*}
 
-The total kinetic energy remains the same in this case.
+which is found by using the relation between the force and the potential energy $\vec{F} = -\gradient U$. The total kinetic energy remains the same in this case.
 
 \subsection{Conservation of energy} \label{sec:II:c}
 
@@ -343,7 +359,7 @@ where we have used that the total energy is the sum of the total kinetic energy 
 U_\text{tot} = \frac{1}{2}\sum\limits_i \sum\limits_{j\neq i} U(\vec{r}_{ij},t) \, ,
 \end{align*}
 
-where $U$ here is the potential energy experienced by body $i$ because of body $j$. The factor $1/2$ comes from the fact that we cannot sum up the potential energy between two objects twice. This also means that we can write the force experienced by body $i$ from body $j$ as:
+where $U$ here is the potential energy experienced by body $i$ because of body $j$. We know that $U(\vec{r}_{ij},t) = U(\vec{r}_{ji},t)$ is the same potential energy, and so as to avoid counting every part twice we add the factor $1/2$ to the equation. This also means that we can write the force experienced by body $i$ from body $j$ as:
 
 \begin{align*}
 \vec{F}_{ij} = - \gradient_{ij} U(\vec{r}_{ij}, t) \, ,
@@ -529,7 +545,7 @@ as the escape velocity of a planet starting at a distance of \(1\) AU from the S
 
 \subsection{Perihelion precession of Mercury} \label{sec:II:f}
 
-The observed precession of Mercury's perihelion is about 43'' per century when all contributions from classical effects are subtracted. By adding a relativistic correction term we can verify that we obtain the same result. The gravitational force between Mercury and the Sun with the relativistic correction term is as follows:
+The observed precession of Mercury's perihelion is about 43'' per century when all contributions from classical effects are subtracted. By adding a relativistic correction term (as per \citep[p.~5]{Hjorth-Jensen2020}) we can verify that we obtain the same result. The gravitational force between Mercury and the Sun with the relativistic correction term is as follows:
 
 \begin{align*}
 F_G &= \frac{GM_\text{Mercury} M_\text{Sun}}{r^2} \bigg[ 1 + \frac{3l^2}{r^2 c^2}\bigg] \, , \numberthis \label{eq:grav_rel}
